@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ប្រព័ន្ធត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ - សាលាបញ្ញាសាស្រ្តអន្តរជាតិ (PSIS)</title>
+  
+  <!-- Khmer Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Moul&family=Siemreap&display=swap" rel="stylesheet">
+  
+  <!-- SheetJS for instant XLSX export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Application Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="header-brand">
+          <img src="assets/logo.svg" alt="PSIS Logo" class="header-logo">
+          <div class="brand-text">
+            <h1>សាលាបញ្ញាសាស្រ្តអន្តរជាតិ (PSIS)</h1>
+            <p>ប្រព័ន្ធត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ • Daily Teacher Administration Monitoring System</p>
+          </div>
+        </div>
+
+        <!-- Real-time Khmer Lunar Date Badge -->
+        <div class="header-lunar-badge" title="កាលបរិច្ឆេទចន្ទគតិខ្មែរ">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <span id="header-lunar-text">ថ្ងៃ ចន្ទ ៩រោច ខែភទ្របទ ឆ្នាំមមី អដ្ឋស័ក ពុទ្ធសករាជ ២៥៧០</span>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <button type="button" class="btn btn-outline-gold btn-sm" onclick="PSIS_App.openBiometricModal()" title="នាំចូលទិន្នន័យស្កេនមេដៃ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+            <span>នាំចូលស្កេនមេដៃ</span>
+          </button>
+          <button type="button" class="btn btn-outline-gold btn-sm" onclick="PSIS_App.handleExportDailyExcel()" title="ទាញយកជា Excel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>នាំចេញ Excel</span>
+          </button>
+          <button type="button" class="btn btn-gold btn-sm" onclick="PSIS_App.handlePrint()" title="បោះពុម្ពរបាយការណ៍ A4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>បោះពុម្ព / PDF</span>
+          </button>
+          <button type="button" class="btn btn-outline-gold btn-icon" onclick="PSIS_App.openSettingsModal()" title="ការកំណត់ប្រព័ន្ធ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="app-nav">
+      <div class="nav-container">
+        <button type="button" class="nav-tab active" data-tab="tab-dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>ផ្ទាំងត្រួតពិនិត្យប្រចាំថ្ងៃ</span>
+          <span class="badge" id="filtered-count-badge">0 / 0</span>
+        </button>
+
+        <button type="button" class="nav-tab" data-tab="tab-teachers">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>គ្រប់គ្រងគ្រូបង្រៀន</span>
+        </button>
+
+        <button type="button" class="nav-tab" data-tab="tab-schedules">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>កាលវិភាគប្រចាំសប្តាហ៍</span>
+        </button>
+
+        <button type="button" class="nav-tab" data-tab="tab-print">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>របាយការណ៍បោះពុម្ពផ្លូវការ (A4)</span>
+        </button>
+
+        <button type="button" class="nav-tab" data-tab="tab-monthly">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <span>របាយការណ៍សង្ខេបប្រចាំខែ</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <main class="main-wrapper">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: ផ្ទាំងត្រួតពិនិត្យប្រចាំថ្ងៃ (DASHBOARD) -->
+      <!-- ========================================== -->
+      <section id="tab-dashboard" class="tab-panel active">
+        
+        <!-- Summary Analytics KPI Cards -->
+        <div class="kpi-grid">
+          <!-- 1. Total Scheduled -->
+          <div class="kpi-card kpi-blue">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">គ្រូត្រូវបង្រៀនសរុប</span>
+              <span class="kpi-value" id="kpi-total-scheduled">០</span>
+              <span class="kpi-subtext">តាមកាលវិភាគថ្ងៃនេះ</span>
+            </div>
+          </div>
+
+          <!-- 2. Present -->
+          <div class="kpi-card kpi-green">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">វត្តមានបង្រៀន</span>
+              <span class="kpi-value" id="kpi-present">០</span>
+              <span class="kpi-subtext">កំពុងបំពេញការងារ</span>
+            </div>
+          </div>
+
+          <!-- 3. On Leave -->
+          <div class="kpi-card kpi-purple">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">សុំច្បាប់សម្រាក</span>
+              <span class="kpi-value" id="kpi-leave">០</span>
+              <span class="kpi-subtext">មានការអនុញ្ញាតត្រឹមត្រូវ</span>
+            </div>
+          </div>
+
+          <!-- 4. Late -->
+          <div class="kpi-card kpi-yellow">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">ស្កេនចូលយឺត</span>
+              <span class="kpi-value" id="kpi-late">០</span>
+              <span class="kpi-subtext">លើសម៉ោងកំណត់</span>
+            </div>
+          </div>
+
+          <!-- 5. Incomplete Tasks -->
+          <div class="kpi-card kpi-red">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">ខ្វះកិច្ចការរដ្ឋបាល</span>
+              <span class="kpi-value" id="kpi-incomplete">០</span>
+              <span class="kpi-subtext">ខកខានស្រង់/ដាក់ពិន្ទុ/Telegram/សម្រង់</span>
+            </div>
+          </div>
+
+          <!-- 6. Completion Rate -->
+          <div class="kpi-card kpi-gold">
+            <div class="kpi-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">អត្រាបំពេញគ្រប់ជ្រុងជ្រោយ</span>
+              <span class="kpi-value" id="kpi-completion-rate">0%</span>
+              <span class="kpi-subtext">១០០% គ្រប់កិច្ចការរដ្ឋបាល</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <!-- Left: Date & Quick Selectors -->
+          <div class="filter-group">
+            <label class="form-label" for="filter-date">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              កាលបរិច្ឆេទ (ថ្ងៃទី ខែ ឆ្នាំ):
+            </label>
+            <input type="date" id="filter-date" class="form-control" style="font-weight: 600;">
+
+            <!-- Quick Day Buttons -->
+            <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleQuickDate(-1)" title="ថ្ងៃម្សិលមិញ">‹ ម្សិលមិញ</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleQuickDate(1)" title="ថ្ងៃស្អែក">ស្អែក ›</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleDateChange('2026-10-05')" title="ជ្រើសរើសថ្ងៃចន្ទ ទី៥ តុលា ២០២៦ (Anchor Demo)">ថ្ងៃគំរូ (០៥ តុលា)</button>
+          </div>
+
+          <!-- Middle: Shift & Level Filters -->
+          <div class="filter-group">
+            <div>
+              <label class="form-label" for="filter-shift">វេនបង្រៀន:</label>
+              <select id="filter-shift" class="form-control">
+                <option value="all">វេនទាំងអស់</option>
+                <option value="ព្រឹក">វេនព្រឹក</option>
+                <option value="ល្ងាច">វេនល្ងាច</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" for="filter-level">កម្រិតសិក្សា:</label>
+              <select id="filter-level" class="form-control">
+                <option value="all">កម្រិតទាំងអស់</option>
+                <option value="មត្តេយ្យ">មត្តេយ្យ (Kindergarten)</option>
+                <option value="បឋមសិក្សា">បឋមសិក្សា (Primary)</option>
+                <option value="មធ្យមសិក្សា">មធ្យមសិក្សា (Secondary)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" for="filter-status">ស្ថានភាព:</label>
+              <select id="filter-status" class="form-control">
+                <option value="all">ស្ថានភាពទាំងអស់</option>
+                <option value="complete">បំពេញរួចរាល់ (Complete)</option>
+                <option value="incomplete">ខ្វះកិច្ចការរដ្ឋបាល (Incomplete)</option>
+                <option value="leave">សុំច្បាប់ (On Leave)</option>
+                <option value="late">ស្កេនចូលយឺត (Late)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Right: Search -->
+          <div class="search-input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="filter-search" class="form-control" placeholder="ស្វែងរកឈ្មោះគ្រូ ឬថ្នាក់...">
+          </div>
+        </div>
+
+        <!-- Card Container with Interactive Checklist Table -->
+        <div class="card">
+          <!-- Card Header & Bulk Actions Toolbar -->
+          <div class="card-header">
+            <div class="card-header-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              <span>តារាងត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ (Daily Monitoring Checklist)</span>
+            </div>
+
+            <!-- Header Quick Tools -->
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" class="btn btn-success btn-sm" onclick="PSIS_App.handleBulkCompleteAll()" title="បំពេញគ្រប់កិច្ចការទាំងអស់សម្រាប់គ្រូមានវត្តមានថ្ងៃនេះ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>បំពេញរួចរាល់ទាំងអស់ (Mark All Completed)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bulk Actions Secondary Toolbar -->
+          <div class="bulk-toolbar">
+            <div class="bulk-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>សកម្មភាពរហ័សតាមជួរឈរ (Column Quick Actions):</span>
+            </div>
+
+            <div class="bulk-actions-buttons">
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkColumnAction('attendanceRecorded', 'បានស្រង់')">
+                ✓ ស្រង់វត្តមានទាំងអស់
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkColumnAction('scoreEvaluated', 'បានដាក់ពិន្ទុ')">
+                ✓ ដាក់ពិន្ទុទាំងអស់
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkColumnAction('telegramUsed', 'បានប្រើ')">
+                ✓ ប្រើ Telegram ទាំងអស់
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkColumnAction('lessonSummaryWritten', 'បានសរសេរ')">
+                ✓ សរសេរសម្រង់ទាំងអស់
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkFillScanTimes('in')">
+                🕒 ម៉ោងចូលស្វ័យប្រវត្ត
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleBulkFillScanTimes('out')">
+                🕒 ម៉ោងចេញស្វ័យប្រវត្ត
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Table -->
+          <div class="table-responsive">
+            <table class="psis-table">
+              <thead>
+                <tr>
+                  <th rowspan="2" style="width: 42px;">ល.រ</th>
+                  <th rowspan="2" style="min-width: 140px;">ឈ្មោះគ្រូ</th>
+                  <th rowspan="2" style="min-width: 85px;">ថ្នាក់</th>
+                  <th rowspan="2" style="width: 125px;">ម៉ោងស្កេនចូល</th>
+                  <th colspan="4" class="sub-th" style="background-color: #0A2540;">
+                    កិច្ចការរដ្ឋបាលក្នុងថ្នាក់រៀន (Administrative Tasks)
+                  </th>
+                  <th rowspan="2" style="width: 125px;">ម៉ោងស្កេនចេញ</th>
+                  <th rowspan="2" style="min-width: 130px;">ផ្សេងៗ (Status/Note)</th>
+                  <th rowspan="2" style="width: 110px;">សកម្មភាព</th>
+                </tr>
+                <tr>
+                  <th class="sub-th" style="width: 115px;">ស្រង់វត្តមានសិស្ស</th>
+                  <th class="sub-th" style="width: 120px;">វាយតម្លៃពិន្ទុសិស្ស</th>
+                  <th class="sub-th" style="width: 115px;">ការប្រើប្រាស់ Telegram</th>
+                  <th class="sub-th" style="width: 115px;">សម្រង់អត្ថបទ</th>
+                </tr>
+              </thead>
+              <tbody id="monitoring-table-body">
+                <!-- Dynamically rendered via app.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer Info / Legend -->
+          <div style="padding: 0.75rem 1.25rem; background: #F8FAFC; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: #64748B;">
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <span><strong>ពណ៌សម្គាល់:</strong></span>
+              <span style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: #FFFDF0; border: 1px solid #F59E0B; border-radius: 2px;"></span>
+                ខ្វះកិច្ចការរដ្ឋបាល
+              </span>
+              <span style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: #FFF8EB; border: 1px solid #D97706; border-radius: 2px;"></span>
+                មកស្កេនចូលយឺត
+              </span>
+              <span style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: #F1F5F9; border: 1px solid #94A3B8; border-radius: 2px;"></span>
+                សុំច្បាប់ (បិទជួរឈរ ៤-៩)
+              </span>
+            </div>
+            <div>
+              * រាល់ការផ្លាស់ប្តូរត្រូវបានរក្សាទុកស្វ័យប្រវត្តក្នុងប្រព័ន្ធ (Auto-saved)
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: ការគ្រប់គ្រងគ្រូបង្រៀន (TEACHERS) -->
+      <!-- ========================================== -->
+      <section id="tab-teachers" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>បញ្ជីព័ត៌មានគ្រូបង្រៀន (Teacher Profiles Directory)</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="PSIS_App.openAddTeacherModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ បន្ថែមគ្រូថ្មី</span>
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="psis-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">ល.រ</th>
+                  <th>ឈ្មោះគ្រូបង្រៀន</th>
+                  <th style="width: 70px;">ភេទ</th>
+                  <th>លេខទូរស័ព្ទ</th>
+                  <th>កម្រិតបង្រៀន</th>
+                  <th style="width: 90px;">វេនបង្រៀន</th>
+                  <th>មុខវិជ្ជាឯកទេស</th>
+                  <th>ថ្នាក់ប្រចាំ</th>
+                  <th style="width: 90px;">ស្ថានភាព</th>
+                  <th style="width: 95px;">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="teachers-table-body">
+                <!-- Dynamically rendered via app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: កាលវិភាគប្រចាំសប្តាហ៍ (SCHEDULES) -->
+      <!-- ========================================== -->
+      <section id="tab-schedules" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              <span>កាលវិភាគបង្រៀនប្រចាំសប្តាហ៍ (Weekly Schedule Mapping: ចន្ទ ដល់ សុក្រ)</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="PSIS_App.openAddScheduleModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ បន្ថែមកាលវិភាគ</span>
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="psis-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">ល.រ</th>
+                  <th>ឈ្មោះគ្រូ</th>
+                  <th>ថ្ងៃក្នុងសប្តាហ៍</th>
+                  <th>វេន</th>
+                  <th>ថ្នាក់/កម្រិត</th>
+                  <th>កម្រិតសិក្សា</th>
+                  <th>ម៉ោងបង្រៀន</th>
+                  <th>បន្ទប់រៀន</th>
+                  <th style="width: 80px;">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="schedules-table-body">
+                <!-- Dynamically rendered via app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: របាយការណ៍បោះពុម្ពផ្លូវការ (OFFICIAL PRINT) -->
+      <!-- ========================================== -->
+      <section id="tab-print" class="tab-panel">
+        <div class="no-print" style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border-color);">
+          <div>
+            <h2 class="font-moul" style="font-size: 1rem; color: var(--psis-blue);">ទម្រង់របាយការណ៍ផ្លូវការសម្រាប់បោះពុម្ពលើក្រដាស A4 (Official Printable Report)</h2>
+            <p style="font-size: 0.85rem; color: #64748B;">ទម្រង់នេះរៀបចំឡើងស្របតាមស្តង់ដារបស់សាលាបញ្ញាសាស្រ្តអន្តរជាតិ (PSIS) រួមមានក្បាលលិខិតជាតិ បាវចនាសាលា និងកាលបរិច្ឆេទចន្ទគតិខ្មែរ</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn btn-gold" onclick="window.print()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <span>បោះពុម្ពក្រដាស A4 / Save PDF</span>
+            </button>
+            <button type="button" class="btn btn-outline" onclick="PSIS_App.handleExportDailyExcel()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>ទាញយក Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Printable Document Canvas -->
+        <div class="print-active-area">
+          <div id="print-document-content" style="background: #FFFFFF; padding: 2.5rem; border-radius: 0.5rem; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); max-width: 1080px; margin: 0 auto;">
+            <!-- Dynamically populated by renderPrintReport() in app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 5: របាយការណ៍សង្ខេបប្រចាំខែ (MONTHLY) -->
+      <!-- ========================================== -->
+      <section id="tab-monthly" class="tab-panel">
+        <div id="monthly-summary-container">
+          <!-- Dynamically rendered via app.js -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: ADD / EDIT TEACHER -->
+    <!-- ========================================== -->
+    <div id="teacher-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="teacher-modal-title" class="modal-title">បន្ថែមព័ត៌មានគ្រូបង្រៀន</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('teacher-modal')">&times;</button>
+        </div>
+        <form id="teacher-form">
+          <div class="modal-body">
+            <input type="hidden" id="teacher-id">
+            <div class="form-grid">
+              <div class="form-group form-group-full">
+                <label class="form-label">ឈ្មោះគ្រូបង្រៀន (Khmer Name) *</label>
+                <input type="text" id="teacher-name" class="form-control" required placeholder="ឧ. ហេង ឆេងលី ឬ ព្រះអង្គគ្រូ ស៊ន ប៉ោធី">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ភេទ (Gender)</label>
+                <select id="teacher-gender" class="form-control">
+                  <option value="ប្រុស">ប្រុស (Male)</option>
+                  <option value="ស្រី">ស្រី (Female)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">លេខទូរស័ព្ទ (Phone)</label>
+                <input type="text" id="teacher-phone" class="form-control" placeholder="012 xxx xxx">
+              </div>
+              <div class="form-group">
+                <label class="form-label">កម្រិតបង្រៀន (Level)</label>
+                <select id="teacher-level" class="form-control">
+                  <option value="មត្តេយ្យ">មត្តេយ្យ (Kindergarten)</option>
+                  <option value="បឋមសិក្សា">បឋមសិក្សា (Primary)</option>
+                  <option value="អនុវិទ្យាល័យ-វិទ្យាល័យ">អនុវិទ្យាល័យ-វិទ្យាល័យ (Secondary)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">វេនបង្រៀន (Shift)</label>
+                <select id="teacher-shift" class="form-control">
+                  <option value="ព្រឹក">ព្រឹក (Morning)</option>
+                  <option value="ល្ងាច">ល្ងាច (Afternoon)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">មុខវិជ្ជាឯកទេស (Subject)</label>
+                <input type="text" id="teacher-subject" class="form-control" placeholder="ឧ. ភាសាខ្មែរ, គណិតវិទ្យា, រូបវិទ្យា">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ថ្នាក់ទទួលបន្ទុកដើម (Default Class)</label>
+                <input type="text" id="teacher-default-class" class="form-control" placeholder="ឧ. K2, 1A, 9B, 11A">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="PSIS_App.closeModal('teacher-modal')">បោះបង់</button>
+            <button type="submit" class="btn btn-primary">រក្សាទុកព័ត៌មាន</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: ADD SCHEDULE MAPPING -->
+    <!-- ========================================== -->
+    <div id="schedule-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">ចាត់ចែងកាលវិភាគបង្រៀនប្រចាំសប្តាហ៍</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('schedule-modal')">&times;</button>
+        </div>
+        <form id="schedule-form">
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="form-group form-group-full">
+                <label class="form-label">ជ្រើសរើសគ្រូបង្រៀន *</label>
+                <select id="schedule-teacher-select" class="form-control" required>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ថ្ងៃក្នុងសប្តាហ៍ (Day of Week) *</label>
+                <select id="schedule-day" class="form-control" required>
+                  <option value="1">ថ្ងៃចន្ទ (Monday)</option>
+                  <option value="2">ថ្ងៃអង្គារ (Tuesday)</option>
+                  <option value="3">ថ្ងៃពុធ (Wednesday)</option>
+                  <option value="4">ថ្ងៃព្រហស្បតិ៍ (Thursday)</option>
+                  <option value="5">ថ្ងៃសុក្រ (Friday)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">វេនបង្រៀន (Shift) *</label>
+                <select id="schedule-shift" class="form-control" required>
+                  <option value="ព្រឹក">ព្រឹក (07:00 - 11:30)</option>
+                  <option value="ល្ងាច">ល្ងាច (13:00 - 17:15)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ថ្នាក់/កម្រិត (Class/Grade) *</label>
+                <input type="text" id="schedule-class" class="form-control" required placeholder="ឧ. K2, ថ្នាក់ទី 1A, ថ្នាក់ទី 9B">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ម៉ោងបង្រៀន (Time Slot)</label>
+                <input type="text" id="schedule-time" class="form-control" placeholder="ឧ. 07:00 - 11:15">
+              </div>
+              <div class="form-group form-group-full">
+                <label class="form-label">បន្ទប់រៀន (Room)</label>
+                <input type="text" id="schedule-room" class="form-control" placeholder="ឧ. បន្ទប់ ១០១, បន្ទប់ K2-A">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="PSIS_App.closeModal('schedule-modal')">បោះបង់</button>
+            <button type="submit" class="btn btn-primary">រក្សាទុកកាលវិភាគ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: BIOMETRIC SCANNER IMPORT -->
+    <!-- ========================================== -->
+    <div id="biometric-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 820px;">
+        <div class="modal-header">
+          <h3 class="modal-title">នាំចូលទិន្នន័យស្កេនមេដៃ/កាត (Biometric Attendance Import)</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('biometric-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem;">
+            អ្នកអាចចម្លងទិន្នន័យ CSV ចេញពីម៉ាស៊ីនស្កេនមេដៃ (ZKTeco, Hikvision) មកបិទភ្ជាប់ក្នុងប្រអប់ខាងក្រោម ឬទាញយកគំរូ CSV មកសាកល្បង៖
+          </p>
+          <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_BiometricImport.downloadSampleCsv()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>ទាញយកគំរូ CSV (Sample CSV)</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="PSIS_App.handlePreviewBiometricData()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <span>មើលការផ្គូផ្គងជាមុន (Preview Match)</span>
+            </button>
+          </div>
+          <textarea id="biometric-csv-text" class="form-control" rows="5" style="width: 100%; font-family: monospace; font-size: 0.8rem; margin-bottom: 1rem;"></textarea>
+
+          <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--psis-blue); margin-bottom: 0.5rem;">លទ្ធផលនៃការផ្គូផ្គងជាមួយគ្រូបង្រៀនថ្ងៃនេះ៖</h4>
+          <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+            <table class="psis-table">
+              <thead>
+                <tr>
+                  <th>ល.រ</th>
+                  <th>ឈ្មោះគ្រូ</th>
+                  <th>ថ្នាក់/វេន</th>
+                  <th>ម៉ោងចូលចាស់</th>
+                  <th>ម៉ោងចូលថ្មី</th>
+                  <th>ម៉ោងចេញចាស់</th>
+                  <th>ម៉ោងចេញថ្មី</th>
+                  <th>ស្ថានភាពផ្គូផ្គង</th>
+                </tr>
+              </thead>
+              <tbody id="biometric-preview-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="PSIS_App.closeModal('biometric-modal')">បោះបង់</button>
+          <button type="button" class="btn btn-success" onclick="PSIS_App.handleApplyBiometricData()">
+            <span>អនុវត្តទិន្នន័យស្កេនចូលតារាង</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 4: SYSTEM SETTINGS & BACKUP -->
+    <!-- ========================================== -->
+    <div id="settings-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">ការកំណត់សាលា និងការបម្រុងទុកទិន្នន័យ</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('settings-modal')">&times;</button>
+        </div>
+        <form id="settings-form">
+          <div class="modal-body">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--psis-blue); margin-bottom: 0.75rem;">ព័ត៌មានក្បាលលិខិតសាលា (School Header & Signatures)</h4>
+            <div class="form-grid" style="margin-bottom: 1.5rem;">
+              <div class="form-group form-group-full">
+                <label class="form-label">ឈ្មោះសាលា (ភាសាខ្មែរ)</label>
+                <input type="text" id="school-name-kh" class="form-control" required>
+              </div>
+              <div class="form-group form-group-full">
+                <label class="form-label">សាខាសាលា (Campus Branch)</label>
+                <input type="text" id="school-branch" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ឈ្មោះនាយិកាសាខា (Principal Signature)</label>
+                <input type="text" id="school-principal" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ឈ្មោះអ្នកត្រួតពិនិត្យ (Inspector Signature)</label>
+                <input type="text" id="school-inspector" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ម៉ោងកំណត់មកយឺតវេនព្រឹក</label>
+                <input type="time" id="school-morning-late" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ម៉ោងកំណត់មកយឺតវេនល្ងាច</label>
+                <input type="time" id="school-afternoon-late" class="form-control" required>
+              </div>
+            </div>
+
+            <hr style="margin-bottom: 1.25rem; border: none; border-top: 1px solid var(--border-color);">
+
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--psis-blue); margin-bottom: 0.75rem;">ការបម្រុងទុក និងស្តារទិន្នន័យ (Backup & Restore)</h4>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleDownloadBackup()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>ទាញយក Backup JSON</span>
+              </button>
+              <label class="btn btn-outline btn-sm" style="cursor: pointer; margin: 0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>ស្តារពី Backup JSON</span>
+                <input type="file" accept=".json" style="display: none;" onchange="PSIS_App.handleRestoreBackupFile(this.files[0])">
+              </label>
+              <button type="button" class="btn btn-danger btn-sm" onclick="PSIS_App.handleResetAllData()">
+                <span>កំណត់ទិន្នន័យដើមឡើងវិញ (Reset)</span>
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="PSIS_App.closeModal('settings-modal')">បោះបង់</button>
+            <button type="submit" class="btn btn-primary">រក្សាទុកការកំណត់</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/khmer-lunar.js"></script>
+  <script src="js/sample-data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/xlsx-export.js"></script>
+  <script src="js/biometric-import.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

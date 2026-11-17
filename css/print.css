@@ -1,0 +1,277 @@
+/**
+ * Official Print Stylesheet for Paññāsāstra International School (PSIS)
+ * Standard A4 Portrait layout for official administrative submission.
+ */
+
+@media print {
+  /* Set A4 dimensions & margins */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm 14mm 10mm;
+  }
+
+  /* Reset body and background */
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide entire interactive web app UI */
+  .app-header,
+  .app-nav,
+  .filter-bar,
+  .kpi-grid,
+  .bulk-toolbar,
+  .btn,
+  .modal-overlay,
+  .toast-container,
+  .no-print,
+  #tab-teachers,
+  #tab-schedules,
+  #tab-monthly,
+  #tab-settings,
+  #tab-biometric {
+    display: none !important;
+  }
+
+  /* Make sure main wrappers don't add unwanted padding */
+  .app-container,
+  .main-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* If printing from the Official Report tab or standard view */
+  .tab-panel {
+    display: none !important;
+  }
+  #tab-print,
+  .print-active-area {
+    display: block !important;
+  }
+
+  /* Official Paper Sheet Container */
+  .official-document-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    background: #FFFFFF !important;
+  }
+
+  /* Official Top Headers */
+  .official-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+
+  .official-school-side {
+    text-align: left;
+    width: 45%;
+  }
+
+  .official-school-name {
+    font-family: 'Moul', 'Khmer OS Moul', serif !important;
+    font-size: 11pt;
+    color: #1B365D !important;
+    margin-bottom: 2px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .official-school-logo-print {
+    width: 36px;
+    height: 36px;
+  }
+
+  .official-school-en {
+    font-family: 'Arial', sans-serif;
+    font-size: 7.5pt;
+    font-weight: bold;
+    color: #333333 !important;
+    letter-spacing: 0.5px;
+  }
+
+  .official-school-motto {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 8pt;
+    font-style: italic;
+    color: #555555 !important;
+  }
+
+  .official-school-branch {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 8pt;
+    color: #333333 !important;
+  }
+
+  .official-kingdom-side {
+    text-align: center;
+    width: 50%;
+  }
+
+  .official-kingdom-title {
+    font-family: 'Moul', 'Khmer OS Moul', serif !important;
+    font-size: 11.5pt;
+    color: #000000 !important;
+    margin-bottom: 3px;
+  }
+
+  .official-kingdom-motto {
+    font-family: 'Moul', 'Khmer OS Moul', serif !important;
+    font-size: 9.5pt;
+    color: #8B0000 !important;
+  }
+
+  .official-kingdom-flourish {
+    font-size: 10pt;
+    letter-spacing: 3px;
+    margin-top: -2px;
+  }
+
+  /* Document Title */
+  .official-report-title-block {
+    text-align: center;
+    margin: 0.6rem 0 0.8rem 0;
+  }
+
+  .official-report-title {
+    font-family: 'Moul', 'Khmer OS Moul', serif !important;
+    font-size: 13pt;
+    color: #1B365D !important;
+    margin-bottom: 0.2rem;
+  }
+
+  .official-report-subtitle {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 9pt;
+    font-weight: 600;
+    color: #222222 !important;
+  }
+
+  /* Official Print Table */
+  .official-print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 1rem;
+    font-size: 8.5pt !important;
+  }
+
+  .official-print-table thead {
+    display: table-header-group !important; /* Repeats header on every printed page */
+  }
+
+  .official-print-table tr {
+    page-break-inside: avoid !important;
+  }
+
+  .official-print-table th {
+    background-color: #F1F5F9 !important;
+    color: #000000 !important;
+    border: 1px solid #222222 !important;
+    padding: 5px 3px !important;
+    font-family: 'Kantumruy Pro', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 8pt !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+
+  .official-print-table td {
+    border: 1px solid #333333 !important;
+    padding: 4px 3px !important;
+    font-family: 'Kantumruy Pro', sans-serif !important;
+    vertical-align: middle !important;
+    color: #000000 !important;
+  }
+
+  .official-print-table td.col-center {
+    text-align: center !important;
+  }
+
+  .official-print-table td.col-name {
+    font-weight: 600 !important;
+    text-align: left !important;
+    padding-left: 5px !important;
+  }
+
+  .official-print-table td.col-leave {
+    background-color: #F8FAFC !important;
+    color: #555555 !important;
+    text-align: center !important;
+  }
+
+  /* Official Signature Block */
+  .official-signature-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 1.25rem;
+    page-break-inside: avoid !important;
+  }
+
+  .signature-col-left {
+    text-align: center;
+    width: 42%;
+  }
+
+  .signature-col-right {
+    text-align: center;
+    width: 52%;
+  }
+
+  .sig-agree {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-weight: bold;
+    font-size: 9.5pt;
+    margin-bottom: 2px;
+  }
+
+  .sig-role {
+    font-family: 'Moul', 'Khmer OS Moul', serif;
+    font-size: 9pt;
+    color: #1B365D !important;
+    margin-bottom: 60px; /* Space for physical signature and official school stamp */
+  }
+
+  .sig-lunar-date {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 9pt;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .sig-solar-date {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 8.5pt;
+    color: #333333 !important;
+    margin-bottom: 2px;
+  }
+
+  .sig-name {
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-weight: bold;
+    font-size: 9.5pt;
+  }
+
+  .sig-line {
+    margin-top: 2px;
+    font-family: 'Kantumruy Pro', sans-serif;
+    font-size: 8pt;
+    color: #666666;
+  }
+}
