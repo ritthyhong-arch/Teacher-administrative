@@ -106,6 +106,9 @@ const PSIS_Storage = (() => {
   function saveTeachers(teachers, branchId) {
     const bId = branchId || getCurrentBranchId() || 'branch-central';
     localStorage.setItem(getKey('teachers', bId), JSON.stringify(teachers));
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(bId);
+    }
   }
 
   function addTeacher(teacher, branchId) {
@@ -273,6 +276,9 @@ const PSIS_Storage = (() => {
   function saveSchedules(schedules, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('schedules', bId), JSON.stringify(schedules));
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(bId);
+    }
   }
 
   function addSchedule(sch, branchId) {
@@ -410,6 +416,9 @@ const PSIS_Storage = (() => {
   function saveAllChecklists(all, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('checklists', bId), JSON.stringify(all));
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(bId);
+    }
   }
 
   function clearDailyChecklists(branchId) {
@@ -535,6 +544,9 @@ const PSIS_Storage = (() => {
   function saveSchoolInfo(info, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('school_info', bId), JSON.stringify(info));
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(bId);
+    }
   }
 
   // Reset current branch data

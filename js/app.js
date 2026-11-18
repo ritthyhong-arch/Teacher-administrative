@@ -264,6 +264,14 @@ const PSIS_App = (() => {
     renderMonthlySummary();
   }
 
+  function refreshAllData() {
+    state.schoolInfo = PSIS_Storage.getSchoolInfo(state.currentBranchId);
+    state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
+    state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
+    loadDailyRecords();
+    renderAll();
+  }
+
   function updateKPIs() {
     renderKPIs();
   }
@@ -1719,6 +1727,7 @@ const PSIS_App = (() => {
     handleResetBranchData,
     handleExportBackup,
     handleImportBackup,
+    refreshAllData,
     switchTab,
     closeModal,
     showToast
