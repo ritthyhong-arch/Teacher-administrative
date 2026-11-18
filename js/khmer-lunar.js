@@ -167,6 +167,27 @@ const KhmerCalendar = (() => {
   }
 
   /**
+   * Concise official Khmer Lunar date string (matching Ministry and PSIS official headers)
+   * e.g. "ថ្ងៃពុធ ៩កើត ខែកត្តិក ឆ្នាំមមី អដ្ឋស័ក ព.ស.២៥៧០"
+   */
+  function getShortOfficialLunarDate(dateInput) {
+    const d = typeof dateInput === 'string' ? new Date(dateInput + 'T00:00:00') : new Date(dateInput);
+    const dayOfWeek = DAYS_OF_WEEK[d.getDay()];
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const day = d.getDate();
+
+    const animalYear = getAnimalYear(year, month, day);
+    const sak = getSak(year, month, day);
+    const be = toKhmerNumber(getBuddhistEra(year, month, day));
+
+    const lunar = getLunarDayAndMonth(d);
+    const lunarDayNum = toKhmerNumber(lunar.phaseNumber);
+
+    return `${dayOfWeek} ${lunarDayNum}${lunar.phaseStr} ខែ${lunar.monthName} ឆ្នាំ${animalYear} ${sak} ព.ស.${be}`;
+  }
+
+  /**
    * Returns Gregorian date in Khmer format
    * e.g. "ត្រូវនឹងថ្ងៃទី៥ ខែតុលា ឆ្នាំ២០២៦"
    */
@@ -219,6 +240,7 @@ const KhmerCalendar = (() => {
     SAKS,
     LUNAR_MONTHS,
     getKhmerLunarDateString,
+    getShortOfficialLunarDate,
     getKhmerGregorianDateString,
     getFullOfficialKhmerDate,
     formatKhmerShortDate,

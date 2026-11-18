@@ -43,47 +43,59 @@ const PSIS_XlsxExport = (() => {
         'ការប្រើប្រាស់ Telegram',
         'សម្រង់អត្ថបទ',
         'ម៉ោងស្កេនចេញ',
-        'ផ្សេងៗ/ស្ថានភាព',
-        'កំណត់សម្គាល់បន្ថែម'
+        'ផ្សេងៗ'
       ]
     ];
 
     records.forEach((r, idx) => {
+      let remarksText = r.remarks || '';
+      if (r.note && r.note.trim()) {
+        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+      }
+
       rows.push([
         idx + 1,
         r.teacherName,
         r.classGrade,
         r.remarks === 'ច្បាប់' ? '-' : (r.scanInTime || '-'),
-        r.remarks === 'ច្បាប់' ? '-' : r.attendanceRecorded,
-        r.remarks === 'ច្បាប់' ? '-' : r.scoreEvaluated,
-        r.remarks === 'ច្បាប់' ? '-' : r.telegramUsed,
-        r.remarks === 'ច្បាប់' ? '-' : r.lessonSummaryWritten,
+        r.remarks === 'ច្បាប់' ? '-' : (r.attendanceRecorded || 'បានស្រង់'),
+        r.remarks === 'ច្បាប់' ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ'),
+        r.remarks === 'ច្បាប់' ? '-' : (r.telegramUsed || 'បានប្រើ'),
+        r.remarks === 'ច្បាប់' ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ'),
         r.remarks === 'ច្បាប់' ? '-' : (r.scanOutTime || '-'),
-        r.remarks,
-        r.note || ''
+        remarksText
       ]);
     });
+
+    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទួលគោក');
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayKh = KhmerCalendar.toKhmerNumber(d.getDate());
+    const monthKh = KhmerCalendar.GREGORIAN_MONTHS_KH[d.getMonth()];
+    const yearKh = KhmerCalendar.toKhmerNumber(d.getFullYear());
+    const shortLunar = KhmerCalendar.getShortOfficialLunarDate 
+      ? KhmerCalendar.getShortOfficialLunarDate(dateStr) 
+      : KhmerCalendar.getKhmerLunarDateString(dateStr).replace('ពុទ្ធសករាជ', 'ព.ស.');
 
     // Add Signatures
     rows.push(['']);
     rows.push(['']);
     rows.push([
-      'បានឃើញ និង ឯកភាព', '', '', '', '', '', '',
-      KhmerCalendar.getKhmerLunarDateString(dateStr)
+      'បានឃើញនិងឯកភាព', '', '', '', '', '',
+      shortLunar
     ]);
     rows.push([
-      'នាយិកាសាខា', '', '', '', '', '', '',
-      KhmerCalendar.getKhmerGregorianDateString(dateStr)
+      'នាយកសាលា', '', '', '', '', '',
+      `${branchPrint} ថ្ងៃទី${dayKh} ខែ${monthKh} ឆ្នាំ${yearKh}`
     ]);
     rows.push([
-      '', '', '', '', '', '', '',
-      'អ្នកត្រួតពិនិត្យ'
+      '', '', '', '', '', '',
+      'អ្នករៀបចំត្រួតពិនិត្យ'
     ]);
     rows.push(['']);
     rows.push(['']);
     rows.push([
-      schoolInfo.principalName || 'លោកស្រី គង់ វណ្ណារី', '', '', '', '', '', '',
-      schoolInfo.inspectorName || 'លោក ស៊ុន សុខជា'
+      schoolInfo.principalName || 'ហៀង ពលៈ', '', '', '', '', '',
+      schoolInfo.inspectorName || 'ឈុន វុទ្ធី'
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
@@ -146,7 +158,6 @@ const PSIS_XlsxExport = (() => {
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">សម្រង់អត្ថបទ</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">ម៉ោងស្កេនចេញ</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">ផ្សេងៗ</Data></Cell>
-        <Cell ss:StyleID="thStyle"><Data ss:Type="String">កំណត់សម្គាល់</Data></Cell>
       </Row>
     `;
 
@@ -154,11 +165,16 @@ const PSIS_XlsxExport = (() => {
       const isLeave = r.remarks === 'ច្បាប់';
       const rowStyle = isLeave ? 'tdLeaveStyle' : (idx % 2 === 0 ? 'tdEvenStyle' : 'tdOddStyle');
       const scanIn = isLeave ? '-' : (r.scanInTime || '-');
-      const att = isLeave ? '-' : r.attendanceRecorded;
-      const score = isLeave ? '-' : r.scoreEvaluated;
-      const tg = isLeave ? '-' : r.telegramUsed;
-      const summ = isLeave ? '-' : r.lessonSummaryWritten;
+      const att = isLeave ? '-' : (r.attendanceRecorded || 'បានស្រង់');
+      const score = isLeave ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ');
+      const tg = isLeave ? '-' : (r.telegramUsed || 'បានប្រើ');
+      const summ = isLeave ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ');
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
+
+      let remarksText = r.remarks || '';
+      if (r.note && r.note.trim()) {
+        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+      }
 
       rowsXml += `
         <Row ss:Height="20">
@@ -171,34 +187,42 @@ const PSIS_XlsxExport = (() => {
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(tg)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(summ)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanOut)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(r.remarks)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Left"><Data ss:Type="String">${escapeXml(r.note || '')}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(remarksText)}</Data></Cell>
         </Row>
       `;
     });
+
+    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទួលគោក');
+    const dXml = new Date(dateStr + 'T00:00:00');
+    const dayKhXml = KhmerCalendar.toKhmerNumber(dXml.getDate());
+    const monthKhXml = KhmerCalendar.GREGORIAN_MONTHS_KH[dXml.getMonth()];
+    const yearKhXml = KhmerCalendar.toKhmerNumber(dXml.getFullYear());
+    const shortLunarXml = KhmerCalendar.getShortOfficialLunarDate 
+      ? KhmerCalendar.getShortOfficialLunarDate(dateStr) 
+      : KhmerCalendar.getKhmerLunarDateString(dateStr).replace('ពុទ្ធសករាជ', 'ព.ស.');
 
     // Signatures
     rowsXml += `
       <Row ss:Height="20"></Row>
       <Row ss:Height="22">
-        <Cell ss:MergeAcross="3" ss:StyleID="sigHeaderStyle"><Data ss:Type="String">បានឃើញ និង ឯកភាព</Data></Cell>
-        <Cell ss:MergeAcross="2"></Cell>
-        <Cell ss:MergeAcross="4" ss:StyleID="sigHeaderStyle"><Data ss:Type="String">${escapeXml(KhmerCalendar.getKhmerLunarDateString(dateStr))}</Data></Cell>
+        <Cell ss:MergeAcross="3" ss:StyleID="sigHeaderStyle"><Data ss:Type="String">បានឃើញនិងឯកភាព</Data></Cell>
+        <Cell ss:MergeAcross="1"></Cell>
+        <Cell ss:MergeAcross="4" ss:StyleID="sigHeaderStyle"><Data ss:Type="String">${escapeXml(shortLunarXml)}</Data></Cell>
       </Row>
       <Row ss:Height="20">
-        <Cell ss:MergeAcross="3" ss:StyleID="sigRoleStyle"><Data ss:Type="String">នាយិកាសាខា</Data></Cell>
-        <Cell ss:MergeAcross="2"></Cell>
-        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">${escapeXml(KhmerCalendar.getKhmerGregorianDateString(dateStr))}</Data></Cell>
+        <Cell ss:MergeAcross="3" ss:StyleID="sigRoleStyle"><Data ss:Type="String">នាយកសាលា</Data></Cell>
+        <Cell ss:MergeAcross="1"></Cell>
+        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">${escapeXml(branchPrint + ' ថ្ងៃទី' + dayKhXml + ' ខែ' + monthKhXml + ' ឆ្នាំ' + yearKhXml)}</Data></Cell>
       </Row>
       <Row ss:Height="18">
-        <Cell ss:MergeAcross="5"></Cell>
-        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">អ្នកត្រួតពិនិត្យ</Data></Cell>
+        <Cell ss:MergeAcross="4"></Cell>
+        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">អ្នករៀបចំត្រួតពិនិត្យ</Data></Cell>
       </Row>
       <Row ss:Height="40"></Row>
       <Row ss:Height="22">
-        <Cell ss:MergeAcross="3" ss:StyleID="sigNameStyle"><Data ss:Type="String">${escapeXml(schoolInfo.principalName || 'លោកស្រី គង់ វណ្ណារី')}</Data></Cell>
-        <Cell ss:MergeAcross="2"></Cell>
-        <Cell ss:MergeAcross="4" ss:StyleID="sigNameStyle"><Data ss:Type="String">${escapeXml(schoolInfo.inspectorName || 'លោក ស៊ុន សុខជា')}</Data></Cell>
+        <Cell ss:MergeAcross="3" ss:StyleID="sigNameStyle"><Data ss:Type="String">${escapeXml(schoolInfo.principalName || 'ហៀង ពលៈ')}</Data></Cell>
+        <Cell ss:MergeAcross="1"></Cell>
+        <Cell ss:MergeAcross="4" ss:StyleID="sigNameStyle"><Data ss:Type="String">${escapeXml(schoolInfo.inspectorName || 'ឈុន វុទ្ធី')}</Data></Cell>
       </Row>
     `;
 

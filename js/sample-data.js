@@ -15,8 +15,9 @@ const PSIS_BRANCHES = [
     nameEn: 'Paññāsāstra International School II',
     nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ២ (PSIS II)',
     shortKh: 'សាខាទី ២ (PSIS II)',
-    principalName: 'លោកស្រី គង់ វណ្ណារី (នាយិកាសាខា)',
-    inspectorName: 'លោក ស៊ុន សុខជា (អ្នកត្រួតពិនិត្យ)',
+    branchPrint: 'សាខាទី ២',
+    principalName: 'ហៀង ពលៈ',
+    inspectorName: 'ឈុន វុទ្ធី',
     color: '#1B365D'
   },
   {
@@ -25,8 +26,9 @@ const PSIS_BRANCHES = [
     nameEn: 'Paññāsāstra International School III',
     nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ៣ (PSIS III)',
     shortKh: 'សាខាទី ៣ (PSIS III)',
-    principalName: 'លោក ឈុន វុទ្ធី (នាយកសាខា)',
-    inspectorName: 'កញ្ញា ម៉ៅ ស្រីពៅ (អ្នកត្រួតពិនិត្យ)',
+    branchPrint: 'សាខាទី ៣',
+    principalName: 'ហៀង ពលៈ',
+    inspectorName: 'ឈុន វុទ្ធី',
     color: '#0D9488'
   },
   {
@@ -35,8 +37,9 @@ const PSIS_BRANCHES = [
     nameEn: 'Paññāsāstra International School VII',
     nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ៧ (PSIS VII)',
     shortKh: 'សាខាទី ៧ (PSIS VII)',
-    principalName: 'លោកស្រី កែវ មុនីរ័ត្ន (នាយិកាសាខា)',
-    inspectorName: 'លោក ហេង រតនា (អ្នកត្រួតពិនិត្យ)',
+    branchPrint: 'សាខាទី ៧',
+    principalName: 'ហៀង ពលៈ',
+    inspectorName: 'ឈុន វុទ្ធី',
     color: '#B45309'
   },
   {
@@ -45,18 +48,20 @@ const PSIS_BRANCHES = [
     nameEn: 'Paññāsāstra International School VIII',
     nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ៨ (PSIS VIII)',
     shortKh: 'សាខាទី ៨ (PSIS VIII)',
-    principalName: 'លោក ឌី ច័ន្ទដារ៉ា (នាយកសាខា)',
-    inspectorName: 'លោកស្រី ឡុង គន្ធា (អ្នកត្រួតពិនិត្យ)',
+    branchPrint: 'សាខាទី ៨',
+    principalName: 'ហៀង ពលៈ',
+    inspectorName: 'ឈុន វុទ្ធី',
     color: '#7C3AED'
   },
   {
     id: 'psis-ix',
     code: 'PSIS IX',
     nameEn: 'Paññāsāstra International School IX',
-    nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ៩ (PSIS IX)',
-    shortKh: 'សាខាទី ៩ (PSIS IX)',
-    principalName: 'លោកស្រី ស៊ឹម វ៉ានដា (នាយិកាសាខា)',
-    inspectorName: 'លោក អ៊ុក វិបុល (អ្នកត្រួតពិនិត្យ)',
+    nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទួលគោក',
+    shortKh: 'សាខាទួលគោក',
+    branchPrint: 'សាខាទួលគោក',
+    principalName: 'ហៀង ពលៈ',
+    inspectorName: 'ឈុន វុទ្ធី',
     color: '#BE123C'
   }
 ];
@@ -74,6 +79,7 @@ const PSIS_SAMPLE_DATA = {
       branch: b.nameEn,
       branchKh: b.nameKh,
       branchShort: b.shortKh,
+      branchPrint: b.branchPrint || b.shortKh,
       principalName: b.principalName,
       inspectorName: b.inspectorName,
       academicYear: '២០២៦-២០២៧',

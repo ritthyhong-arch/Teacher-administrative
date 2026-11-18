@@ -292,7 +292,18 @@ const PSIS_Storage = (() => {
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('school_info', bId));
-      return data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
+      let info = data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
+      const defaultInfo = PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
+      if (!info.principalName || info.principalName.includes('គង់ វណ្ណារី') || info.principalName.includes('ស៊ឹម វ៉ានដា') || info.principalName.includes('កែវ មុនីរ័ត្ន') || info.principalName.includes('ឌី ច័ន្ទដារ៉ា')) {
+        info.principalName = defaultInfo.principalName;
+      }
+      if (!info.inspectorName || info.inspectorName.includes('ស៊ុន សុខជា') || info.inspectorName.includes('អ៊ុក វិបុល') || info.inspectorName.includes('ហេង រតនា') || info.inspectorName.includes('ឡុង គន្ធា') || info.inspectorName.includes('ម៉ៅ ស្រីពៅ')) {
+        info.inspectorName = defaultInfo.inspectorName;
+      }
+      if (!info.branchPrint) {
+        info.branchPrint = defaultInfo.branchPrint;
+      }
+      return info;
     } catch (e) {
       return PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
     }

@@ -534,92 +534,118 @@ const PSIS_App = (() => {
 
   /**
    * Render Official A4 Print & PDF Preview (Reflects Active Branch)
+   * Designed to exactly match the Official PSIS Daily Teacher Administrative Form template
    */
   function renderPrintReport() {
     const printArea = document.getElementById('print-document-content');
     if (!printArea) return;
 
-    const lunarDateStr = KhmerCalendar.getKhmerLunarDateString(state.currentDate);
-    const solarDateStr = KhmerCalendar.getKhmerGregorianDateString(state.currentDate);
-    const shortDate = KhmerCalendar.formatKhmerShortDate(state.currentDate);
+    const d = typeof state.currentDate === 'string' ? new Date(state.currentDate + 'T00:00:00') : new Date(state.currentDate);
+    const dayOfWeekKh = KhmerCalendar.DAYS_OF_WEEK[d.getDay()].replace('ថ្ងៃ', '');
+    const dayKh = KhmerCalendar.toKhmerNumber(d.getDate());
+    const monthKh = KhmerCalendar.GREGORIAN_MONTHS_KH[d.getMonth()];
+    const yearKh = KhmerCalendar.toKhmerNumber(d.getFullYear());
+
+    const shortLunarStr = KhmerCalendar.getShortOfficialLunarDate 
+      ? KhmerCalendar.getShortOfficialLunarDate(state.currentDate) 
+      : KhmerCalendar.getKhmerLunarDateString(state.currentDate).replace('ពុទ្ធសករាជ', 'ព.ស.');
+
+    const branchPrint = state.schoolInfo.branchPrint || (state.currentBranchId === 'psis-ix' ? 'សាខាទួលគោក' : (state.schoolInfo.branchShort || 'សាខា...'));
+    const principal = state.schoolInfo.principalName || 'ហៀង ពលៈ';
+    const inspector = state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី';
 
     let rowsHtml = '';
     state.dailyRecords.forEach((r, idx) => {
       const isLeave = r.remarks === 'ច្បាប់';
       const scanIn = isLeave ? '-' : (r.scanInTime || '-');
-      const att = isLeave ? '-' : r.attendanceRecorded;
-      const score = isLeave ? '-' : r.scoreEvaluated;
-      const tg = isLeave ? '-' : r.telegramUsed;
-      const summ = isLeave ? '-' : r.lessonSummaryWritten;
+      const att = isLeave ? '-' : (r.attendanceRecorded || 'បានស្រង់');
+      const score = isLeave ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ');
+      const tg = isLeave ? '-' : (r.telegramUsed || 'បានប្រើ');
+      const summ = isLeave ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ');
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
-      const tdLeaveClass = isLeave ? 'col-leave' : '';
 
       const teacher = state.teachers.find(t => t.id === r.teacherId);
       const teacherName = teacher ? teacher.name : r.teacherName;
 
+      let remarksText = r.remarks || '';
+      if (r.note && r.note.trim()) {
+        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+      }
+
       rowsHtml += `
         <tr>
-          <td class="col-center" style="width: 32px;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
-          <td class="col-name" style="width: 130px;">${escapeHtml(teacherName)}</td>
-          <td class="col-center" style="width: 65px;">${escapeHtml(r.classGrade)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 68px;">${escapeHtml(scanIn)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 82px;">${escapeHtml(att)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 85px;">${escapeHtml(score)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 85px;">${escapeHtml(tg)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 85px;">${escapeHtml(summ)}</td>
-          <td class="col-center ${tdLeaveClass}" style="width: 68px;">${escapeHtml(scanOut)}</td>
-          <td class="col-center" style="width: 65px; font-weight: bold;">${escapeHtml(r.remarks)}</td>
-          <td style="font-size: 7.5pt; padding-left: 4px;">${escapeHtml(r.note || '')}</td>
+          <td class="col-center">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
+          <td class="col-name">${escapeHtml(teacherName)}</td>
+          <td class="col-center">${escapeHtml(r.classGrade)}</td>
+          <td class="col-center">${escapeHtml(scanIn)}</td>
+          <td class="col-center">${escapeHtml(att)}</td>
+          <td class="col-center">${escapeHtml(score)}</td>
+          <td class="col-center">${escapeHtml(tg)}</td>
+          <td class="col-center">${escapeHtml(summ)}</td>
+          <td class="col-center">${escapeHtml(scanOut)}</td>
+          <td class="col-center">${escapeHtml(remarksText)}</td>
         </tr>
       `;
     });
+
+    // Fill blank rows to match the official pre-printed table form layout (up to 12 rows minimum)
+    const minRows = 12;
+    for (let i = state.dailyRecords.length; i < minRows; i++) {
+      rowsHtml += `
+        <tr class="empty-print-row">
+          <td class="col-center">${KhmerCalendar.toKhmerNumber(i + 1)}</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      `;
+    }
 
     const docHtml = `
       <div class="official-document-sheet" id="official-sheet">
         <div class="official-top-header">
           <div class="official-school-side">
-            <div class="official-school-name">
-              <img src="assets/logo.svg" alt="PSIS Logo" class="official-school-logo-print" />
-              <span>${escapeHtml(state.schoolInfo.nameKh || 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ')}</span>
+            <img src="assets/logo.svg" alt="PSIS Logo" class="official-school-logo-print" />
+            <div class="official-school-name-line">
+              សាលាបញ្ញាសាស្រ្តអន្តរជាតិ ${escapeHtml(branchPrint)}
             </div>
-            <div class="official-school-en">${escapeHtml(state.schoolInfo.nameEn || 'PAÑÑĀSĀSTRA INTERNATIONAL SCHOOL')}</div>
-            <div class="official-school-motto">បាវចនា: ${escapeHtml(state.schoolInfo.mottoKh || 'វិន័យ គុណធម៌ សុភមង្គល')}</div>
-            <div class="official-school-branch">សាខា: <strong>${escapeHtml(state.schoolInfo.branch)}</strong></div>
           </div>
 
           <div class="official-kingdom-side">
             <div class="official-kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
             <div class="official-kingdom-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
-            <div class="official-kingdom-flourish">🙣 🙡 🙣 🙡</div>
+            <div class="official-kingdom-boxes">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
           </div>
         </div>
 
         <div class="official-report-title-block">
           <div class="official-report-title">របាយការណ៍ត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ</div>
-          <div class="official-report-subtitle">
-            កាលបរិច្ឆេទ: <strong>${escapeHtml(shortDate)}</strong>
-            &nbsp;|&nbsp;
-            ${escapeHtml(lunarDateStr)}
+          <div class="official-report-date-line">
+            ថ្ងៃ <span class="print-dotted-field">${escapeHtml(dayOfWeekKh)}</span> ទី <span class="print-dotted-field" style="min-width: 45px;">${escapeHtml(dayKh)}</span> ខែ <span class="print-dotted-field">${escapeHtml(monthKh)}</span> ឆ្នាំ <span class="print-dotted-field" style="min-width: 65px;">${escapeHtml(yearKh)}</span>
           </div>
         </div>
 
         <table class="official-print-table">
           <thead>
             <tr>
-              <th rowspan="2">ល.រ</th>
-              <th rowspan="2">ឈ្មោះគ្រូ</th>
-              <th rowspan="2">ថ្នាក់</th>
-              <th rowspan="2">ម៉ោងស្កេនចូល</th>
-              <th colspan="4" style="background-color: #E2E8F0 !important;">កិច្ចការរដ្ឋបាលក្នុងថ្នាក់រៀន</th>
-              <th rowspan="2">ម៉ោងស្កេនចេញ</th>
-              <th rowspan="2">ផ្សេងៗ</th>
-              <th rowspan="2">កំណត់សម្គាល់</th>
-            </tr>
-            <tr>
-              <th>ស្រង់វត្តមាន</th>
-              <th>វាយតម្លៃពិន្ទុ</th>
-              <th>ប្រើ Telegram</th>
-              <th>សម្រង់អត្ថបទ</th>
+              <th style="width: 45px;">ល.រ</th>
+              <th style="width: 155px;">ឈ្មោះគ្រូ</th>
+              <th style="width: 65px;">ថ្នាក់</th>
+              <th style="width: 80px;">ម៉ោងស្កេន<br>ចូល</th>
+              <th style="width: 85px;">ស្រង់វត្តមាន<br>សិស្ស</th>
+              <th style="width: 85px;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
+              <th style="width: 95px;">ការប្រើប្រាស់<br>Telegram</th>
+              <th style="width: 80px;">សម្រង់<br>អត្ថបទ</th>
+              <th style="width: 80px;">ម៉ោងស្កេន<br>ចេញ</th>
+              <th style="width: 90px;">ផ្សេងៗ</th>
             </tr>
           </thead>
           <tbody>
@@ -629,18 +655,18 @@ const PSIS_App = (() => {
 
         <div class="official-signature-block">
           <div class="signature-col-left">
-            <div class="sig-agree">បានឃើញ និង ឯកភាព</div>
-            <div class="sig-role">នាយិកាសាខា</div>
-            <div class="sig-name">${escapeHtml(state.schoolInfo.principalName || 'លោកស្រី គង់ វណ្ណារី')}</div>
-            <div class="sig-line">ហត្ថលេខា និង ត្រា</div>
+            <div class="sig-title-moul">បានឃើញនិងឯកភាព</div>
+            <div class="sig-title-moul">នាយកសាលា</div>
+            <div class="sig-space"></div>
+            <div class="sig-name-moul">${escapeHtml(principal)}</div>
           </div>
 
           <div class="signature-col-right">
-            <div class="sig-lunar-date">${escapeHtml(lunarDateStr)}</div>
-            <div class="sig-solar-date">${escapeHtml(solarDateStr)}</div>
-            <div class="sig-role" style="margin-top: 4px; margin-bottom: 50px;">អ្នកត្រួតពិនិត្យ</div>
-            <div class="sig-name">${escapeHtml(state.schoolInfo.inspectorName || 'លោក ស៊ុន សុខជា')}</div>
-            <div class="sig-line">ហត្ថលេខា</div>
+            <div class="sig-lunar-date">${escapeHtml(shortLunarStr)}</div>
+            <div class="sig-solar-date">${escapeHtml(branchPrint)} ថ្ងៃទី${escapeHtml(dayKh)} ខែ${escapeHtml(monthKh)} ឆ្នាំ${escapeHtml(yearKh)}</div>
+            <div class="sig-title-moul" style="margin-top: 4px;">អ្នករៀបចំត្រួតពិនិត្យ</div>
+            <div class="sig-space"></div>
+            <div class="sig-name-moul">${escapeHtml(inspector)}</div>
           </div>
         </div>
       </div>
