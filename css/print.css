@@ -151,8 +151,8 @@
 }
 
 .official-print-table th {
-  background: #6A9BD1 !important;
-  color: #000000 !important;
+  background: #228B22 !important; /* Forest Green */
+  color: #FFFFFF !important;
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
   font-weight: normal !important;
   font-size: 7.8pt !important;
@@ -359,8 +359,8 @@
   }
 
   .official-print-table th {
-    background: #6A9BD1 !important;
-    color: #000000 !important;
+    background: #228B22 !important; /* Forest Green */
+    color: #FFFFFF !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

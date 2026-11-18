@@ -759,16 +759,16 @@ const PSIS_App = (() => {
         <table class="official-print-table">
           <thead>
             <tr>
-              <th style="width: 45px;">ល.រ</th>
-              <th style="width: 155px;">ឈ្មោះគ្រូ</th>
-              <th style="width: 65px;">ថ្នាក់</th>
-              <th style="width: 80px;">ម៉ោងស្កេន<br>ចូល</th>
-              <th style="width: 85px;">ស្រង់វត្តមាន<br>សិស្ស</th>
-              <th style="width: 85px;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
-              <th style="width: 95px;">ការប្រើប្រាស់<br>Telegram</th>
-              <th style="width: 80px;">សម្រង់<br>អត្ថបទ</th>
-              <th style="width: 80px;">ម៉ោងស្កេន<br>ចេញ</th>
-              <th style="width: 90px;">ផ្សេងៗ</th>
+              <th style="width: 45px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
+              <th style="width: 155px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
+              <th style="width: 65px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
+              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចូល</th>
+              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ស្រង់វត្តមាន<br>សិស្ស</th>
+              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
+              <th style="width: 95px; background-color: #228B22 !important; color: #FFFFFF !important;">ការប្រើប្រាស់<br>Telegram</th>
+              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>អត្ថបទ</th>
+              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
+              <th style="width: 90px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
             </tr>
           </thead>
           <tbody>
