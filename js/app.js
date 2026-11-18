@@ -187,7 +187,6 @@ const PSIS_App = (() => {
 
   function getFilteredRecords() {
     return state.dailyRecords.filter(rec => {
-      if (state.selectedShift !== 'all' && rec.shift !== state.selectedShift) return false;
       if (state.selectedLevel !== 'all' && rec.level !== state.selectedLevel) return false;
 
       if (state.selectedStatus !== 'all') {
@@ -273,8 +272,7 @@ const PSIS_App = (() => {
             <div style="display: flex; flex-direction: column;">
               <span>${escapeHtml(rec.teacherName)}</span>
               <span style="font-size: 0.75rem; font-weight: normal; color: #64748B;">
-                ${escapeHtml(rec.level)} • 
-                <span class="shift-pill ${rec.shift === 'ព្រឹក' ? 'shift-morning' : 'shift-afternoon'}">${escapeHtml(rec.shift)}</span>
+                ${escapeHtml(rec.level)}
               </span>
             </div>
           </td>
@@ -751,7 +749,6 @@ const PSIS_App = (() => {
           <td style="text-align: center;">${escapeHtml(t.gender || 'ប្រុស')}</td>
           <td>${escapeHtml(t.phone || '-')}</td>
           <td><span class="badge" style="background: #F1F5F9; color: #334155; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px;">${escapeHtml(t.level)}</span></td>
-          <td style="text-align: center;"><span class="shift-pill ${t.shift === 'ព្រឹក' ? 'shift-morning' : 'shift-afternoon'}">${escapeHtml(t.shift)}</span></td>
           <td>${escapeHtml(t.subject || '-')}</td>
           <td style="text-align: center;">${escapeHtml(t.defaultClass || '-')}</td>
           <td style="text-align: center;">
@@ -828,7 +825,6 @@ const PSIS_App = (() => {
     document.getElementById('teacher-gender').value = t.gender || 'ប្រុស';
     document.getElementById('teacher-phone').value = t.phone || '';
     document.getElementById('teacher-level').value = t.level || 'បឋមសិក្សា';
-    document.getElementById('teacher-shift').value = t.shift || 'ព្រឹក';
     document.getElementById('teacher-subject').value = t.subject || '';
     document.getElementById('teacher-default-class').value = t.defaultClass || '';
 
@@ -850,7 +846,6 @@ const PSIS_App = (() => {
       gender: document.getElementById('teacher-gender').value,
       phone: document.getElementById('teacher-phone').value.trim(),
       level: document.getElementById('teacher-level').value,
-      shift: document.getElementById('teacher-shift').value,
       subject: document.getElementById('teacher-subject').value.trim(),
       defaultClass: document.getElementById('teacher-default-class').value.trim(),
       status: 'សកម្ម'
@@ -981,7 +976,7 @@ const PSIS_App = (() => {
   function openAddScheduleModal() {
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
-      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-shift="${escapeHtml(t.shift)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)} - ${escapeHtml(t.shift)})</option>`
+      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
     ).join('');
 
     if (state.teachers.length > 0) {
@@ -1011,9 +1006,8 @@ const PSIS_App = (() => {
       return;
     }
 
-    const shift = document.getElementById('schedule-shift').value;
     const classGrade = document.getElementById('schedule-class').value.trim();
-    const timeSlot = document.getElementById('schedule-time').value.trim() || (shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00');
+    const timeSlot = document.getElementById('schedule-time').value.trim() || '07:30 - 11:30';
     const room = document.getElementById('schedule-room').value.trim();
 
     if (!classGrade) {
@@ -1026,7 +1020,6 @@ const PSIS_App = (() => {
       teacherName,
       days: checkedDays,
       dayOfWeek: checkedDays[0],
-      shift,
       classGrade,
       level,
       timeSlot,
@@ -1080,7 +1073,7 @@ const PSIS_App = (() => {
         <tr style="${m.matched ? 'background-color: #F0FDF4;' : 'background-color: #FEF2F2;'}">
           <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
           <td style="font-weight: 700;">${escapeHtml(m.teacherName)}</td>
-          <td style="text-align: center;">${escapeHtml(m.classGrade)} (${escapeHtml(m.shift)})</td>
+          <td style="text-align: center;">${escapeHtml(m.classGrade)}</td>
           <td style="text-align: center; color: #64748B;">${escapeHtml(m.oldScanIn || '-')}</td>
           <td style="text-align: center; font-weight: 700; color: #059669;">${escapeHtml(m.newScanIn || '-')}</td>
           <td style="text-align: center; color: #64748B;">${escapeHtml(m.oldScanOut || '-')}</td>
@@ -1253,14 +1246,6 @@ const PSIS_App = (() => {
     if (dateInput) {
       dateInput.addEventListener('change', (e) => {
         handleDateChange(e.target.value);
-      });
-    }
-
-    const shiftSelect = document.getElementById('filter-shift');
-    if (shiftSelect) {
-      shiftSelect.addEventListener('change', (e) => {
-        state.selectedShift = e.target.value;
-        renderChecklistTable();
       });
     }
 

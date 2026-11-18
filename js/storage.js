@@ -4,7 +4,7 @@
  */
 
 const PSIS_Storage = (() => {
-  const CURRENT_BRANCH_KEY = 'psis_active_branch_id_v4';
+  const CURRENT_BRANCH_KEY = 'psis_active_branch_id_v5';
 
   function getCurrentBranchId() {
     return localStorage.getItem(CURRENT_BRANCH_KEY) || null;
@@ -29,7 +29,7 @@ const PSIS_Storage = (() => {
   // Branch-specific storage key generator
   function getKey(type, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
-    return `psis_${bId}_${type}_v4`;
+    return `psis_${bId}_${type}_v5`;
   }
 
   // Init storage for a branch if not already existing

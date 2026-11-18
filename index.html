@@ -226,15 +226,6 @@
 
           <div class="filter-group">
             <div>
-              <label class="form-label" for="filter-shift">វេនបង្រៀន:</label>
-              <select id="filter-shift" class="form-control">
-                <option value="all">វេនទាំងអស់</option>
-                <option value="ព្រឹក">វេនព្រឹក</option>
-                <option value="ល្ងាច">វេនល្ងាច</option>
-              </select>
-            </div>
-
-            <div>
               <label class="form-label" for="filter-level">កម្រិតសិក្សា:</label>
               <select id="filter-level" class="form-control">
                 <option value="all">កម្រិតទាំងអស់</option>
@@ -385,7 +376,6 @@
                   <th style="width: 70px;">ភេទ</th>
                   <th>លេខទូរស័ព្ទ</th>
                   <th>កម្រិតបង្រៀន</th>
-                  <th style="width: 90px;">វេនបង្រៀន</th>
                   <th>មុខវិជ្ជាឯកទេស</th>
                   <th>ថ្នាក់ប្រចាំ</th>
                   <th style="width: 90px;">ស្ថានភាព</th>
@@ -513,13 +503,6 @@
                 </select>
               </div>
               <div class="form-group">
-                <label class="form-label">វេនបង្រៀន (Shift)</label>
-                <select id="teacher-shift" class="form-control">
-                  <option value="ព្រឹក">ព្រឹក (Morning)</option>
-                  <option value="ល្ងាច">ល្ងាច (Afternoon)</option>
-                </select>
-              </div>
-              <div class="form-group">
                 <label class="form-label">មុខវិជ្ជាឯកទេស (Subject)</label>
                 <input type="text" id="teacher-subject" class="form-control" placeholder="ឧ. ភាសាខ្មែរ, គណិតវិទ្យា, រូបវិទ្យា">
               </div>
@@ -612,13 +595,6 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">វេនបង្រៀន (Shift) *</label>
-                <select id="schedule-shift" class="form-control" required>
-                  <option value="ព្រឹក">ព្រឹក (07:00 - 11:30)</option>
-                  <option value="ល្ងាច">ល្ងាច (13:00 - 17:15)</option>
-                </select>
-              </div>
-              <div class="form-group">
                 <label class="form-label">ថ្នាក់/កម្រិត (Class/Grade) *</label>
                 <input type="text" id="schedule-class" class="form-control" required placeholder="ឧ. K2, ថ្នាក់ទី 1A, ថ្នាក់ទី 9B">
               </div>
@@ -672,7 +648,7 @@
                 <tr>
                   <th>ល.រ</th>
                   <th>ឈ្មោះគ្រូ</th>
-                  <th>ថ្នាក់/វេន</th>
+                  <th>ថ្នាក់</th>
                   <th>ម៉ោងចូលចាស់</th>
                   <th>ម៉ោងចូលថ្មី</th>
                   <th>ម៉ោងចេញចាស់</th>

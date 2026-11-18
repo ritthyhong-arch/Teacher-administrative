@@ -28,7 +28,7 @@ const PSIS_Analytics = (() => {
     if (rec.remarks === 'យឺត') return true;
 
     if (!rec.scanInTime) return false;
-    const threshold = rec.shift === 'ល្ងាច' 
+    const threshold = (rec.scanInTime >= '12:00' || rec.shift === 'ល្ងាច')
       ? (schoolInfo?.afternoonScanLateThreshold || '13:15')
       : (schoolInfo?.morningScanLateThreshold || '07:15');
 
