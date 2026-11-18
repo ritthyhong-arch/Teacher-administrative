@@ -25,83 +25,68 @@ const PSIS_App = (() => {
    * Initialize Application
    */
   function init() {
-    renderBranchPortalCards();
-
     // Check if user has already selected a branch in localStorage
     const savedBranchId = PSIS_Storage.getCurrentBranchId();
+    const branchModal = document.getElementById('branch-modal-overlay');
+    const branchSelect = document.getElementById('branch-select-input');
+
     if (savedBranchId) {
+      if (branchSelect) branchSelect.value = savedBranchId;
       selectBranch(savedBranchId, false);
+      if (branchModal) branchModal.style.display = 'none';
     } else {
-      showBranchPortal();
+      // First time user: show "ចូលទៅកាន់សាខា" popup modal matching school workflow
+      const defaultBranch = 'psis-ix';
+      if (branchSelect) branchSelect.value = defaultBranch;
+      selectBranch(defaultBranch, false);
+      if (branchModal) branchModal.style.display = 'flex';
     }
 
     setupEventListeners();
   }
 
   /**
-   * Render the 5 Branch Selection Cards in the Portal
+   * Open the "ចូលទៅកាន់សាខា" Branch Selection Modal
    */
-  function renderBranchPortalCards() {
-    const grid = document.getElementById('portal-branches-grid');
-    if (!grid) return;
-
-    const branches = PSIS_Storage.getBranches();
-    let html = '';
-
-    branches.forEach((b, idx) => {
-      const teachers = PSIS_Storage.getTeachers(b.id);
-
-      html += `
-        <div class="branch-card" onclick="PSIS_App.handleSelectBranch('${b.id}')">
-          <div>
-            <div class="branch-card-header">
-              <span class="branch-card-badge" style="background: ${b.iconColor}15; color: ${b.iconColor}; border: 1px solid ${b.iconColor}30;">
-                ${b.code} • ${b.badgeText}
-              </span>
-              <div class="branch-card-icon" style="background: ${b.iconColor};">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              </div>
-            </div>
-
-            <h3 class="branch-card-name-kh">${escapeHtml(b.nameKh)}</h3>
-            <div class="branch-card-name-en">${escapeHtml(b.nameEn)}</div>
-
-            <div class="branch-card-meta">
-              <div class="branch-card-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>${escapeHtml(b.address)}</span>
-              </div>
-              <div class="branch-card-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span>គ្រូបង្រៀន: <strong>${KhmerCalendar.toKhmerNumber(teachers.length)} នាក់</strong></span>
-              </div>
-              <div class="branch-card-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span>នាយិកា/នាយក: ${escapeHtml(b.principalName.split('(')[0])}</span>
-              </div>
-            </div>
-          </div>
-
-          <button type="button" class="branch-card-btn">
-            <span>ចូលប្រើប្រាស់សាខានេះ</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      `;
-    });
-
-    grid.innerHTML = html;
+  function openBranchModal() {
+    const modal = document.getElementById('branch-modal-overlay');
+    const select = document.getElementById('branch-select-input');
+    if (select && state.currentBranchId) {
+      select.value = state.currentBranchId;
+    }
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
   }
 
   /**
-   * Display Branch Selection Portal
+   * Close the "ចូលទៅកាន់សាខា" Branch Selection Modal
    */
-  function showBranchPortal() {
-    const portal = document.getElementById('branch-selection-portal');
-    const mainApp = document.getElementById('main-app-layout');
-    if (portal) portal.style.display = 'flex';
-    if (mainApp) mainApp.style.display = 'none';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function closeBranchModal() {
+    const modal = document.getElementById('branch-modal-overlay');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  /**
+   * Handle Branch Dropdown Change in Modal
+   */
+  function onBranchSelectChange(branchId) {
+    if (!branchId) return;
+    selectBranch(branchId, false);
+  }
+
+  /**
+   * Confirm Branch Selection and Enter System
+   */
+  function confirmBranchSelection() {
+    const select = document.getElementById('branch-select-input');
+    const branchId = select ? select.value : (state.currentBranchId || 'psis-ix');
+    selectBranch(branchId, true);
+    closeBranchModal();
   }
 
   /**
@@ -115,16 +100,16 @@ const PSIS_App = (() => {
     state.teachers = PSIS_Storage.getTeachers(branchId);
     state.schedules = PSIS_Storage.getSchedules(branchId);
 
-    // Switch view
-    const portal = document.getElementById('branch-selection-portal');
-    const mainApp = document.getElementById('main-app-layout');
-    if (portal) portal.style.display = 'none';
-    if (mainApp) mainApp.style.display = 'block';
-
-    // Update active branch indicators
+    // Update active branch indicators in header
     const branchNameEl = document.getElementById('header-active-branch-name');
     if (branchNameEl) {
       branchNameEl.textContent = state.schoolInfo.branch;
+    }
+
+    // Sync modal select dropdown
+    const branchSelect = document.getElementById('branch-select-input');
+    if (branchSelect && branchSelect.value !== branchId) {
+      branchSelect.value = branchId;
     }
 
     loadDailyRecords();
@@ -141,8 +126,7 @@ const PSIS_App = (() => {
   }
 
   function handleSwitchBranch() {
-    renderBranchPortalCards();
-    showBranchPortal();
+    openBranchModal();
   }
 
   /**
@@ -1213,6 +1197,10 @@ const PSIS_App = (() => {
 
   return {
     init,
+    openBranchModal,
+    closeBranchModal,
+    onBranchSelectChange,
+    confirmBranchSelection,
     handleSelectBranch,
     handleSwitchBranch,
     handleFieldChange,

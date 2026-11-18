@@ -1145,3 +1145,130 @@ body {
     font-size: 1.35rem;
   }
 }
+
+/* ============================================================== */
+/* EXACT "ចូលទៅកាន់សាខា" POPUP MODAL (FROM SCHOOL SYSTEM)         */
+/* ============================================================== */
+.branch-select-dialog {
+  background: #FFFFFF;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 8px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.branch-dialog-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+}
+
+.branch-dialog-title {
+  font-family: var(--font-body);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.branch-dialog-close {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #64748B;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.branch-dialog-close:hover {
+  color: #0F172A;
+  background: #F1F5F9;
+}
+
+.branch-dialog-body {
+  padding: 1.5rem;
+  background: #FFFFFF;
+}
+
+.branch-select-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 0.65rem;
+}
+
+.branch-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.branch-dropdown-select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1E293B;
+  background-color: #FFFFFF;
+  border: 2px solid #2563EB;
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e293b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1.15rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.branch-dropdown-select:focus {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+}
+
+.branch-dropdown-select option {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #1E293B;
+  background: #FFFFFF;
+}
+
+.branch-dialog-footer {
+  padding: 1rem 1.5rem 1.25rem;
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+}
+
+.header-menu-btn {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 0.45rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  margin-right: 0.25rem;
+}
+
+.header-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+

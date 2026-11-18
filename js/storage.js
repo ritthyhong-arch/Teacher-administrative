@@ -28,13 +28,13 @@ const PSIS_Storage = (() => {
 
   // Branch-specific storage key generator
   function getKey(type, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     return `psis_${bId}_${type}_v2`;
   }
 
   // Init storage for a branch if not already existing
   function initBranchStorage(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
 
     const teachersKey = getKey('teachers', bId);
     const schedulesKey = getKey('schedules', bId);
