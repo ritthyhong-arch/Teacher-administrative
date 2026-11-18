@@ -147,13 +147,13 @@
 
 .official-print-table th {
   background: #FFFFFF !important;
-  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 8.5pt !important;
+  font-family: 'Moul', 'Khmer OS Moul', serif !important;
+  font-weight: normal !important;
+  font-size: 7.8pt !important;
   padding: 6px 2px !important;
   text-align: center !important;
   vertical-align: middle !important;
-  line-height: 1.25 !important;
+  line-height: 1.35 !important;
 }
 
 .official-print-table td {
