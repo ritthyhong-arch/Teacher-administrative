@@ -652,7 +652,7 @@ const PSIS_App = (() => {
       ? KhmerCalendar.getShortOfficialLunarDate(state.currentDate) 
       : KhmerCalendar.getKhmerLunarDateString(state.currentDate).replace('ពុទ្ធសករាជ', 'ព.ស.');
 
-    const branchPrint = state.schoolInfo.branchPrint || (state.currentBranchId === 'psis-ix' ? 'សាខាទួលគោក' : (state.schoolInfo.branchShort || 'សាខា...'));
+    const branchPrint = state.schoolInfo.branchPrint || (state.currentBranchId === 'psis-ix' ? 'សាខាទី ៩' : (state.schoolInfo.branchShort || 'សាខា...'));
     const principal = state.schoolInfo.principalName || 'ហៀង ពលៈ';
     const inspector = state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី';
 

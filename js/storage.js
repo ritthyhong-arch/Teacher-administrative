@@ -372,8 +372,14 @@ const PSIS_Storage = (() => {
       if (!info.inspectorName || info.inspectorName.includes('ស៊ុន សុខជា') || info.inspectorName.includes('អ៊ុក វិបុល') || info.inspectorName.includes('ហេង រតនា') || info.inspectorName.includes('ឡុង គន្ធា') || info.inspectorName.includes('ម៉ៅ ស្រីពៅ')) {
         info.inspectorName = defaultInfo.inspectorName;
       }
-      if (!info.branchPrint) {
+      if (!info.branchPrint || info.branchPrint.includes('ទួលគោក')) {
         info.branchPrint = defaultInfo.branchPrint;
+      }
+      if (!info.branchKh || info.branchKh.includes('ទួលគោក')) {
+        info.branchKh = defaultInfo.branchKh;
+      }
+      if (!info.branchShort || info.branchShort.includes('ទួលគោក')) {
+        info.branchShort = defaultInfo.branchShort;
       }
       return info;
     } catch (e) {

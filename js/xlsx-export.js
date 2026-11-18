@@ -73,7 +73,7 @@ const PSIS_XlsxExport = (() => {
       ]);
     });
 
-    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទួលគោក');
+    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទី ៩');
     const d = new Date(dateStr + 'T00:00:00');
     const dayKh = KhmerCalendar.toKhmerNumber(d.getDate());
     const monthKh = KhmerCalendar.GREGORIAN_MONTHS_KH[d.getMonth()];
@@ -198,7 +198,7 @@ const PSIS_XlsxExport = (() => {
       `;
     });
 
-    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទួលគោក');
+    const branchPrint = schoolInfo.branchPrint || (schoolInfo.branch || 'សាខាទី ៩');
     const dXml = new Date(dateStr + 'T00:00:00');
     const dayKhXml = KhmerCalendar.toKhmerNumber(dXml.getDate());
     const monthKhXml = KhmerCalendar.GREGORIAN_MONTHS_KH[dXml.getMonth()];

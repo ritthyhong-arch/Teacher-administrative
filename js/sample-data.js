@@ -57,9 +57,9 @@ const PSIS_BRANCHES = [
     id: 'psis-ix',
     code: 'PSIS IX',
     nameEn: 'Paññāsāstra International School IX',
-    nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទួលគោក',
-    shortKh: 'សាខាទួលគោក',
-    branchPrint: 'សាខាទួលគោក',
+    nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ សាខាទី ៩ (PSIS IX)',
+    shortKh: 'សាខាទី ៩ (PSIS IX)',
+    branchPrint: 'សាខាទី ៩',
     principalName: 'ហៀង ពលៈ',
     inspectorName: 'ឈុន វុទ្ធី',
     color: '#BE123C'
