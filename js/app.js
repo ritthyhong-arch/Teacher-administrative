@@ -620,8 +620,23 @@ const PSIS_App = (() => {
           <div class="official-kingdom-side">
             <div class="official-kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
             <div class="official-kingdom-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
-            <div class="official-kingdom-boxes">
-              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            <div class="official-kingdom-kbach-wrap">
+              <svg class="official-kingdom-kbach" viewBox="0 0 160 20" width="135" height="17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M80 1 C76.5 4.8 75.2 8.5 80 14 C84.8 8.5 83.5 4.8 80 1 Z" fill="#1B365D" />
+                <path d="M80 5 C75 7.5 72.5 11 77.5 14.5 C78.8 13.2 79.5 10.5 80 8.5 Z" fill="#1B365D" />
+                <path d="M80 5 C85 7.5 87.5 11 82.5 14.5 C81.2 13.2 80.5 10.5 80 8.5 Z" fill="#1B365D" />
+                <circle cx="80" cy="17" r="1.5" fill="#1B365D" />
+                <path d="M76 11.5 C68 13 58 7 49 9.5 C42 11.2 37 14 30 11.8 C24 10 18 8.5 11 11 C7 12 3 10.5 0 8.5 C5 7.5 12 8.5 17 9.5 C23 10.7 30 8.5 36 7.5 C45 6 55 10 65 8.5 C69 8 73.5 9.5 76 11.5 Z" fill="#1B365D" />
+                <path d="M84 11.5 C92 13 102 7 111 9.5 C118 11.2 123 14 130 11.8 C136 10 142 8.5 149 11 C153 12 157 10.5 160 8.5 C155 7.5 148 8.5 143 9.5 C137 10.7 130 8.5 124 7.5 C115 6 105 10 95 8.5 C91 8 86.5 9.5 84 11.5 Z" fill="#1B365D" />
+                <circle cx="63" cy="6" r="1.2" fill="#1B365D" />
+                <circle cx="97" cy="6" r="1.2" fill="#1B365D" />
+                <circle cx="45" cy="12.5" r="1.1" fill="#1B365D" />
+                <circle cx="115" cy="12.5" r="1.1" fill="#1B365D" />
+                <circle cx="28" cy="9.5" r="1" fill="#1B365D" />
+                <circle cx="132" cy="9.5" r="1" fill="#1B365D" />
+                <circle cx="12" cy="10" r="1.2" fill="#1B365D" />
+                <circle cx="148" cy="10" r="1.2" fill="#1B365D" />
+              </svg>
             </div>
           </div>
         </div>

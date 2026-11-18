@@ -27,27 +27,30 @@
 
 /* Left: School Logo & Branch Name */
 .official-school-side {
-  text-align: left;
-  width: 48%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  text-align: center !important;
+  width: auto !important;
+  max-width: 46% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
 }
 
 .official-school-logo-print {
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 5px;
+  width: 62px !important;
+  height: 62px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  margin: 0 auto 6px auto !important;
+  display: block !important;
 }
 
 .official-school-name-line {
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
-  font-size: 10.5pt;
+  font-size: 10.5pt !important;
   color: #1B365D !important;
-  line-height: 1.5;
-  font-weight: normal;
+  line-height: 1.5 !important;
+  font-weight: normal !important;
+  text-align: center !important;
 }
 
 /* Center: Kingdom of Cambodia Header */
@@ -71,22 +74,22 @@
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
   font-size: 11pt;
   color: #1B365D !important;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: normal;
 }
 
-.official-kingdom-boxes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
+.official-kingdom-kbach-wrap {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 4px auto 0 auto !important;
+  width: 100% !important;
+  line-height: 1;
 }
 
-.official-kingdom-boxes span {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border: 1.5px solid #1B365D;
+.official-kingdom-kbach {
+  display: block !important;
+  margin: 0 auto !important;
 }
 
 /* Report Title & Date Line */
@@ -187,6 +190,7 @@
 .signature-col-left {
   text-align: center !important;
   width: 44% !important;
+  margin-top: 5mm !important;
 }
 
 .signature-col-right {
