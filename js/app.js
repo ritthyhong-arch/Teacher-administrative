@@ -795,8 +795,6 @@ const PSIS_App = (() => {
           <td style="font-weight: 600; color: #0A2540;">${formatScheduleDaysBadge(s.days, s.dayOfWeek)}</td>
           <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
           <td>${escapeHtml(s.level)}</td>
-          <td style="text-align: center;">${escapeHtml(s.timeSlot || '-')}</td>
-          <td>${escapeHtml(s.room || '-')}</td>
           <td style="text-align: center;">
             <button class="btn btn-sm btn-outline btn-icon" style="color: #EF4444;" title="លុបកាលវិភាគ" onclick="PSIS_App.handleDeleteSchedule('${s.id}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -1007,8 +1005,6 @@ const PSIS_App = (() => {
     }
 
     const classGrade = document.getElementById('schedule-class').value.trim();
-    const timeSlot = document.getElementById('schedule-time').value.trim() || '07:30 - 11:30';
-    const room = document.getElementById('schedule-room').value.trim();
 
     if (!classGrade) {
       alert('សូមបញ្ចូលថ្នាក់!');
@@ -1021,9 +1017,7 @@ const PSIS_App = (() => {
       days: checkedDays,
       dayOfWeek: checkedDays[0],
       classGrade,
-      level,
-      timeSlot,
-      room
+      level
     };
 
     PSIS_Storage.addSchedule(schData, state.currentBranchId);
