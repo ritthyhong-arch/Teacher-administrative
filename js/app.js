@@ -219,7 +219,10 @@ const PSIS_App = (() => {
    * Load daily records for current date & active branch
    */
   function loadDailyRecords() {
+    state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
     state.dailyRecords = PSIS_Storage.getDailyChecklist(state.currentDate, state.currentBranchId);
+    // Ensure all daily records strictly belong to active teachers in directory
+    state.dailyRecords = state.dailyRecords.filter(r => state.teachers.some(t => t.id === r.teacherId));
   }
 
   function saveCurrentRecords() {
@@ -274,8 +277,9 @@ const PSIS_App = (() => {
   function getFilteredRecords() {
     return state.dailyRecords.filter(rec => {
       const teacher = state.teachers.find(t => t.id === rec.teacherId);
-      const recLevel = teacher ? teacher.level : rec.level;
-      const recTeacherName = teacher ? teacher.name : rec.teacherName;
+      if (!teacher) return false;
+      const recLevel = teacher.level;
+      const recTeacherName = teacher.name;
 
       if (state.selectedLevel !== 'all' && recLevel !== state.selectedLevel) return false;
 
@@ -641,7 +645,8 @@ const PSIS_App = (() => {
     const inspector = state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី';
 
     let rowsHtml = '';
-    state.dailyRecords.forEach((r, idx) => {
+    const activeRecords = state.dailyRecords.filter(r => state.teachers.some(t => t.id === r.teacherId));
+    activeRecords.forEach((r, idx) => {
       const isLeave = r.remarks === 'ច្បាប់';
       const scanIn = isLeave ? '-' : (r.scanInTime || '-');
       const att = isLeave ? '-' : (r.attendanceRecorded || 'បានស្រង់');

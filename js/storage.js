@@ -153,13 +153,30 @@ const PSIS_Storage = (() => {
   }
 
   function deleteTeacher(id, branchId) {
-    let list = getTeachers(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    let list = getTeachers(bId);
     list = list.filter(t => t.id !== id);
-    saveTeachers(list, branchId);
+    saveTeachers(list, bId);
 
-    let schedules = getSchedules(branchId);
+    let schedules = getSchedules(bId);
     schedules = schedules.filter(s => s.teacherId !== id);
-    saveSchedules(schedules, branchId);
+    saveSchedules(schedules, bId);
+
+    // Cascading delete across all daily checklists for this branch
+    const allChecklists = getAllChecklists(bId);
+    let checkChanged = false;
+    for (const d in allChecklists) {
+      if (Array.isArray(allChecklists[d])) {
+        const prevLen = allChecklists[d].length;
+        allChecklists[d] = allChecklists[d].filter(rec => rec.teacherId !== id);
+        if (allChecklists[d].length !== prevLen) {
+          checkChanged = true;
+        }
+      }
+    }
+    if (checkChanged) {
+      saveAllChecklists(allChecklists, bId);
+    }
   }
 
   // Schedules
@@ -172,6 +189,14 @@ const PSIS_Storage = (() => {
       const teachers = getTeachers(bId);
       const teacherMap = new Map(teachers.map(t => [t.id, t]));
       let changed = false;
+
+      // Filter out orphan schedules for deleted teachers
+      const initLen = schedules.length;
+      schedules = schedules.filter(s => teacherMap.has(s.teacherId));
+      if (schedules.length !== initLen) {
+        changed = true;
+      }
+
       schedules.forEach(s => {
         const t = teacherMap.get(s.teacherId);
         if (t) {
@@ -256,6 +281,15 @@ const PSIS_Storage = (() => {
 
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
       let changed = false;
+
+      // 1. Purge records of any deleted teacher!
+      const initialCount = all[dateStr].length;
+      all[dateStr] = all[dateStr].filter(rec => teacherMap.has(rec.teacherId));
+      if (all[dateStr].length !== initialCount) {
+        changed = true;
+      }
+
+      // 2. Sync level & teacherName with active teachers
       all[dateStr].forEach(rec => {
         const t = teacherMap.get(rec.teacherId);
         if (t) {
