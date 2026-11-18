@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=4.1">
-  <link rel="stylesheet" href="css/print.css?v=4.1">
+  <link rel="stylesheet" href="css/styles.css?v=4.2">
+  <link rel="stylesheet" href="css/print.css?v=4.2">
 </head>
 <body>
 
@@ -779,6 +779,25 @@
               </div>
             </div>
 
+            <!-- Backup & Sync between computers section -->
+            <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+              <h5 style="margin: 0 0 0.35rem 0; font-size: 0.9rem; color: var(--psis-blue); font-weight: 700;">
+                📦 ការបម្រុងទុក និងផ្ទេរទិន្នន័យរវាងកុំព្យូទ័រ (Backup & Sync)
+              </h5>
+              <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 0.75rem; line-height: 1.4;">
+                ទាញយកទិន្នន័យពីកុំព្យូទ័រនេះ (Export JSON) ដើម្បីផ្ញើទៅដាក់លើកុំព្យូទ័រផ្សេង ឬផ្ញើមកដើម្បី Push ចូល GitHub ផ្ទាល់។
+              </p>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleExportBackup()">
+                  ⬇️ ទាញយកទិន្នន័យ (Export JSON)
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('backup-file-input').click()">
+                  ⬆️ នាំចូលទិន្នន័យពីម៉ាស៊ីនផ្សេង (Import JSON)
+                </button>
+                <input type="file" id="backup-file-input" accept=".json,application/json" style="display: none;" onchange="PSIS_App.handleImportBackup(event)">
+              </div>
+            </div>
+
             <hr style="margin-bottom: 1.25rem; border: none; border-top: 1px solid var(--border-color);">
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -804,12 +823,12 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=4.1"></script>
-  <script src="js/sample-data.js?v=4.1"></script>
-  <script src="js/storage.js?v=4.1"></script>
-  <script src="js/analytics.js?v=4.1"></script>
-  <script src="js/xlsx-export.js?v=4.1"></script>
-  <script src="js/biometric-import.js?v=4.1"></script>
-  <script src="js/app.js?v=4.1"></script>
+  <script src="js/khmer-lunar.js?v=4.2"></script>
+  <script src="js/sample-data.js?v=4.2"></script>
+  <script src="js/storage.js?v=4.2"></script>
+  <script src="js/analytics.js?v=4.2"></script>
+  <script src="js/xlsx-export.js?v=4.2"></script>
+  <script src="js/biometric-import.js?v=4.2"></script>
+  <script src="js/app.js?v=4.2"></script>
 </body>
 </html>

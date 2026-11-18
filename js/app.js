@@ -1489,6 +1489,37 @@ const PSIS_App = (() => {
     }
   }
 
+  function handleExportBackup() {
+    const jsonStr = PSIS_Storage.exportAllData();
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `psis_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('បានទាញយកទិន្នន័យបម្រុងទុក (JSON) ជោគជ័យ!', 'success');
+  }
+
+  function handleImportBackup(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const res = PSIS_Storage.importAllData(e.target.result);
+      if (res.success) {
+        showToast('បាននាំចូលទិន្នន័យជោគជ័យ! ប្រព័ន្ធកំពុងផ្ទុកទិន្នន័យ...', 'success');
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        alert('បរាជ័យក្នុងការនាំចូលទិន្នន័យ៖ ' + res.error);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
   function switchTab(tabId) {
     state.activeTab = tabId;
     document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -1653,6 +1684,8 @@ const PSIS_App = (() => {
     handleRemoveSignature,
     openSettingsModal,
     handleResetBranchData,
+    handleExportBackup,
+    handleImportBackup,
     switchTab,
     closeModal,
     showToast

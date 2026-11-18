@@ -547,6 +547,43 @@ const PSIS_Storage = (() => {
     initBranchStorage(bId);
   }
 
+  // Full backup export & import for transferring data between computers
+  function exportAllData() {
+    const backup = {
+      version: 'v6',
+      exportedAt: new Date().toISOString(),
+      branches: {}
+    };
+    PSIS_BRANCHES.forEach(b => {
+      backup.branches[b.id] = {
+        teachers: getTeachers(b.id),
+        schedules: getSchedules(b.id),
+        schoolInfo: getSchoolInfo(b.id),
+        checklists: getAllChecklists(b.id)
+      };
+    });
+    return JSON.stringify(backup, null, 2);
+  }
+
+  function importAllData(jsonStr) {
+    try {
+      const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+      if (!data || !data.branches) {
+        throw new Error('ទម្រង់ទិន្នន័យមិនត្រឹមត្រូវ (Invalid Backup File)');
+      }
+      for (const bId in data.branches) {
+        const bData = data.branches[bId];
+        if (Array.isArray(bData.teachers)) saveTeachers(bData.teachers, bId);
+        if (Array.isArray(bData.schedules)) saveSchedules(bData.schedules, bId);
+        if (bData.schoolInfo && typeof bData.schoolInfo === 'object') saveSchoolInfo(bData.schoolInfo, bId);
+        if (bData.checklists && typeof bData.checklists === 'object') saveAllChecklists(bData.checklists, bId);
+      }
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
   return {
     getCurrentBranchId,
     setCurrentBranchId,
@@ -569,7 +606,9 @@ const PSIS_Storage = (() => {
     clearDailyChecklists,
     getSchoolInfo,
     saveSchoolInfo,
-    resetBranchData
+    resetBranchData,
+    exportAllData,
+    importAllData
   };
 })();
 
