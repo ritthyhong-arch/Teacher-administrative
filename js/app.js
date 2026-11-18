@@ -22,24 +22,52 @@ const PSIS_App = (() => {
   };
 
   /**
+   * Passwords for each school branch
+   */
+  const BRANCH_PASSWORDS = {
+    'psis-ii': 'TK002',
+    'psis-iii': 'TK003',
+    'psis-vii': 'TK007',
+    'psis-viii': 'TK008',
+    'psis-ix': 'TK009'
+  };
+
+  /**
+   * Toggle Password Visibility in Modal
+   */
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+
+  /**
    * Initialize Application
    */
   function init() {
-    // Check if user has already selected a branch in localStorage
-    const savedBranchId = PSIS_Storage.getCurrentBranchId();
+    const savedBranchId = PSIS_Storage.getCurrentBranchId() || 'psis-ix';
+    const authBranch = sessionStorage.getItem('psis_auth_branch');
     const branchModal = document.getElementById('branch-modal-overlay');
     const branchSelect = document.getElementById('branch-select-input');
+    const pwdInput = document.getElementById('branch-password-input');
 
-    if (savedBranchId) {
-      if (branchSelect) branchSelect.value = savedBranchId;
+    if (branchSelect) branchSelect.value = savedBranchId;
+
+    if (authBranch && authBranch === savedBranchId) {
+      // User is already authenticated for this branch during this browser session
       selectBranch(savedBranchId, false);
       if (branchModal) branchModal.style.display = 'none';
     } else {
-      // First time user: show "ចូលទៅកាន់សាខា" popup modal matching school workflow
-      const defaultBranch = 'psis-ix';
-      if (branchSelect) branchSelect.value = defaultBranch;
-      selectBranch(defaultBranch, false);
-      if (branchModal) branchModal.style.display = 'flex';
+      // Prompt user to enter branch password
+      selectBranch(savedBranchId, false);
+      if (branchModal) {
+        branchModal.style.display = 'flex';
+        branchModal.classList.add('active');
+        if (pwdInput) {
+          pwdInput.value = '';
+          setTimeout(() => pwdInput.focus(), 250);
+        }
+      }
     }
 
     setupEventListeners();
@@ -51,20 +79,44 @@ const PSIS_App = (() => {
   function openBranchModal() {
     const modal = document.getElementById('branch-modal-overlay');
     const select = document.getElementById('branch-select-input');
+    const pwdInput = document.getElementById('branch-password-input');
+    const pwdError = document.getElementById('branch-password-error');
+
     if (select && state.currentBranchId) {
       select.value = state.currentBranchId;
+    }
+    if (pwdInput) {
+      pwdInput.value = '';
+      pwdInput.style.borderColor = '';
+    }
+    if (pwdError) {
+      pwdError.style.display = 'none';
     }
     if (modal) {
       modal.style.display = 'flex';
       modal.classList.add('active');
+      if (pwdInput) setTimeout(() => pwdInput.focus(), 200);
     }
   }
 
   /**
    * Close the "ចូលទៅកាន់សាខា" Branch Selection Modal
    */
-  function closeBranchModal() {
+  function closeBranchModal(force = false) {
+    const authBranch = sessionStorage.getItem('psis_auth_branch');
     const modal = document.getElementById('branch-modal-overlay');
+
+    if (!force && (!authBranch || authBranch !== state.currentBranchId)) {
+      const pwdError = document.getElementById('branch-password-error');
+      if (pwdError) {
+        pwdError.style.display = 'block';
+        pwdError.textContent = '⚠️ សូមបញ្ចូលលេខកូដសម្ងាត់សាខាដើម្បីចូលប្រើប្រព័ន្ធ!';
+      }
+      const pwdInput = document.getElementById('branch-password-input');
+      if (pwdInput) pwdInput.focus();
+      return;
+    }
+
     if (modal) {
       modal.style.display = 'none';
       modal.classList.remove('active');
@@ -75,18 +127,52 @@ const PSIS_App = (() => {
    * Handle Branch Dropdown Change in Modal
    */
   function onBranchSelectChange(branchId) {
-    if (!branchId) return;
-    selectBranch(branchId, false);
+    const pwdInput = document.getElementById('branch-password-input');
+    const pwdError = document.getElementById('branch-password-error');
+    if (pwdInput) {
+      pwdInput.value = '';
+      pwdInput.style.borderColor = '';
+      pwdInput.focus();
+    }
+    if (pwdError) {
+      pwdError.style.display = 'none';
+    }
   }
 
   /**
-   * Confirm Branch Selection and Enter System
+   * Confirm Branch Selection and Enter System with Password Check
    */
   function confirmBranchSelection() {
     const select = document.getElementById('branch-select-input');
     const branchId = select ? select.value : (state.currentBranchId || 'psis-ix');
+    const pwdInput = document.getElementById('branch-password-input');
+    const pwdError = document.getElementById('branch-password-error');
+    const enteredPwd = pwdInput ? pwdInput.value.trim() : '';
+
+    const expectedPwd = BRANCH_PASSWORDS[branchId] || '';
+    if (!enteredPwd || enteredPwd.toUpperCase() !== expectedPwd.toUpperCase()) {
+      if (pwdError) {
+        pwdError.style.display = 'block';
+        pwdError.textContent = `⚠️ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេសម្រាប់ ${select ? select.options[select.selectedIndex].text : 'សាខានេះ'}!`;
+      }
+      if (pwdInput) {
+        pwdInput.focus();
+        pwdInput.style.borderColor = '#dc2626';
+      }
+      return;
+    }
+
+    // Success: Password matched
+    if (pwdError) pwdError.style.display = 'none';
+    if (pwdInput) {
+      pwdInput.style.borderColor = '';
+      pwdInput.value = '';
+    }
+
+    sessionStorage.setItem('psis_auth_branch', branchId);
     selectBranch(branchId, true);
-    closeBranchModal();
+    closeBranchModal(true);
+    showToast(`ជោគជ័យ! បានចូលទៅកាន់ ${state.schoolInfo.branch}`, 'success');
   }
 
   /**
@@ -1386,6 +1472,7 @@ const PSIS_App = (() => {
 
   return {
     init,
+    togglePasswordVisibility,
     openBranchModal,
     closeBranchModal,
     onBranchSelectChange,

@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=3.1">
-  <link rel="stylesheet" href="css/print.css?v=3.1">
+  <link rel="stylesheet" href="css/styles.css?v=3.2">
+  <link rel="stylesheet" href="css/print.css?v=3.2">
 </head>
 <body>
 
@@ -39,6 +39,15 @@
             <option value="psis-viii">Paññāsāstra International School VIII</option>
             <option value="psis-ix" selected>Paññāsāstra International School IX</option>
           </select>
+        </div>
+
+        <label for="branch-password-input" class="branch-select-label" style="margin-top: 1.15rem; display: block;">លេខកូដសម្ងាត់សាខា (Password)</label>
+        <div class="branch-password-wrapper" style="position: relative;">
+          <input type="password" id="branch-password-input" class="form-control" placeholder="បញ្ចូលលេខកូដសម្ងាត់សាខា (ឧ. TK002, TK003...)" autocomplete="current-password" onkeydown="if(event.key==='Enter') PSIS_App.confirmBranchSelection();" style="width: 100%; padding: 0.65rem 2.6rem 0.65rem 0.85rem; font-size: 0.95rem; border: 1.5px solid var(--border-color); border-radius: 6px;">
+          <button type="button" onclick="PSIS_App.togglePasswordVisibility('branch-password-input')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 1.15rem; padding: 4px;" title="បង្ហាញ/លាក់លេខកូដ">👁️</button>
+        </div>
+        <div id="branch-password-error" style="color: #dc2626; font-size: 0.85rem; margin-top: 6px; display: none; font-weight: 600;">
+          ⚠️ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ!
         </div>
       </div>
       <div class="branch-dialog-footer">
@@ -727,12 +736,12 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=3.0"></script>
-  <script src="js/sample-data.js?v=3.0"></script>
-  <script src="js/storage.js?v=3.0"></script>
-  <script src="js/analytics.js?v=3.0"></script>
-  <script src="js/xlsx-export.js?v=3.0"></script>
-  <script src="js/biometric-import.js?v=3.0"></script>
-  <script src="js/app.js?v=3.0"></script>
+  <script src="js/khmer-lunar.js?v=3.2"></script>
+  <script src="js/sample-data.js?v=3.2"></script>
+  <script src="js/storage.js?v=3.2"></script>
+  <script src="js/analytics.js?v=3.2"></script>
+  <script src="js/xlsx-export.js?v=3.2"></script>
+  <script src="js/biometric-import.js?v=3.2"></script>
+  <script src="js/app.js?v=3.2"></script>
 </body>
 </html>
