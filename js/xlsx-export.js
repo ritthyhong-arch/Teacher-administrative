@@ -286,8 +286,8 @@ const PSIS_XlsxExport = (() => {
             <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0A2540"/>
             <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#0A2540"/>
           </Borders>
-          <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Color="#FFFFFF" ss:Bold="1"/>
-          <Interior ss:Color="#1B365D" ss:Pattern="Solid"/>
+          <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Color="#000000" ss:Bold="1"/>
+          <Interior ss:Color="#6A9BD1" ss:Pattern="Solid"/>
         </Style>
         <Style ss:ID="tdEvenStyleCenter">
           <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
@@ -525,8 +525,8 @@ const PSIS_XlsxExport = (() => {
         </Style>
         <Style ss:ID="thStyle">
           <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
-          <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Color="#FFFFFF" ss:Bold="1"/>
-          <Interior ss:Color="#1B365D" ss:Pattern="Solid"/>
+          <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Color="#000000" ss:Bold="1"/>
+          <Interior ss:Color="#6A9BD1" ss:Pattern="Solid"/>
         </Style>
         <Style ss:ID="tdEvenStyleCenter">
           <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
