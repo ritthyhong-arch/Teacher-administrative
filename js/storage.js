@@ -303,38 +303,44 @@ const PSIS_Storage = (() => {
       }
     }
 
-    // Cascade update to all daily checklists
+    // Cascade update to all daily checklists: only affect dates where this schedule applies!
     const allChecklists = getAllChecklists(bId);
     let checkChanged = false;
     for (const d in allChecklists) {
       if (Array.isArray(allChecklists[d])) {
-        const existing = allChecklists[d].find(rec => rec.teacherId === sch.teacherId);
-        if (existing) {
-          if (existing.classGrade !== sch.classGrade || existing.teacherName !== sch.teacherName || existing.level !== sch.level) {
-            existing.classGrade = sch.classGrade;
-            existing.teacherName = sch.teacherName;
-            existing.level = sch.level;
+        const dObj = new Date(d + 'T00:00:00');
+        const dayOfWeek = dObj.getDay();
+        const appliesToday = Array.isArray(sch.days) && sch.days.length > 0
+          ? sch.days.map(Number).includes(dayOfWeek)
+          : Number(sch.dayOfWeek) === dayOfWeek;
+
+        const existingIdx = allChecklists[d].findIndex(rec => rec.teacherId === sch.teacherId);
+        if (appliesToday) {
+          if (existingIdx !== -1) {
+            allChecklists[d][existingIdx].classGrade = sch.classGrade;
+            allChecklists[d][existingIdx].teacherName = sch.teacherName;
+            allChecklists[d][existingIdx].level = sch.level;
+            checkChanged = true;
+          } else {
+            allChecklists[d].push({
+              id: 'REC_' + sch.teacherId + '_' + d,
+              date: d,
+              teacherId: sch.teacherId,
+              teacherName: sch.teacherName,
+              level: sch.level,
+              classGrade: sch.classGrade,
+              shift: sch.shift || 'ព្រឹក',
+              scanInTime: '',
+              scanOutTime: '',
+              attendanceRecorded: 'បានស្រង់',
+              scoreEvaluated: 'បានដាក់ពិន្ទុ',
+              telegramUsed: 'បានប្រើ',
+              lessonSummaryWritten: 'បានសរសេរ',
+              remarks: 'ធម្មតា',
+              note: ''
+            });
             checkChanged = true;
           }
-        } else {
-          allChecklists[d].push({
-            id: 'REC_' + sch.teacherId + '_' + d,
-            date: d,
-            teacherId: sch.teacherId,
-            teacherName: sch.teacherName,
-            level: sch.level,
-            classGrade: sch.classGrade,
-            shift: sch.shift || 'ព្រឹក',
-            scanInTime: '',
-            scanOutTime: '',
-            attendanceRecorded: 'បានស្រង់',
-            scoreEvaluated: 'បានដាក់ពិន្ទុ',
-            telegramUsed: 'បានប្រើ',
-            lessonSummaryWritten: 'បានសរសេរ',
-            remarks: 'ធម្មតា',
-            note: ''
-          });
-          checkChanged = true;
         }
       }
     }
@@ -366,23 +372,54 @@ const PSIS_Storage = (() => {
         }
       }
 
-      // Cascade update to all daily checklists
+      // Cascade update to all daily checklists:
+      // If teacher is NO LONGER scheduled on that day of week, remove their record from that date!
+      // If teacher is scheduled on that day of week, sync their details.
       const allChecklists = getAllChecklists(bId);
       let checkChanged = false;
       for (const d in allChecklists) {
         if (Array.isArray(allChecklists[d])) {
-          allChecklists[d] = allChecklists[d].map(rec => {
-            if (rec.teacherId === updated.teacherId) {
+          const dObj = new Date(d + 'T00:00:00');
+          const dayOfWeek = dObj.getDay();
+          const isScheduledToday = list.some(s => s.teacherId === updated.teacherId && (
+            Array.isArray(s.days) && s.days.length > 0 
+              ? s.days.map(Number).includes(dayOfWeek) 
+              : Number(s.dayOfWeek) === dayOfWeek
+          ));
+
+          const existingIdx = allChecklists[d].findIndex(rec => rec.teacherId === updated.teacherId);
+          if (isScheduledToday) {
+            if (existingIdx !== -1) {
+              allChecklists[d][existingIdx].teacherName = updated.teacherName || allChecklists[d][existingIdx].teacherName;
+              allChecklists[d][existingIdx].level = updated.level || allChecklists[d][existingIdx].level;
+              allChecklists[d][existingIdx].classGrade = updated.classGrade || allChecklists[d][existingIdx].classGrade;
               checkChanged = true;
-              return {
-                ...rec,
-                teacherName: updated.teacherName || rec.teacherName,
-                level: updated.level || rec.level,
-                classGrade: updated.classGrade || rec.classGrade
-              };
+            } else {
+              allChecklists[d].push({
+                id: 'REC_' + updated.teacherId + '_' + d,
+                date: d,
+                teacherId: updated.teacherId,
+                teacherName: updated.teacherName || '',
+                level: updated.level || '',
+                classGrade: updated.classGrade || '1A',
+                shift: updated.shift || 'ព្រឹក',
+                scanInTime: '',
+                scanOutTime: '',
+                attendanceRecorded: 'បានស្រង់',
+                scoreEvaluated: 'បានដាក់ពិន្ទុ',
+                telegramUsed: 'បានប្រើ',
+                lessonSummaryWritten: 'បានសរសេរ',
+                remarks: 'ធម្មតា',
+                note: ''
+              });
+              checkChanged = true;
             }
-            return rec;
-          });
+          } else {
+            if (existingIdx !== -1) {
+              allChecklists[d].splice(existingIdx, 1);
+              checkChanged = true;
+            }
+          }
         }
       }
       if (checkChanged) {
@@ -397,8 +434,36 @@ const PSIS_Storage = (() => {
   function deleteSchedule(id, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     let list = getSchedules(bId);
+    const deletedSch = list.find(s => s.id === id);
     list = list.filter(s => s.id !== id);
     saveSchedules(list, bId);
+
+    // If teacher has no schedule on a date, purge their record from that date
+    if (deletedSch && deletedSch.teacherId) {
+      const allChecklists = getAllChecklists(bId);
+      let checkChanged = false;
+      for (const d in allChecklists) {
+        if (Array.isArray(allChecklists[d])) {
+          const dObj = new Date(d + 'T00:00:00');
+          const dayOfWeek = dObj.getDay();
+          const hasRemainingSch = list.some(s => s.teacherId === deletedSch.teacherId && (
+            Array.isArray(s.days) && s.days.length > 0 
+              ? s.days.map(Number).includes(dayOfWeek) 
+              : Number(s.dayOfWeek) === dayOfWeek
+          ));
+          if (!hasRemainingSch) {
+            const idx = allChecklists[d].findIndex(r => r.teacherId === deletedSch.teacherId);
+            if (idx !== -1) {
+              allChecklists[d].splice(idx, 1);
+              checkChanged = true;
+            }
+          }
+        }
+      }
+      if (checkChanged) {
+        saveAllChecklists(allChecklists, bId);
+      }
+    }
   }
 
   // Checklists
@@ -426,24 +491,60 @@ const PSIS_Storage = (() => {
     localStorage.removeItem(getKey('checklists', bId));
   }
 
+  function isTeacherScheduledOnDay(teacherId, dayOfWeek, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const schedules = getSchedules(bId);
+    const teacherSchedules = schedules.filter(s => s.teacherId === teacherId);
+    if (teacherSchedules.length === 0) return false;
+    return teacherSchedules.some(s => {
+      if (Array.isArray(s.days) && s.days.length > 0) {
+        return s.days.map(Number).includes(Number(dayOfWeek));
+      }
+      return Number(s.dayOfWeek) === Number(dayOfWeek);
+    });
+  }
+
+  function isTeacherScheduledForDate(teacherId, dateStr, branchId) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return isTeacherScheduledOnDay(teacherId, d.getDay(), branchId);
+  }
+
   function getDailyChecklist(dateStr, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const all = getAllChecklists(bId);
     const teachers = getTeachers(bId);
     const teacherMap = new Map(teachers.map(t => [t.id, t]));
+    const schedules = getSchedules(bId);
+
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayOfWeek = d.getDay();
+
+    function isTeacherScheduled(tId) {
+      const tSchedules = schedules.filter(s => s.teacherId === tId);
+      if (tSchedules.length === 0) return false;
+      return tSchedules.some(s => {
+        if (Array.isArray(s.days) && s.days.length > 0) {
+          return s.days.map(Number).includes(dayOfWeek);
+        }
+        return Number(s.dayOfWeek) === dayOfWeek;
+      });
+    }
 
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
       let changed = false;
 
-      // 1. Purge records of any deleted teacher!
+      // 1. Purge records of any deleted/inactive teacher OR any teacher NOT scheduled on this day of week!
       const initialCount = all[dateStr].length;
-      all[dateStr] = all[dateStr].filter(rec => teacherMap.has(rec.teacherId));
+      all[dateStr] = all[dateStr].filter(rec => {
+        const t = teacherMap.get(rec.teacherId);
+        if (!t || t.status === 'អសកម្ម') return false;
+        return isTeacherScheduled(rec.teacherId);
+      });
       if (all[dateStr].length !== initialCount) {
         changed = true;
       }
 
       // 2. Sync level, teacherName & classGrade with active teachers and schedules
-      const schedules = getSchedules(bId);
       const scheduleMap = new Map(schedules.map(s => [s.teacherId, s]));
 
       all[dateStr].forEach(rec => {
@@ -467,10 +568,10 @@ const PSIS_Storage = (() => {
         }
       });
 
-      // 3. Ensure any active teacher missing from today's checklist is automatically appended
+      // 3. Ensure any active teacher who IS SCHEDULED on this day of week but missing from today's checklist is appended
       const existingTeacherIds = new Set(all[dateStr].map(r => r.teacherId));
       teachers.forEach(t => {
-        if (!existingTeacherIds.has(t.id)) {
+        if (t.status !== 'អសកម្ម' && !existingTeacherIds.has(t.id) && isTeacherScheduled(t.id)) {
           const sch = scheduleMap.get(t.id);
           all[dateStr].push({
             id: 'REC_' + t.id + '_' + dateStr,
@@ -498,7 +599,6 @@ const PSIS_Storage = (() => {
       return all[dateStr];
     }
 
-    const schedules = getSchedules(bId);
     const generated = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(dateStr, schedules, teachers);
     all[dateStr] = generated;
     saveAllChecklists(all, bId);
@@ -616,6 +716,8 @@ const PSIS_Storage = (() => {
     getDailyChecklist,
     saveDailyChecklist,
     clearDailyChecklists,
+    isTeacherScheduledOnDay,
+    isTeacherScheduledForDate,
     getSchoolInfo,
     saveSchoolInfo,
     resetBranchData,

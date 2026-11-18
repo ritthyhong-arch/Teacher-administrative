@@ -232,9 +232,16 @@ const PSIS_App = (() => {
    */
   function loadDailyRecords() {
     state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
+    state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
     state.dailyRecords = PSIS_Storage.getDailyChecklist(state.currentDate, state.currentBranchId);
-    // Ensure all daily records strictly belong to active teachers in directory
-    state.dailyRecords = state.dailyRecords.filter(r => state.teachers.some(t => t.id === r.teacherId));
+    // Ensure all daily records strictly belong to active teachers who have a schedule on this day of week!
+    const d = new Date(state.currentDate + 'T00:00:00');
+    const dayOfWeek = d.getDay();
+    state.dailyRecords = state.dailyRecords.filter(r => {
+      const teacher = state.teachers.find(t => t.id === r.teacherId && t.status !== 'អសកម្ម');
+      if (!teacher) return false;
+      return PSIS_Storage.isTeacherScheduledOnDay(r.teacherId, dayOfWeek, state.currentBranchId);
+    });
   }
 
   function saveCurrentRecords() {

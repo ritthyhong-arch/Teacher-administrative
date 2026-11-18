@@ -163,15 +163,18 @@ const PSIS_SAMPLE_DATA = {
     const schedules = [];
 
     teachers.forEach((t, tIdx) => {
-      // Determine teaching days based on education level requested:
+      // Determine teaching days based on education level:
       // មត្តេយ្យ & បឋមសិក្សា -> ចន្ទ ដល់ សុក្រ (Days 1, 2, 3, 4, 5)
-      // អនុវិទ្យាល័យ-វិទ្យាល័យ -> ចន្ទ, ពុធ [1, 3] ឬ ចន្ទ ដល់ សុក្រ [1, 2, 3, 4, 5] ឬ ចន្ទ, ពុធ, សុក្រ [1, 3, 5]
+      // អនុវិទ្យាល័យ-វិទ្យាល័យ:
+      //   - ចន្ទ, ពុធ, សុក្រ [1, 3, 5]
+      //   - អង្គារ, ព្រហស្បតិ៍ [2, 4] (មិនបង្រៀនថ្ងៃពុធទេ)
+      //   - ចន្ទ ដល់ សុក្រ [1, 2, 3, 4, 5]
       let days = [1, 2, 3, 4, 5];
       if (t.level === 'អនុវិទ្យាល័យ-វិទ្យាល័យ') {
         if (tIdx % 3 === 0) {
-          days = [1, 3]; // ចន្ទ, ពុធ
-        } else if (tIdx % 3 === 1) {
           days = [1, 3, 5]; // ចន្ទ, ពុធ, សុក្រ
+        } else if (tIdx % 3 === 1) {
+          days = [2, 4]; // អង្គារ, ព្រហស្បតិ៍ (មិនបង្រៀនថ្ងៃពុធ)
         } else {
           days = [1, 2, 3, 4, 5]; // ចន្ទ ដល់ សុក្រ
         }
@@ -196,8 +199,7 @@ const PSIS_SAMPLE_DATA = {
 
   createDefaultChecklistForDate(dateStr, schedulesList, teachersList) {
     const d = new Date(dateStr + 'T00:00:00');
-    let dayOfWeek = d.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) dayOfWeek = 1;
+    const dayOfWeek = d.getDay();
 
     // Filter schedules where current dayOfWeek matches scheduled days
     const daySchedules = schedulesList.filter(s => {
