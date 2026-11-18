@@ -187,7 +187,11 @@ const PSIS_App = (() => {
 
   function getFilteredRecords() {
     return state.dailyRecords.filter(rec => {
-      if (state.selectedLevel !== 'all' && rec.level !== state.selectedLevel) return false;
+      const teacher = state.teachers.find(t => t.id === rec.teacherId);
+      const recLevel = teacher ? teacher.level : rec.level;
+      const recTeacherName = teacher ? teacher.name : rec.teacherName;
+
+      if (state.selectedLevel !== 'all' && recLevel !== state.selectedLevel) return false;
 
       if (state.selectedStatus !== 'all') {
         const isLate = PSIS_Analytics.isRecordLate(rec, state.schoolInfo);
@@ -201,7 +205,7 @@ const PSIS_App = (() => {
 
       if (state.searchQuery) {
         const q = state.searchQuery.toLowerCase();
-        const matchName = rec.teacherName.toLowerCase().includes(q);
+        const matchName = recTeacherName.toLowerCase().includes(q);
         const matchClass = rec.classGrade.toLowerCase().includes(q);
         if (!matchName && !matchClass) return false;
       }
@@ -260,6 +264,10 @@ const PSIS_App = (() => {
       const leaveDisabledAttr = isLeave ? 'disabled' : '';
       const leaveColClass = isLeave ? 'leave-disabled-col' : '';
 
+      const teacher = state.teachers.find(t => t.id === rec.teacherId);
+      const displayName = teacher ? teacher.name : rec.teacherName;
+      const displayLevel = teacher ? teacher.level : rec.level;
+
       html += `
         <tr class="${rowClass}" data-record-id="${rec.id}">
           <!-- 1. ល.រ -->
@@ -270,9 +278,9 @@ const PSIS_App = (() => {
           <!-- 2. ឈ្មោះគ្រូ -->
           <td style="font-weight: 700; color: #1B365D; min-width: 140px;">
             <div style="display: flex; flex-direction: column;">
-              <span>${escapeHtml(rec.teacherName)}</span>
+              <span>${escapeHtml(displayName)}</span>
               <span style="font-size: 0.75rem; font-weight: normal; color: #64748B;">
-                ${escapeHtml(rec.level)}
+                ${escapeHtml(displayLevel)}
               </span>
             </div>
           </td>
@@ -546,10 +554,13 @@ const PSIS_App = (() => {
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
       const tdLeaveClass = isLeave ? 'col-leave' : '';
 
+      const teacher = state.teachers.find(t => t.id === r.teacherId);
+      const teacherName = teacher ? teacher.name : r.teacherName;
+
       rowsHtml += `
         <tr>
           <td class="col-center" style="width: 32px;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
-          <td class="col-name" style="width: 130px;">${escapeHtml(r.teacherName)}</td>
+          <td class="col-name" style="width: 130px;">${escapeHtml(teacherName)}</td>
           <td class="col-center" style="width: 65px;">${escapeHtml(r.classGrade)}</td>
           <td class="col-center ${tdLeaveClass}" style="width: 68px;">${escapeHtml(scanIn)}</td>
           <td class="col-center ${tdLeaveClass}" style="width: 82px;">${escapeHtml(att)}</td>
@@ -788,13 +799,17 @@ const PSIS_App = (() => {
 
     let html = '';
     state.schedules.forEach((s, idx) => {
+      const teacher = state.teachers.find(t => t.id === s.teacherId);
+      const teacherName = teacher ? teacher.name : s.teacherName;
+      const teacherLevel = teacher ? teacher.level : s.level;
+
       html += `
         <tr>
           <td style="text-align: center; font-weight: 700;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
-          <td style="font-weight: 700; color: #1B365D;">${escapeHtml(s.teacherName)}</td>
+          <td style="font-weight: 700; color: #1B365D;">${escapeHtml(teacherName)}</td>
           <td style="font-weight: 600; color: #0A2540;">${formatScheduleDaysBadge(s.days, s.dayOfWeek)}</td>
           <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
-          <td>${escapeHtml(s.level)}</td>
+          <td>${escapeHtml(teacherLevel)}</td>
           <td style="text-align: center;">
             <div style="display: flex; justify-content: center; gap: 0.35rem;">
               <button class="btn btn-sm btn-outline btn-icon" title="កែប្រែកាលវិភាគ" onclick="PSIS_App.openEditScheduleModal('${s.id}')">
@@ -864,7 +879,9 @@ const PSIS_App = (() => {
     }
 
     state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
-    renderTeachersTable();
+    state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
+    loadDailyRecords();
+    renderAll();
     closeModal('teacher-modal');
   }
 
@@ -875,8 +892,8 @@ const PSIS_App = (() => {
       PSIS_Storage.deleteTeacher(id, state.currentBranchId);
       state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
       state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
-      renderTeachersTable();
-      renderSchedulesTable();
+      loadDailyRecords();
+      renderAll();
       showToast(`បានលុបគ្រូ ${t.name}`, 'warning');
     }
   }

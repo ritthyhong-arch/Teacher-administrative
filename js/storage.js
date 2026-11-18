@@ -106,6 +106,47 @@ const PSIS_Storage = (() => {
     if (idx !== -1) {
       list[idx] = { ...list[idx], ...updated };
       saveTeachers(list, branchId);
+
+      // Cascade update to all schedules for this teacher
+      let schedules = getSchedules(branchId);
+      let schedChanged = false;
+      schedules = schedules.map(s => {
+        if (s.teacherId === updated.id) {
+          schedChanged = true;
+          return {
+            ...s,
+            teacherName: updated.name,
+            level: updated.level
+          };
+        }
+        return s;
+      });
+      if (schedChanged) {
+        saveSchedules(schedules, branchId);
+      }
+
+      // Cascade update to all daily checklists
+      const allChecklists = getAllChecklists(branchId);
+      let checkChanged = false;
+      for (const d in allChecklists) {
+        if (Array.isArray(allChecklists[d])) {
+          allChecklists[d] = allChecklists[d].map(rec => {
+            if (rec.teacherId === updated.id) {
+              checkChanged = true;
+              return {
+                ...rec,
+                teacherName: updated.name,
+                level: updated.level
+              };
+            }
+            return rec;
+          });
+        }
+      }
+      if (checkChanged) {
+        saveAllChecklists(allChecklists, branchId);
+      }
+
       return list[idx];
     }
     return null;
@@ -127,7 +168,24 @@ const PSIS_Storage = (() => {
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('schedules', bId));
-      return data ? JSON.parse(data) : [];
+      let schedules = data ? JSON.parse(data) : [];
+      const teachers = getTeachers(bId);
+      const teacherMap = new Map(teachers.map(t => [t.id, t]));
+      let changed = false;
+      schedules.forEach(s => {
+        const t = teacherMap.get(s.teacherId);
+        if (t) {
+          if (s.level !== t.level || s.teacherName !== t.name) {
+            s.level = t.level;
+            s.teacherName = t.name;
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        saveSchedules(schedules, bId);
+      }
+      return schedules;
     } catch (e) {
       return [];
     }
@@ -193,12 +251,28 @@ const PSIS_Storage = (() => {
   function getDailyChecklist(dateStr, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const all = getAllChecklists(bId);
+    const teachers = getTeachers(bId);
+    const teacherMap = new Map(teachers.map(t => [t.id, t]));
+
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
+      let changed = false;
+      all[dateStr].forEach(rec => {
+        const t = teacherMap.get(rec.teacherId);
+        if (t) {
+          if (rec.level !== t.level || rec.teacherName !== t.name) {
+            rec.level = t.level;
+            rec.teacherName = t.name;
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        saveAllChecklists(all, bId);
+      }
       return all[dateStr];
     }
 
     const schedules = getSchedules(bId);
-    const teachers = getTeachers(bId);
     const generated = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(dateStr, schedules, teachers);
     all[dateStr] = generated;
     saveAllChecklists(all, bId);
