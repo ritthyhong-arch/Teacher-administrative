@@ -424,7 +424,7 @@ const PSIS_App = (() => {
               class="task-toggle-btn ${scoreDone ? 'completed' : 'missing'}"
               ${leaveDisabledAttr}
               onclick="PSIS_App.handleToggleTask('${rec.id}', 'scoreEvaluated')">
-              ${scoreDone ? '✓ បានដាក់ពិន្ទុ' : '✕ មិនបានដាក់'}
+              ${scoreDone ? '✓ បានដាក់ពិន្ទុ' : '✕ មិនបានដាក់ពិន្ទុ'}
             </button>
           </td>
 
@@ -675,18 +675,24 @@ const PSIS_App = (() => {
         remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
       }
 
+      const isAttNotDone = att && att.includes('មិន');
+      const isScoreNotDone = score && score.includes('មិន');
+      const isTgNotDone = tg && tg.includes('មិន');
+      const isSummNotDone = summ && summ.includes('មិន');
+      const isRemarksNotDone = remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់'));
+
       rowsHtml += `
         <tr>
           <td class="col-center">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
           <td class="col-name">${escapeHtml(teacherName)}</td>
           <td class="col-center">${escapeHtml(cleanClassGrade(r.classGrade))}</td>
           <td class="col-center">${escapeHtml(scanIn)}</td>
-          <td class="col-center">${escapeHtml(att)}</td>
-          <td class="col-center">${escapeHtml(score)}</td>
-          <td class="col-center">${escapeHtml(tg)}</td>
-          <td class="col-center">${escapeHtml(summ)}</td>
+          <td class="col-center ${isAttNotDone ? 'cell-not-done' : ''}" ${isAttNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(att)}</td>
+          <td class="col-center ${isScoreNotDone ? 'cell-not-done' : ''}" ${isScoreNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(score)}</td>
+          <td class="col-center ${isTgNotDone ? 'cell-not-done' : ''}" ${isTgNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(tg)}</td>
+          <td class="col-center ${isSummNotDone ? 'cell-not-done' : ''}" ${isSummNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(summ)}</td>
           <td class="col-center">${escapeHtml(scanOut)}</td>
-          <td class="col-center">${escapeHtml(remarksText)}</td>
+          <td class="col-center ${isRemarksNotDone ? 'cell-not-done' : ''}" ${isRemarksNotDone ? 'style="color: #DC2626 !important; font-weight: 600;"' : ''}>${escapeHtml(remarksText)}</td>
         </tr>
       `;
     });

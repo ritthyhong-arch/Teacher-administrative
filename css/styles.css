@@ -968,11 +968,17 @@ body {
 
 .task-toggle-btn.missing {
   background: var(--danger-bg);
-  color: var(--danger-text);
+  color: #DC2626;
   border-color: var(--danger-border);
+  font-weight: 700;
 }
 .task-toggle-btn.missing:hover {
   background: #FEE2E2;
+}
+
+.cell-not-done {
+  color: #DC2626 !important;
+  font-weight: 700 !important;
 }
 
 .select-remarks {

@@ -188,12 +188,12 @@ const PSIS_XlsxExport = (() => {
           <Cell ss:StyleID="${rowStyle}Bold"><Data ss:Type="String">${escapeXml(r.teacherName)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(cleanClassGrade(r.classGrade))}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanIn)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(att)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(score)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(tg)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(summ)}</Data></Cell>
+          <Cell ss:StyleID="${att && att.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(att)}</Data></Cell>
+          <Cell ss:StyleID="${score && score.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(score)}</Data></Cell>
+          <Cell ss:StyleID="${tg && tg.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(tg)}</Data></Cell>
+          <Cell ss:StyleID="${summ && summ.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(summ)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanOut)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(remarksText)}</Data></Cell>
+          <Cell ss:StyleID="${remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់')) ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(remarksText)}</Data></Cell>
         </Row>
       `;
     });
@@ -348,6 +348,17 @@ const PSIS_XlsxExport = (() => {
           </Borders>
           <Font ss:FontName="Kantumruy Pro" ss:Size="9"/>
           <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
+        </Style>
+        <Style ss:ID="tdNotDoneCenter">
+          <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+          <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/>
+          </Borders>
+          <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Color="#DC2626" ss:Bold="1"/>
+          <Interior ss:Color="#FEF2F2" ss:Pattern="Solid"/>
         </Style>
         <Style ss:ID="tdLeaveStyleCenter">
           <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
