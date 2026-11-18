@@ -793,7 +793,6 @@ const PSIS_App = (() => {
           <td style="text-align: center; font-weight: 700;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
           <td style="font-weight: 700; color: #1B365D;">${escapeHtml(s.teacherName)}</td>
           <td style="font-weight: 600; color: #0A2540;">${dayNames[s.dayOfWeek] || s.dayOfWeek}</td>
-          <td style="text-align: center;"><span class="shift-pill ${s.shift === 'ព្រឹក' ? 'shift-morning' : 'shift-afternoon'}">${escapeHtml(s.shift)}</span></td>
           <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
           <td>${escapeHtml(s.level)}</td>
           <td style="text-align: center;">${escapeHtml(s.timeSlot || '-')}</td>
