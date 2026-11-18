@@ -25,12 +25,21 @@ const PSIS_App = (() => {
    * Passwords for each school branch
    */
   const BRANCH_PASSWORDS = {
-    'psis-ii': 'TK002',
-    'psis-iii': 'TK003',
-    'psis-vii': 'TK007',
-    'psis-viii': 'TK008',
-    'psis-ix': 'TK009'
+    'psis-ii': ['002', 'TK002'],
+    'psis-iii': ['003', 'TK003'],
+    'psis-vii': ['007', 'TK007'],
+    'psis-viii': ['008', 'TK008'],
+    'psis-ix': ['009', 'TK009']
   };
+
+  /**
+   * Helper to strip "ថ្នាក់ទី" prefix from class name (e.g. "ថ្នាក់ទី 1A" -> "1A")
+   */
+  function cleanClassGrade(str, fallback = '-') {
+    if (!str) return fallback;
+    const cleaned = String(str).replace(/^ថ្នាក់ទី\s*/g, '').trim();
+    return cleaned || fallback;
+  }
 
   /**
    * Toggle Password Visibility in Modal
@@ -149,8 +158,11 @@ const PSIS_App = (() => {
     const pwdError = document.getElementById('branch-password-error');
     const enteredPwd = pwdInput ? pwdInput.value.trim() : '';
 
-    const expectedPwd = BRANCH_PASSWORDS[branchId] || '';
-    if (!enteredPwd || enteredPwd.toUpperCase() !== expectedPwd.toUpperCase()) {
+    const validPasswords = BRANCH_PASSWORDS[branchId] || [];
+    const validList = Array.isArray(validPasswords) ? validPasswords : [validPasswords];
+    const isMatch = enteredPwd && validList.some(p => p.toUpperCase() === enteredPwd.toUpperCase());
+
+    if (!isMatch) {
       if (pwdError) {
         pwdError.style.display = 'block';
         pwdError.textContent = `⚠️ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេសម្រាប់ ${select ? select.options[select.selectedIndex].text : 'សាខានេះ'}!`;
@@ -378,7 +390,7 @@ const PSIS_App = (() => {
           <!-- 3. ថ្នាក់ -->
           <td style="text-align: center; font-weight: 600; min-width: 85px;">
             <span style="display: inline-block; padding: 0.2rem 0.5rem; background: #EEF2F6; border-radius: 4px; font-size: 0.82rem;">
-              ${escapeHtml(rec.classGrade)}
+              ${escapeHtml(cleanClassGrade(rec.classGrade))}
             </span>
           </td>
 
@@ -667,7 +679,7 @@ const PSIS_App = (() => {
         <tr>
           <td class="col-center">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
           <td class="col-name">${escapeHtml(teacherName)}</td>
-          <td class="col-center">${escapeHtml(r.classGrade)}</td>
+          <td class="col-center">${escapeHtml(cleanClassGrade(r.classGrade))}</td>
           <td class="col-center">${escapeHtml(scanIn)}</td>
           <td class="col-center">${escapeHtml(att)}</td>
           <td class="col-center">${escapeHtml(score)}</td>
@@ -994,7 +1006,7 @@ const PSIS_App = (() => {
           <td>${escapeHtml(t.phone || '-')}</td>
           <td><span class="badge" style="background: #F1F5F9; color: #334155; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px;">${escapeHtml(t.level)}</span></td>
           <td>${escapeHtml(t.subject || '-')}</td>
-          <td style="text-align: center;">${escapeHtml(t.defaultClass || '-')}</td>
+          <td style="text-align: center;">${escapeHtml(cleanClassGrade(t.defaultClass))}</td>
           <td style="text-align: center;">
             <span class="badge-status badge-normal">សកម្ម</span>
           </td>
@@ -1041,7 +1053,7 @@ const PSIS_App = (() => {
           <td style="text-align: center; font-weight: 700;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
           <td style="font-weight: 700; color: #1B365D;">${escapeHtml(teacherName)}</td>
           <td style="font-weight: 600; color: #0A2540;">${formatScheduleDaysBadge(s.days, s.dayOfWeek)}</td>
-          <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
+          <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(cleanClassGrade(s.classGrade))}</span></td>
           <td>${escapeHtml(teacherLevel)}</td>
           <td style="text-align: center;">
             <div style="display: flex; justify-content: center; gap: 0.35rem;">
@@ -1098,7 +1110,7 @@ const PSIS_App = (() => {
       phone: document.getElementById('teacher-phone').value.trim(),
       level: document.getElementById('teacher-level').value,
       subject: document.getElementById('teacher-subject').value.trim(),
-      defaultClass: document.getElementById('teacher-default-class').value.trim(),
+      defaultClass: cleanClassGrade(document.getElementById('teacher-default-class').value.trim(), ''),
       status: 'សកម្ម'
     };
 
@@ -1215,7 +1227,7 @@ const PSIS_App = (() => {
 
     const classInput = document.getElementById('schedule-class');
     if (classInput && defaultClass) {
-      classInput.value = defaultClass;
+      classInput.value = cleanClassGrade(defaultClass, '');
     }
 
     // Auto-suggest preset based on teacher's education level
@@ -1236,7 +1248,7 @@ const PSIS_App = (() => {
 
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
-      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
+      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(cleanClassGrade(t.defaultClass, ''))}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
     ).join('');
 
     if (state.teachers.length > 0) {
@@ -1259,7 +1271,7 @@ const PSIS_App = (() => {
 
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
-      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
+      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(cleanClassGrade(t.defaultClass, ''))}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
     ).join('');
 
     if (s.teacherId) {
@@ -1268,7 +1280,7 @@ const PSIS_App = (() => {
 
     const classInput = document.getElementById('schedule-class');
     if (classInput) {
-      classInput.value = s.classGrade || '';
+      classInput.value = cleanClassGrade(s.classGrade, '');
     }
 
     // Populate day checkboxes
@@ -1301,7 +1313,7 @@ const PSIS_App = (() => {
       return;
     }
 
-    const classGrade = document.getElementById('schedule-class').value.trim();
+    const classGrade = cleanClassGrade(document.getElementById('schedule-class').value.trim(), '');
 
     if (!classGrade) {
       alert('សូមបញ្ចូលថ្នាក់!');
@@ -1371,7 +1383,7 @@ const PSIS_App = (() => {
         <tr style="${m.matched ? 'background-color: #F0FDF4;' : 'background-color: #FEF2F2;'}">
           <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
           <td style="font-weight: 700;">${escapeHtml(m.teacherName)}</td>
-          <td style="text-align: center;">${escapeHtml(m.classGrade)}</td>
+          <td style="text-align: center;">${escapeHtml(cleanClassGrade(m.classGrade))}</td>
           <td style="text-align: center; color: #64748B;">${escapeHtml(m.oldScanIn || '-')}</td>
           <td style="text-align: center; font-weight: 700; color: #059669;">${escapeHtml(m.newScanIn || '-')}</td>
           <td style="text-align: center; color: #64748B;">${escapeHtml(m.oldScanOut || '-')}</td>

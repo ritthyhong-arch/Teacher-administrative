@@ -73,13 +73,31 @@ const PSIS_Storage = (() => {
     }
   }
 
+  function cleanClassGrade(str) {
+    if (!str) return '';
+    return String(str).replace(/^ថ្នាក់ទី\s*/g, '').trim();
+  }
+
   // Teachers
   function getTeachers(branchId) {
     const bId = branchId || getCurrentBranchId() || 'branch-central';
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('teachers', bId));
-      return data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
+      let list = data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
+      let changed = false;
+      if (Array.isArray(list)) {
+        list.forEach(t => {
+          if (t.defaultClass && t.defaultClass.includes('ថ្នាក់ទី')) {
+            t.defaultClass = cleanClassGrade(t.defaultClass);
+            changed = true;
+          }
+        });
+        if (changed) {
+          saveTeachers(list, bId);
+        }
+      }
+      return list;
     } catch (e) {
       return PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
     }
@@ -95,6 +113,9 @@ const PSIS_Storage = (() => {
     if (!teacher.id) {
       teacher.id = 'T' + String(Date.now()).slice(-4);
     }
+    if (teacher.defaultClass) {
+      teacher.defaultClass = cleanClassGrade(teacher.defaultClass);
+    }
     list.push(teacher);
     saveTeachers(list, branchId);
     return teacher;
@@ -104,6 +125,9 @@ const PSIS_Storage = (() => {
     const list = getTeachers(branchId);
     const idx = list.findIndex(t => t.id === updated.id);
     if (idx !== -1) {
+      if (updated.defaultClass) {
+        updated.defaultClass = cleanClassGrade(updated.defaultClass);
+      }
       list[idx] = { ...list[idx], ...updated };
       saveTeachers(list, branchId);
 
@@ -198,6 +222,10 @@ const PSIS_Storage = (() => {
       }
 
       schedules.forEach(s => {
+        if (s.classGrade && s.classGrade.includes('ថ្នាក់ទី')) {
+          s.classGrade = cleanClassGrade(s.classGrade);
+          changed = true;
+        }
         const t = teacherMap.get(s.teacherId);
         if (t) {
           if (s.level !== t.level || s.teacherName !== t.name) {
@@ -226,6 +254,9 @@ const PSIS_Storage = (() => {
     if (!sch.id) {
       sch.id = 'SCH' + String(Date.now()).slice(-4);
     }
+    if (sch.classGrade) {
+      sch.classGrade = cleanClassGrade(sch.classGrade);
+    }
     list.push(sch);
     saveSchedules(list, branchId);
     clearDailyChecklists(branchId);
@@ -236,6 +267,9 @@ const PSIS_Storage = (() => {
     const list = getSchedules(branchId);
     const idx = list.findIndex(s => s.id === updated.id);
     if (idx !== -1) {
+      if (updated.classGrade) {
+        updated.classGrade = cleanClassGrade(updated.classGrade);
+      }
       list[idx] = { ...list[idx], ...updated };
       saveSchedules(list, branchId);
       clearDailyChecklists(branchId);
@@ -289,8 +323,12 @@ const PSIS_Storage = (() => {
         changed = true;
       }
 
-      // 2. Sync level & teacherName with active teachers
+      // 2. Sync level & teacherName with active teachers, and strip ថ្នាក់ទី from classGrade
       all[dateStr].forEach(rec => {
+        if (rec.classGrade && rec.classGrade.includes('ថ្នាក់ទី')) {
+          rec.classGrade = cleanClassGrade(rec.classGrade);
+          changed = true;
+        }
         const t = teacherMap.get(rec.teacherId);
         if (t) {
           if (rec.level !== t.level || rec.teacherName !== t.name) {

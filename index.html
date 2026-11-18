@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=3.5">
-  <link rel="stylesheet" href="css/print.css?v=3.5">
+  <link rel="stylesheet" href="css/styles.css?v=3.6">
+  <link rel="stylesheet" href="css/print.css?v=3.6">
 </head>
 <body>
 
@@ -43,7 +43,7 @@
 
         <label for="branch-password-input" class="branch-select-label" style="margin-top: 1.15rem; display: block;">លេខកូដសម្ងាត់សាខា (Password)</label>
         <div class="branch-password-wrapper" style="position: relative;">
-          <input type="password" id="branch-password-input" class="form-control" placeholder="បញ្ចូលលេខកូដសម្ងាត់សាខា (ឧ. TK002, TK003...)" autocomplete="current-password" onkeydown="if(event.key==='Enter') PSIS_App.confirmBranchSelection();" style="width: 100%; padding: 0.65rem 2.6rem 0.65rem 0.85rem; font-size: 0.95rem; border: 1.5px solid var(--border-color); border-radius: 6px;">
+          <input type="password" id="branch-password-input" class="form-control" placeholder="បញ្ចូលលេខកូដសម្ងាត់សាខា (ឧ. 002, 003, 007, 008, 009...)" autocomplete="current-password" onkeydown="if(event.key==='Enter') PSIS_App.confirmBranchSelection();" style="width: 100%; padding: 0.65rem 2.6rem 0.65rem 0.85rem; font-size: 0.95rem; border: 1.5px solid var(--border-color); border-radius: 6px;">
           <button type="button" onclick="PSIS_App.togglePasswordVisibility('branch-password-input')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 1.15rem; padding: 4px;" title="បង្ហាញ/លាក់លេខកូដ">👁️</button>
         </div>
         <div id="branch-password-error" style="color: #dc2626; font-size: 0.85rem; margin-top: 6px; display: none; font-weight: 600;">
@@ -609,7 +609,7 @@
 
               <div class="form-group form-group-full">
                 <label class="form-label">ថ្នាក់/កម្រិត (Class/Grade) *</label>
-                <input type="text" id="schedule-class" class="form-control" required placeholder="ឧ. K2, ថ្នាក់ទី 1A, ថ្នាក់ទី 9B">
+                <input type="text" id="schedule-class" class="form-control" required placeholder="ឧ. K2, 1A, 9B, 11A">
               </div>
             </div>
           </div>
@@ -808,12 +808,12 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=3.5"></script>
-  <script src="js/sample-data.js?v=3.5"></script>
-  <script src="js/storage.js?v=3.5"></script>
-  <script src="js/analytics.js?v=3.5"></script>
-  <script src="js/xlsx-export.js?v=3.5"></script>
-  <script src="js/biometric-import.js?v=3.5"></script>
-  <script src="js/app.js?v=3.5"></script>
+  <script src="js/khmer-lunar.js?v=3.6"></script>
+  <script src="js/sample-data.js?v=3.6"></script>
+  <script src="js/storage.js?v=3.6"></script>
+  <script src="js/analytics.js?v=3.6"></script>
+  <script src="js/xlsx-export.js?v=3.6"></script>
+  <script src="js/biometric-import.js?v=3.6"></script>
+  <script src="js/app.js?v=3.6"></script>
 </body>
 </html>

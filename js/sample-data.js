@@ -96,53 +96,53 @@ const PSIS_SAMPLE_DATA = {
   getTeachersForBranch(branchId) {
     if (branchId === 'psis-ii') {
       return [
-        { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 1A', status: 'សកម្ម' },
-        { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: 'ថ្នាក់ទី 11A', status: 'សកម្ម' },
-        { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 9B', status: 'សកម្ម' },
-        { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 10A', status: 'សកម្ម' },
-        { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 5A', status: 'សកម្ម' },
+        { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '1A', status: 'សកម្ម' },
+        { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: '11A', status: 'សកម្ម' },
+        { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: '9B', status: 'សកម្ម' },
+        { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: '10A', status: 'សកម្ម' },
+        { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: '5A', status: 'សកម្ម' },
         { id: 'T007', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា (Kindergarten)', defaultClass: 'K2', status: 'សកម្ម' }
       ];
     } else if (branchId === 'psis-iii') {
       return [
-        { id: 'T003', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: 'ថ្នាក់ទី 3B', status: 'សកម្ម' },
-        { id: 'T008', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: 'ថ្នាក់ទី 2B', status: 'សកម្ម' },
-        { id: 'T009', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 4A', status: 'សកម្ម' },
-        { id: 'T010', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: 'ថ្នាក់ទី 7A', status: 'សកម្ម' },
-        { id: 'T011', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: 'ថ្នាក់ទី 8B', status: 'សកម្ម' },
-        { id: 'T012', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 12A', status: 'សកម្ម' }
+        { id: 'T003', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: '3B', status: 'សកម្ម' },
+        { id: 'T008', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: '2B', status: 'សកម្ម' },
+        { id: 'T009', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: '4A', status: 'សកម្ម' },
+        { id: 'T010', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: '7A', status: 'សកម្ម' },
+        { id: 'T011', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: '8B', status: 'សកម្ម' },
+        { id: 'T012', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: '12A', status: 'សកម្ម' }
       ];
     } else if (branchId === 'psis-vii') {
       return [
-        { id: 'V001', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 5A', status: 'សកម្ម' },
-        { id: 'V002', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: 'ថ្នាក់ទី 3B', status: 'សកម្ម' },
+        { id: 'V001', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: '5A', status: 'សកម្ម' },
+        { id: 'V002', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: '3B', status: 'សកម្ម' },
         { id: 'V003', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា (Kindergarten)', defaultClass: 'K2', status: 'សកម្ម' },
-        { id: 'V004', name: 'នួន វិរៈ', gender: 'ប្រុស', phone: '093 223 344', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 3A', status: 'សកម្ម' },
+        { id: 'V004', name: 'នួន វិរៈ', gender: 'ប្រុស', phone: '093 223 344', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'គណិតវិទ្យា', defaultClass: '3A', status: 'សកម្ម' },
         { id: 'V005', name: 'ទេព ម៉ាលីស', gender: 'ស្រី', phone: '088 776 655', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា', defaultClass: 'K2', status: 'សកម្ម' }
       ];
     } else if (branchId === 'psis-viii') {
       return [
-        { id: 'W001', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 9B', status: 'សកម្ម' },
-        { id: 'W002', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 10A', status: 'សកម្ម' },
-        { id: 'W003', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 1A', status: 'សកម្ម' },
-        { id: 'W004', name: 'អ៊ឹម សំបូរ', gender: 'ប្រុស', phone: '016 445 566', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'រូបវិទ្យា', defaultClass: 'ថ្នាក់ទី 9A', status: 'សកម្ម' }
+        { id: 'W001', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: '9B', status: 'សកម្ម' },
+        { id: 'W002', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: '10A', status: 'សកម្ម' },
+        { id: 'W003', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '1A', status: 'សកម្ម' },
+        { id: 'W004', name: 'អ៊ឹម សំបូរ', gender: 'ប្រុស', phone: '016 445 566', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'រូបវិទ្យា', defaultClass: '9A', status: 'សកម្ម' }
       ];
     }
 
     // Default Paññāsāstra International School IX (PSIS IX)
     return [
-      { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 1A', status: 'សកម្ម' },
-      { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: 'ថ្នាក់ទី 11A', status: 'សកម្ម' },
-      { id: 'T003', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: 'ថ្នាក់ទី 3B', status: 'សកម្ម' },
-      { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 9B', status: 'សកម្ម' },
-      { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 10A', status: 'សកម្ម' },
-      { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 5A', status: 'សកម្ម' },
+      { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '1A', status: 'សកម្ម' },
+      { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: '11A', status: 'សកម្ម' },
+      { id: 'T003', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: '3B', status: 'សកម្ម' },
+      { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: '9B', status: 'សកម្ម' },
+      { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: '10A', status: 'សកម្ម' },
+      { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: '5A', status: 'សកម្ម' },
       { id: 'T007', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា (Kindergarten)', defaultClass: 'K2', status: 'សកម្ម' },
-      { id: 'T008', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: 'ថ្នាក់ទី 2B', status: 'សកម្ម' },
-      { id: 'T009', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 4A', status: 'សកម្ម' },
-      { id: 'T010', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: 'ថ្នាក់ទី 7A', status: 'សកម្ម' },
-      { id: 'T011', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: 'ថ្នាក់ទី 8B', status: 'សកម្ម' },
-      { id: 'T012', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 12A', status: 'សកម្ម' }
+      { id: 'T008', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: '2B', status: 'សកម្ម' },
+      { id: 'T009', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: '4A', status: 'សកម្ម' },
+      { id: 'T010', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: '7A', status: 'សកម្ម' },
+      { id: 'T011', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: '8B', status: 'សកម្ម' },
+      { id: 'T012', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: '12A', status: 'សកម្ម' }
     ];
   },
 
@@ -171,7 +171,7 @@ const PSIS_SAMPLE_DATA = {
         days: days,
         dayOfWeek: days[0],
         shift: t.shift,
-        classGrade: t.defaultClass || 'ថ្នាក់ទី 1',
+        classGrade: t.defaultClass || '1A',
         level: t.level,
         timeSlot: t.shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00',
         room: `បន្ទប់ ${100 + (tIdx + 1)}`

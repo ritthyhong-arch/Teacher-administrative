@@ -6,6 +6,12 @@
  */
 
 const PSIS_XlsxExport = (() => {
+  function cleanClassGrade(str) {
+    if (!str) return '-';
+    const cleaned = String(str).replace(/^ថ្នាក់ទី\s*/g, '').trim();
+    return cleaned || '-';
+  }
+
   /**
    * Export Daily Monitoring Checklist to Excel
    */
@@ -56,7 +62,7 @@ const PSIS_XlsxExport = (() => {
       rows.push([
         idx + 1,
         r.teacherName,
-        r.classGrade,
+        cleanClassGrade(r.classGrade),
         r.remarks === 'ច្បាប់' ? '-' : (r.scanInTime || '-'),
         r.remarks === 'ច្បាប់' ? '-' : (r.attendanceRecorded || 'បានស្រង់'),
         r.remarks === 'ច្បាប់' ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ'),
@@ -180,7 +186,7 @@ const PSIS_XlsxExport = (() => {
         <Row ss:Height="20">
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="Number">${idx + 1}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Bold"><Data ss:Type="String">${escapeXml(r.teacherName)}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(r.classGrade)}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(cleanClassGrade(r.classGrade))}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanIn)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(att)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(score)}</Data></Cell>
