@@ -37,7 +37,8 @@
 .official-school-logo-print {
   width: 62px;
   height: 62px;
-  object-fit: contain;
+  border-radius: 50%;
+  object-fit: cover;
   margin-bottom: 5px;
 }
 

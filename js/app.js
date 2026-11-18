@@ -611,7 +611,7 @@ const PSIS_App = (() => {
       <div class="official-document-sheet" id="official-sheet">
         <div class="official-top-header">
           <div class="official-school-side">
-            <img src="assets/logo.svg" alt="PSIS Logo" class="official-school-logo-print" />
+            <img src="assets/logo.png" alt="PSIS Logo" class="official-school-logo-print" />
             <div class="official-school-name-line">
               សាលាបញ្ញាសាស្រ្តអន្តរជាតិ ${escapeHtml(branchPrint)}
             </div>
