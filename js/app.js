@@ -1503,6 +1503,37 @@ const PSIS_App = (() => {
     showToast('បានទាញយកទិន្នន័យបម្រុងទុក (JSON) ជោគជ័យ!', 'success');
   }
 
+  function openBackupModal() {
+    openModal('backup-modal');
+  }
+
+  function handleCopyBackupJson() {
+    const jsonStr = PSIS_Storage.exportAllData();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        showToast('បានចម្លងកូដទិន្នន័យជោគជ័យ! សូមចុច Paste (Ctrl+V) ផ្ញើក្នុង Chat នេះ', 'success');
+      }).catch(() => {
+        copyFallback(jsonStr);
+      });
+    } else {
+      copyFallback(jsonStr);
+    }
+  }
+
+  function copyFallback(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('បានចម្លងកូដទិន្នន័យជោគជ័យ! សូមចុច Paste (Ctrl+V) ផ្ញើក្នុង Chat នេះ', 'success');
+    } catch (e) {
+      prompt('សូម Copy កូដខាងក្រោមដោយដៃ៖', text);
+    }
+    document.body.removeChild(ta);
+  }
+
   function handleImportBackup(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -1683,6 +1714,8 @@ const PSIS_App = (() => {
     handleSignatureFileChange,
     handleRemoveSignature,
     openSettingsModal,
+    openBackupModal,
+    handleCopyBackupJson,
     handleResetBranchData,
     handleExportBackup,
     handleImportBackup,

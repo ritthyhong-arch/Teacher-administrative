@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=4.2">
-  <link rel="stylesheet" href="css/print.css?v=4.2">
+  <link rel="stylesheet" href="css/styles.css?v=4.3">
+  <link rel="stylesheet" href="css/print.css?v=4.3">
 </head>
 <body>
 
@@ -104,6 +104,10 @@
           <button type="button" class="btn btn-gold btn-sm" onclick="PSIS_App.handlePrint()" title="បោះពុម្ពរបាយការណ៍ A4">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             <span>បោះពុម្ព A4</span>
+          </button>
+          <button type="button" class="btn btn-outline-gold btn-sm" onclick="PSIS_App.openBackupModal()" title="ផ្ទេរ និងចម្លងទិន្នន័យ (Data Sync)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>ផ្ទេរទិន្នន័យ (Sync)</span>
           </button>
           <button type="button" class="btn btn-outline-gold btn-icon" onclick="PSIS_App.openSettingsModal()" title="ការកំណត់សាខា">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -817,18 +821,73 @@
       </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MODAL: BACKUP & DATA TRANSFER (SYNC) -->
+    <!-- ========================================== -->
+    <div id="backup-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 580px;">
+        <div class="modal-header">
+          <h3 class="modal-title">📦 ការផ្ទេរ និងធ្វើសមកាលកម្មទិន្នន័យ (Data Sync & Backup)</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('backup-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem; line-height: 1.5;">
+            មុខងារនេះជួយឱ្យលោកអ្នកផ្ទេរទិន្នន័យគ្រូបង្រៀន និងកិច្ចការរដ្ឋបាលរវាងកុំព្យូទ័រមួយទៅកុំព្យូទ័រមួយទៀត ឬចម្លងទិន្នន័យដើម្បីបញ្ចូលទៅក្នុង GitHub ឱ្យស្មើគ្នាគ្រប់កុំព្យូទ័រ។
+          </p>
+
+          <!-- Action Cards -->
+          <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.25rem;">
+            <!-- Option A: Copy to Clipboard -->
+            <div style="background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 1rem;">
+              <strong style="color: var(--psis-blue); font-size: 0.95rem; display: block; margin-bottom: 0.35rem;">
+                ១. ចម្លងកូដទិន្នន័យពីកុំព្យូទ័រនេះ (Copy Data Code)
+              </strong>
+              <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 0.75rem;">
+                ចុចប៊ូតុងខាងក្រោមដើម្បី Copy ទិន្នន័យ រួចយកទៅ Paste ផ្ញើក្នុង Chat ជាមួយ AI ដើម្បីបញ្ចូលទៅក្នុង GitHub ដោយផ្ទាល់៖
+              </p>
+              <button type="button" class="btn btn-primary btn-sm" onclick="PSIS_App.handleCopyBackupJson()">
+                📋 ចម្លងកូដទិន្នន័យ (Copy JSON Code)
+              </button>
+            </div>
+
+            <!-- Option B: Export / Import File -->
+            <div style="background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 1rem;">
+              <strong style="color: var(--psis-blue); font-size: 0.95rem; display: block; margin-bottom: 0.35rem;">
+                ២. ទាញយក ឬបញ្ចូលជា File (File Export / Import)
+              </strong>
+              <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 0.75rem;">
+                ទាញយក File ចេញពីម៉ាស៊ីននេះ ដើម្បីយកទៅបញ្ចូលលើម៉ាស៊ីនកុំព្យូទ័រអ្នកផ្សេង៖
+              </p>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleExportBackup()">
+                  ⬇️ ទាញយកជា File (Export JSON File)
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('modal-backup-file-input').click()">
+                  ⬆️ បញ្ចូលពី File (Import JSON File)
+                </button>
+                <input type="file" id="modal-backup-file-input" accept=".json,application/json" style="display: none;" onchange="PSIS_App.handleImportBackup(event)">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="PSIS_App.closeModal('backup-modal')">បិទ</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" class="toast-container"></div>
 
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=4.2"></script>
-  <script src="js/sample-data.js?v=4.2"></script>
-  <script src="js/storage.js?v=4.2"></script>
-  <script src="js/analytics.js?v=4.2"></script>
-  <script src="js/xlsx-export.js?v=4.2"></script>
-  <script src="js/biometric-import.js?v=4.2"></script>
-  <script src="js/app.js?v=4.2"></script>
+  <script src="js/khmer-lunar.js?v=4.3"></script>
+  <script src="js/sample-data.js?v=4.3"></script>
+  <script src="js/storage.js?v=4.3"></script>
+  <script src="js/analytics.js?v=4.3"></script>
+  <script src="js/xlsx-export.js?v=4.3"></script>
+  <script src="js/biometric-import.js?v=4.3"></script>
+  <script src="js/app.js?v=4.3"></script>
 </body>
 </html>
