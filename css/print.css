@@ -10,7 +10,7 @@
 .official-document-sheet {
   background: #FFFFFF;
   color: #000000;
-  font-family: 'Kantumruy Pro', 'Siemreap', sans-serif;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif;
   line-height: 1.4;
   position: relative;
   width: 100%;
@@ -107,8 +107,8 @@
 }
 
 .official-report-date-line {
-  font-family: 'Kantumruy Pro', sans-serif;
-  font-size: 10pt;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif;
+  font-size: 10.5pt;
   color: #000000;
   font-weight: 500;
 }
@@ -128,7 +128,7 @@
   width: 100% !important;
   border-collapse: collapse !important;
   margin-bottom: 1.25rem;
-  font-size: 8.5pt !important;
+  font-size: 9pt !important;
 }
 
 .official-print-table thead {
@@ -147,9 +147,9 @@
 
 .official-print-table th {
   background: #FFFFFF !important;
-  font-family: 'Kantumruy Pro', sans-serif !important;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
   font-weight: 700 !important;
-  font-size: 8pt !important;
+  font-size: 8.5pt !important;
   padding: 6px 2px !important;
   text-align: center !important;
   vertical-align: middle !important;
@@ -157,8 +157,8 @@
 }
 
 .official-print-table td {
-  font-family: 'Kantumruy Pro', sans-serif !important;
-  font-size: 8.5pt !important;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
+  font-size: 9pt !important;
   padding: 5px 3px !important;
   vertical-align: middle !important;
   height: 28px !important;
@@ -207,17 +207,17 @@
 }
 
 .sig-lunar-date {
-  font-family: 'Kantumruy Pro', sans-serif !important;
-  font-size: 9pt !important;
-  font-weight: 600 !important;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
+  font-size: 9.5pt !important;
+  font-weight: 500 !important;
   color: #000000 !important;
   margin-bottom: 2px !important;
 }
 
 .sig-solar-date {
-  font-family: 'Kantumruy Pro', sans-serif !important;
-  font-size: 9pt !important;
-  font-weight: 600 !important;
+  font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
+  font-size: 9.5pt !important;
+  font-weight: 500 !important;
   color: #000000 !important;
   margin-bottom: 4px !important;
 }

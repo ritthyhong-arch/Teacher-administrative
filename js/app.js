@@ -588,25 +588,6 @@ const PSIS_App = (() => {
       `;
     });
 
-    // Fill blank rows to match the official pre-printed table form layout (up to 12 rows minimum)
-    const minRows = 12;
-    for (let i = state.dailyRecords.length; i < minRows; i++) {
-      rowsHtml += `
-        <tr class="empty-print-row">
-          <td class="col-center">${KhmerCalendar.toKhmerNumber(i + 1)}</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-      `;
-    }
-
     const docHtml = `
       <div class="official-document-sheet" id="official-sheet">
         <div class="official-top-header">
