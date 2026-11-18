@@ -96,12 +96,25 @@ const PSIS_SAMPLE_DATA = {
   getTeachersForBranch(branchId) {
     if (branchId === 'psis-ii') {
       return [
-        { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '1A', status: 'សកម្ម' },
-        { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: '11A', status: 'សកម្ម' },
-        { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: '9B', status: 'សកម្ម' },
-        { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: '10A', status: 'សកម្ម' },
-        { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: '5A', status: 'សកម្ម' },
-        { id: 'T007', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា (Kindergarten)', defaultClass: 'K2', status: 'សកម្ម' }
+        { id: 'T001', name: 'ខ្លង លីនដា', gender: 'ស្រី', phone: '011633931', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'រួម', defaultClass: 'K2', status: 'សកម្ម' },
+        { id: 'T9994', name: 'ហួត ដារី', gender: 'ស្រី', phone: '', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'រួម', defaultClass: 'K3', status: 'សកម្ម' },
+        { id: 'T2551', name: 'តែម សារុំា', gender: 'ស្រី', phone: '', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '1 & 3', status: 'សកម្ម' },
+        { id: 'T2861', name: 'បេន វី', gender: 'ប្រុស', phone: '', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '2 & 5', status: 'សកម្ម' },
+        { id: 'T9233', name: 'ឌឿក ធារិទ្ធ​', gender: 'ប្រុស', phone: '', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: '4 & 6', status: 'សកម្ម' },
+        { id: 'T5420', name: 'មឿន ចាន់មករា', gender: 'ប្រុស', phone: '', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: '1-6', status: 'សកម្ម' },
+        { id: 'T5600', name: 'ធូ  ស៊ុនណា', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គណិតវិទ្យា', defaultClass: '7,8', status: 'សកម្ម' },
+        { id: 'T0330', name: 'ម៉ក់ តុលា', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ជីវៈវិទ្យា & ផែនដី', defaultClass: '7,8,9,10', status: 'សកម្ម' },
+        { id: 'T8996', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ជីវៈវិទ្យា & ផែនដី', defaultClass: '11,12', status: 'សកម្ម' },
+        { id: 'T7667', name: 'សឿម ដានុន', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា', defaultClass: '9,11,12', status: 'សកម្ម' },
+        { id: 'T1740', name: 'ប៉ិច យ៉ាហាន់', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា', defaultClass: '9,11,12', status: 'សកម្ម' },
+        { id: 'T9208', name: 'សុះ សះឡេះ', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភូមិ & ប្រវត្តិ', defaultClass: '7,8 & 10', status: 'សកម្ម' },
+        { id: 'T3730', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភូមិ & ប្រវត្តិ', defaultClass: '7,8,9,10,11,12', status: 'សកម្ម' },
+        { id: 'T8323', name: 'ឡេង ឡាសិសុវ៉ាត់', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ខ្មែរ & ពលរដ្ឋ', defaultClass: '7,8', status: 'សកម្ម' },
+        { id: 'T7631', name: 'ប៉ុក ចាន់', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមី', defaultClass: '7,8,9', status: 'សកម្ម' },
+        { id: 'T2634', name: 'គង់នៅ ពិសាល', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ខ្មែរ & ពលរដ្ឋ', defaultClass: '9,10,11,12', status: 'សកម្ម' },
+        { id: 'T2068', name: 'អុឹម ឈុន​​លី', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គណិតវិទ្យា', defaultClass: '9,10,11,12', status: 'សកម្ម' },
+        { id: 'T5367', name: 'ឌុច សុវត្តិរ៉ា', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា', defaultClass: '7,8', status: 'សកម្ម' },
+        { id: 'T8593', name: 'ហ៊ន សុខណេង', gender: 'ប្រុស', phone: '', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមី', defaultClass: '10,11,12', status: 'សកម្ម' }
       ];
     } else if (branchId === 'psis-iii') {
       return [
