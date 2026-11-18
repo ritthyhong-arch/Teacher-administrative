@@ -224,6 +224,44 @@
 
 .sig-space {
   height: 68px !important; /* Space for physical signature and official school stamp */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+.sig-space-interactive {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.sig-space-interactive:hover .sig-upload-hint {
+  background: rgba(27, 54, 93, 0.08);
+  border-color: #1B365D;
+  color: #1B365D;
+}
+
+.sig-upload-hint {
+  font-family: 'Siemreap', 'Kantumruy Pro', sans-serif;
+  font-size: 0.8rem;
+  color: #64748B;
+  border: 1px dashed #CBD5E1;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #F8FAFC;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.digital-signature-img {
+  max-height: 64px !important;
+  max-width: 140px !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
 }
 
 .sig-name-moul {

@@ -739,7 +739,9 @@ const PSIS_App = (() => {
           <div class="signature-col-left">
             <div class="sig-title-moul">បានឃើញនិងឯកភាព</div>
             <div class="sig-title-moul">នាយកសាលា</div>
-            <div class="sig-space"></div>
+            <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('principal')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
+              ${state.schoolInfo.principalSignature ? `<img src="${state.schoolInfo.principalSignature}" alt="ហត្ថលេខានាយកសាលា" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
+            </div>
             <div class="sig-name-moul">${escapeHtml(principal)}</div>
           </div>
 
@@ -747,7 +749,9 @@ const PSIS_App = (() => {
             <div class="sig-lunar-date">${escapeHtml(shortLunarStr)}</div>
             <div class="sig-solar-date">${escapeHtml(branchPrint)} ថ្ងៃទី${escapeHtml(dayKh)} ខែ${escapeHtml(monthKh)} ឆ្នាំ${escapeHtml(yearKh)}</div>
             <div class="sig-title-moul" style="margin-top: 4px;">អ្នកត្រួតពិនិត្យ</div>
-            <div class="sig-space"></div>
+            <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('inspector')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
+              ${state.schoolInfo.inspectorSignature ? `<img src="${state.schoolInfo.inspectorSignature}" alt="ហត្ថលេខាអ្នកត្រួតពិនិត្យ" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
+            </div>
             <div class="sig-name-moul">${escapeHtml(inspector)}</div>
           </div>
         </div>
@@ -755,6 +759,122 @@ const PSIS_App = (() => {
     `;
 
     printArea.innerHTML = docHtml;
+  }
+
+  /**
+   * Open Digital Signature Upload Modal
+   */
+  function openSignatureModal(focusType = null) {
+    const modal = document.getElementById('signature-modal');
+    if (!modal) return;
+
+    // Populate current principal info
+    const principalNameEl = document.getElementById('sig-principal-name-label');
+    if (principalNameEl) {
+      principalNameEl.textContent = `ឈ្មោះ៖ ${state.schoolInfo.principalName || 'ហៀង ពលៈ'}`;
+    }
+    const principalImg = document.getElementById('sig-principal-img');
+    const principalEmpty = document.getElementById('sig-principal-empty-text');
+    const principalRemoveBtn = document.getElementById('sig-principal-remove-btn');
+    if (state.schoolInfo.principalSignature) {
+      if (principalImg) {
+        principalImg.src = state.schoolInfo.principalSignature;
+        principalImg.style.display = 'block';
+      }
+      if (principalEmpty) principalEmpty.style.display = 'none';
+      if (principalRemoveBtn) principalRemoveBtn.style.display = 'block';
+    } else {
+      if (principalImg) {
+        principalImg.src = '';
+        principalImg.style.display = 'none';
+      }
+      if (principalEmpty) principalEmpty.style.display = 'block';
+      if (principalRemoveBtn) principalRemoveBtn.style.display = 'none';
+    }
+
+    // Populate current inspector info
+    const inspectorNameEl = document.getElementById('sig-inspector-name-label');
+    if (inspectorNameEl) {
+      inspectorNameEl.textContent = `ឈ្មោះ៖ ${state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី'}`;
+    }
+    const inspectorImg = document.getElementById('sig-inspector-img');
+    const inspectorEmpty = document.getElementById('sig-inspector-empty-text');
+    const inspectorRemoveBtn = document.getElementById('sig-inspector-remove-btn');
+    if (state.schoolInfo.inspectorSignature) {
+      if (inspectorImg) {
+        inspectorImg.src = state.schoolInfo.inspectorSignature;
+        inspectorImg.style.display = 'block';
+      }
+      if (inspectorEmpty) inspectorEmpty.style.display = 'none';
+      if (inspectorRemoveBtn) inspectorRemoveBtn.style.display = 'block';
+    } else {
+      if (inspectorImg) {
+        inspectorImg.src = '';
+        inspectorImg.style.display = 'none';
+      }
+      if (inspectorEmpty) inspectorEmpty.style.display = 'block';
+      if (inspectorRemoveBtn) inspectorRemoveBtn.style.display = 'none';
+    }
+
+    modal.classList.add('active');
+  }
+
+  /**
+   * Handle Signature File Selection & Upload (converts image to DataURL and persists in localStorage)
+   */
+  function handleSignatureFileChange(event, type) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('សូមជ្រើសរើសឯកសារជារូបភាព (PNG, JPG, WEBP)!');
+      return;
+    }
+
+    // Max size: 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      alert('ទំហំរូបភាពមិនត្រូវលើសពី 2MB ឡើយ!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      if (type === 'principal') {
+        state.schoolInfo.principalSignature = dataUrl;
+      } else if (type === 'inspector') {
+        state.schoolInfo.inspectorSignature = dataUrl;
+      }
+
+      // Save to localStorage
+      PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
+
+      // Re-render modal preview and document
+      openSignatureModal();
+      renderPrintReport();
+      showToast(`បានបញ្ចូលហត្ថលេខាឌីជីថលដោយជោគជ័យ!`, 'success');
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  /**
+   * Remove Digital Signature
+   */
+  function handleRemoveSignature(type) {
+    if (type === 'principal') {
+      delete state.schoolInfo.principalSignature;
+    } else if (type === 'inspector') {
+      delete state.schoolInfo.inspectorSignature;
+    }
+
+    // Save to localStorage
+    PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
+
+    // Re-render modal preview and document
+    openSignatureModal();
+    renderPrintReport();
+    showToast(`បានលុបហត្ថលេខាឌីជីថលរួចរាល់`, 'info');
   }
 
   /**
@@ -1505,6 +1625,9 @@ const PSIS_App = (() => {
     handleExportDailyExcel,
     handleExportMonthlyExcel,
     handlePrint,
+    openSignatureModal,
+    handleSignatureFileChange,
+    handleRemoveSignature,
     openSettingsModal,
     handleResetBranchData,
     switchTab,

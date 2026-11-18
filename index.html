@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=3.3">
-  <link rel="stylesheet" href="css/print.css?v=3.3">
+  <link rel="stylesheet" href="css/styles.css?v=3.4">
+  <link rel="stylesheet" href="css/print.css?v=3.4">
 </head>
 <body>
 
@@ -444,7 +444,11 @@
             <h2 class="font-moul" style="font-size: 1rem; color: var(--psis-blue);">ទម្រង់របាយការណ៍ផ្លូវការសម្រាប់បោះពុម្ពលើក្រដាស A4 (Official Printable Report)</h2>
             <p style="font-size: 0.85rem; color: #64748B;">ទម្រង់នេះរៀបចំឡើងស្របតាមស្តង់ដារបស់សាលាបញ្ញាសាស្រ្តអន្តរជាតិ (PSIS) រួមមានក្បាលលិខិតជាតិ បាវចនាសាលា និងកាលបរិច្ឆេទចន្ទគតិខ្មែរ</p>
           </div>
-          <div style="display: flex; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline" onclick="PSIS_App.openSignatureModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>បញ្ចូលហត្ថលេខា Digital</span>
+            </button>
             <button type="button" class="btn btn-gold" onclick="window.print()">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
               <span>បោះពុម្ពក្រដាស A4 / Save PDF</span>
@@ -673,6 +677,74 @@
     </div>
 
     <!-- ========================================== -->
+    <!-- MODAL: DIGITAL SIGNATURE UPLOAD -->
+    <!-- ========================================== -->
+    <div id="signature-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+          <h3 class="modal-title">បញ្ចូលហត្ថលេខាឌីជីថល (Upload Digital Signatures)</h3>
+          <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('signature-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">
+            លោកអ្នកអាច Upload រូបភាពហត្ថលេខា (PNG គ្មានផ្ទៃខាងក្រោយ ឬ JPG) ដើម្បីបង្ហាញលើទម្រង់របាយការណ៍បោះពុម្ពផ្លូវការដោយស្វ័យប្រវត្តិ។
+          </p>
+
+          <!-- 1. Principal Signature Card -->
+          <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <strong style="color: var(--psis-blue); font-size: 0.95rem;">១. ហត្ថលេខានាយកសាលា (Principal Signature)</strong>
+              <span id="sig-principal-name-label" style="font-size: 0.85rem; color: #64748B; font-weight: 600;"></span>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <div id="sig-principal-preview-box" style="width: 150px; height: 75px; border: 1.5px dashed #CBD5E1; border-radius: 6px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                <span id="sig-principal-empty-text" style="font-size: 0.75rem; color: #94A3B8; text-align: center; padding: 4px;">គ្មានហត្ថលេខា</span>
+                <img id="sig-principal-img" src="" alt="Principal Signature" style="display: none; max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
+              <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem;">
+                <input type="file" id="sig-principal-file-input" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="PSIS_App.handleSignatureFileChange(event, 'principal')">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('sig-principal-file-input').click()">
+                  📁 ជ្រើសរើសរូបភាពហត្ថលេខា (Upload)
+                </button>
+                <button type="button" id="sig-principal-remove-btn" class="btn btn-danger btn-sm" onclick="PSIS_App.handleRemoveSignature('principal')" style="display: none;">
+                  🗑️ លុបហត្ថលេខានេះចេញ
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Inspector Signature Card -->
+          <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <strong style="color: var(--psis-blue); font-size: 0.95rem;">២. ហត្ថលេខាអ្នកត្រួតពិនិត្យ (Inspector Signature)</strong>
+              <span id="sig-inspector-name-label" style="font-size: 0.85rem; color: #64748B; font-weight: 600;"></span>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <div id="sig-inspector-preview-box" style="width: 150px; height: 75px; border: 1.5px dashed #CBD5E1; border-radius: 6px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                <span id="sig-inspector-empty-text" style="font-size: 0.75rem; color: #94A3B8; text-align: center; padding: 4px;">គ្មានហត្ថលេខា</span>
+                <img id="sig-inspector-img" src="" alt="Inspector Signature" style="display: none; max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
+              <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem;">
+                <input type="file" id="sig-inspector-file-input" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="PSIS_App.handleSignatureFileChange(event, 'inspector')">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('sig-inspector-file-input').click()">
+                  📁 ជ្រើសរើសរូបភាពហត្ថលេខា (Upload)
+                </button>
+                <button type="button" id="sig-inspector-remove-btn" class="btn btn-danger btn-sm" onclick="PSIS_App.handleRemoveSignature('inspector')" style="display: none;">
+                  🗑️ លុបហត្ថលេខានេះចេញ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" style="min-width: 120px;" onclick="PSIS_App.closeModal('signature-modal')">រួចរាល់ (Done)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- MODAL 4: SYSTEM SETTINGS -->
     <!-- ========================================== -->
     <div id="settings-modal" class="modal-overlay">
@@ -736,12 +808,12 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=3.3"></script>
-  <script src="js/sample-data.js?v=3.3"></script>
-  <script src="js/storage.js?v=3.3"></script>
-  <script src="js/analytics.js?v=3.3"></script>
-  <script src="js/xlsx-export.js?v=3.3"></script>
-  <script src="js/biometric-import.js?v=3.3"></script>
-  <script src="js/app.js?v=3.3"></script>
+  <script src="js/khmer-lunar.js?v=3.4"></script>
+  <script src="js/sample-data.js?v=3.4"></script>
+  <script src="js/storage.js?v=3.4"></script>
+  <script src="js/analytics.js?v=3.4"></script>
+  <script src="js/xlsx-export.js?v=3.4"></script>
+  <script src="js/biometric-import.js?v=3.4"></script>
+  <script src="js/app.js?v=3.4"></script>
 </body>
 </html>
