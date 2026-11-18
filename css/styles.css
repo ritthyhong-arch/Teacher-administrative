@@ -1272,3 +1272,122 @@ body {
   background: rgba(255, 255, 255, 0.18);
 }
 
+/* ============================================================== */
+/* MULTI-DAY SCHEDULE SELECTOR & DAY BADGES                      */
+/* ============================================================== */
+.day-presets-bar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.btn-day-preset {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-day-preset:hover {
+  background: #E2E8F0;
+  border-color: #94A3B8;
+}
+
+.btn-day-preset.active {
+  background: #1B365D;
+  color: #FFFFFF;
+  border-color: #1B365D;
+  box-shadow: 0 2px 4px rgba(27, 54, 93, 0.25);
+}
+
+.btn-day-preset-clear {
+  background: transparent;
+  border: 1px dashed #CBD5E1;
+  color: #64748B;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-day-preset-clear:hover {
+  border-color: #EF4444;
+  color: #EF4444;
+}
+
+.day-checkboxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.5rem;
+}
+
+.day-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.day-check-item:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.day-check-item:has(input:checked) {
+  background: #EFF6FF;
+  border-color: #3B82F6;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+.day-check-item input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #1B365D;
+  cursor: pointer;
+}
+
+.day-check-text {
+  font-size: 0.88rem;
+}
+
+.day-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.day-badge-all {
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.day-badge-partial {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+
+.header-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+

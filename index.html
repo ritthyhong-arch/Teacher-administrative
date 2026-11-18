@@ -551,20 +551,66 @@
             <div class="form-grid">
               <div class="form-group form-group-full">
                 <label class="form-label">ជ្រើសរើសគ្រូបង្រៀន *</label>
-                <select id="schedule-teacher-select" class="form-control" required>
+                <select id="schedule-teacher-select" class="form-control" required onchange="PSIS_App.onScheduleTeacherSelectChange(this)">
                   <!-- Populated dynamically -->
                 </select>
               </div>
-              <div class="form-group">
-                <label class="form-label">ថ្ងៃក្នុងសប្តាហ៍ (Day of Week) *</label>
-                <select id="schedule-day" class="form-control" required>
-                  <option value="1">ថ្ងៃចន្ទ (Monday)</option>
-                  <option value="2">ថ្ងៃអង្គារ (Tuesday)</option>
-                  <option value="3">ថ្ងៃពុធ (Wednesday)</option>
-                  <option value="4">ថ្ងៃព្រហស្បតិ៍ (Thursday)</option>
-                  <option value="5">ថ្ងៃសុក្រ (Friday)</option>
-                </select>
+
+              <!-- Multi-day selection with presets (ចន្ទ ដល់ សុក្រ / ចន្ទ, ពុធ / etc.) -->
+              <div class="form-group form-group-full">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <label class="form-label" style="margin-bottom: 0;">
+                    កំណត់ថ្ងៃបង្រៀន (Teaching Days) *
+                  </label>
+                  <span id="selected-days-summary" style="font-size: 0.82rem; font-weight: 700; color: #1B365D; background: #EEF2F6; padding: 0.2rem 0.6rem; border-radius: 9999px;">
+                    បានជ្រើសរើស: ចន្ទ ដល់ សុក្រ
+                  </span>
+                </div>
+
+                <!-- Presets Buttons -->
+                <div class="day-presets-bar">
+                  <button type="button" class="btn-day-preset active" id="preset-mon-fri" onclick="PSIS_App.applyDayPreset('mon-fri')">
+                    🌟 ចន្ទ ដល់ សុក្រ (មត្តេយ្យ & បឋម)
+                  </button>
+                  <button type="button" class="btn-day-preset" id="preset-mon-wed" onclick="PSIS_App.applyDayPreset('mon-wed')">
+                    ចន្ទ, ពុធ (អនុ-វិទ្យាល័យ)
+                  </button>
+                  <button type="button" class="btn-day-preset" id="preset-mon-wed-fri" onclick="PSIS_App.applyDayPreset('mon-wed-fri')">
+                    ចន្ទ, ពុធ, សុក្រ
+                  </button>
+                  <button type="button" class="btn-day-preset" id="preset-tue-thu" onclick="PSIS_App.applyDayPreset('tue-thu')">
+                    អង្គារ, ព្រហស្បតិ៍
+                  </button>
+                  <button type="button" class="btn-day-preset-clear" onclick="PSIS_App.applyDayPreset('clear')">
+                    សម្អាត
+                  </button>
+                </div>
+
+                <!-- Day checkboxes -->
+                <div class="day-checkboxes-grid">
+                  <label class="day-check-item">
+                    <input type="checkbox" name="schedule-days" value="1" checked onchange="PSIS_App.onScheduleDayCheckboxChange()">
+                    <span class="day-check-text">ថ្ងៃចន្ទ (Mon)</span>
+                  </label>
+                  <label class="day-check-item">
+                    <input type="checkbox" name="schedule-days" value="2" checked onchange="PSIS_App.onScheduleDayCheckboxChange()">
+                    <span class="day-check-text">ថ្ងៃអង្គារ (Tue)</span>
+                  </label>
+                  <label class="day-check-item">
+                    <input type="checkbox" name="schedule-days" value="3" checked onchange="PSIS_App.onScheduleDayCheckboxChange()">
+                    <span class="day-check-text">ថ្ងៃពុធ (Wed)</span>
+                  </label>
+                  <label class="day-check-item">
+                    <input type="checkbox" name="schedule-days" value="4" checked onchange="PSIS_App.onScheduleDayCheckboxChange()">
+                    <span class="day-check-text">ថ្ងៃព្រហស្បតិ៍ (Thu)</span>
+                  </label>
+                  <label class="day-check-item">
+                    <input type="checkbox" name="schedule-days" value="5" checked onchange="PSIS_App.onScheduleDayCheckboxChange()">
+                    <span class="day-check-text">ថ្ងៃសុក្រ (Fri)</span>
+                  </label>
+                </div>
               </div>
+
               <div class="form-group">
                 <label class="form-label">វេនបង្រៀន (Shift) *</label>
                 <select id="schedule-shift" class="form-control" required>

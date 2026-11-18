@@ -4,7 +4,7 @@
  */
 
 const PSIS_Storage = (() => {
-  const CURRENT_BRANCH_KEY = 'psis_active_branch_id_v2';
+  const CURRENT_BRANCH_KEY = 'psis_active_branch_id_v4';
 
   function getCurrentBranchId() {
     return localStorage.getItem(CURRENT_BRANCH_KEY) || null;
@@ -29,7 +29,7 @@ const PSIS_Storage = (() => {
   // Branch-specific storage key generator
   function getKey(type, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
-    return `psis_${bId}_${type}_v2`;
+    return `psis_${bId}_${type}_v4`;
   }
 
   // Init storage for a branch if not already existing
@@ -123,7 +123,7 @@ const PSIS_Storage = (() => {
 
   // Schedules
   function getSchedules(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('schedules', bId));
@@ -134,7 +134,7 @@ const PSIS_Storage = (() => {
   }
 
   function saveSchedules(schedules, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('schedules', bId), JSON.stringify(schedules));
   }
 
@@ -145,6 +145,7 @@ const PSIS_Storage = (() => {
     }
     list.push(sch);
     saveSchedules(list, branchId);
+    clearDailyChecklists(branchId);
     return sch;
   }
 
@@ -152,11 +153,12 @@ const PSIS_Storage = (() => {
     let list = getSchedules(branchId);
     list = list.filter(s => s.id !== id);
     saveSchedules(list, branchId);
+    clearDailyChecklists(branchId);
   }
 
   // Checklists
   function getAllChecklists(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('checklists', bId));
@@ -167,12 +169,17 @@ const PSIS_Storage = (() => {
   }
 
   function saveAllChecklists(all, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('checklists', bId), JSON.stringify(all));
   }
 
+  function clearDailyChecklists(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    localStorage.removeItem(getKey('checklists', bId));
+  }
+
   function getDailyChecklist(dateStr, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const all = getAllChecklists(bId);
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
       return all[dateStr];
@@ -187,7 +194,7 @@ const PSIS_Storage = (() => {
   }
 
   function saveDailyChecklist(dateStr, records, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const all = getAllChecklists(bId);
     all[dateStr] = records;
     saveAllChecklists(all, bId);
@@ -195,7 +202,7 @@ const PSIS_Storage = (() => {
 
   // School Info
   function getSchoolInfo(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('school_info', bId));
@@ -206,13 +213,13 @@ const PSIS_Storage = (() => {
   }
 
   function saveSchoolInfo(info, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('school_info', bId), JSON.stringify(info));
   }
 
   // Reset current branch data
   function resetBranchData(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.removeItem(getKey('teachers', bId));
     localStorage.removeItem(getKey('schedules', bId));
     localStorage.removeItem(getKey('school_info', bId));
@@ -238,6 +245,7 @@ const PSIS_Storage = (() => {
     getAllChecklists,
     getDailyChecklist,
     saveDailyChecklist,
+    clearDailyChecklists,
     getSchoolInfo,
     saveSchoolInfo,
     resetBranchData

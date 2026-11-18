@@ -774,17 +774,20 @@ const PSIS_App = (() => {
     tbody.innerHTML = html;
   }
 
+  function formatScheduleDaysBadge(days, singleDay) {
+    const list = (Array.isArray(days) && days.length > 0) ? days.map(Number) : [Number(singleDay || 1)];
+    const sorted = [...list].sort((a,b) => a - b);
+    if (sorted.length === 5 && sorted[0] === 1 && sorted[4] === 5) {
+      return '<span class="day-badge day-badge-all">ចន្ទ ដល់ សុក្រ</span>';
+    }
+    const names = { 1: 'ចន្ទ', 2: 'អង្គារ', 3: 'ពុធ', 4: 'ព្រហស្បតិ៍', 5: 'សុក្រ' };
+    const text = sorted.map(d => names[d] || d).join(', ');
+    return `<span class="day-badge day-badge-partial">${escapeHtml(text)}</span>`;
+  }
+
   function renderSchedulesTable() {
     const tbody = document.getElementById('schedules-table-body');
     if (!tbody) return;
-
-    const dayNames = {
-      1: 'ចន្ទ (Monday)',
-      2: 'អង្គារ (Tuesday)',
-      3: 'ពុធ (Wednesday)',
-      4: 'ព្រហស្បតិ៍ (Thursday)',
-      5: 'សុក្រ (Friday)'
-    };
 
     let html = '';
     state.schedules.forEach((s, idx) => {
@@ -792,7 +795,7 @@ const PSIS_App = (() => {
         <tr>
           <td style="text-align: center; font-weight: 700;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
           <td style="font-weight: 700; color: #1B365D;">${escapeHtml(s.teacherName)}</td>
-          <td style="font-weight: 600; color: #0A2540;">${dayNames[s.dayOfWeek] || s.dayOfWeek}</td>
+          <td style="font-weight: 600; color: #0A2540;">${formatScheduleDaysBadge(s.days, s.dayOfWeek)}</td>
           <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
           <td>${escapeHtml(s.level)}</td>
           <td style="text-align: center;">${escapeHtml(s.timeSlot || '-')}</td>
@@ -880,11 +883,112 @@ const PSIS_App = (() => {
     }
   }
 
+  function applyDayPreset(preset) {
+    const checkboxes = document.querySelectorAll('input[name="schedule-days"]');
+    let targetDays = [];
+    if (preset === 'mon-fri') {
+      targetDays = [1, 2, 3, 4, 5];
+    } else if (preset === 'mon-wed') {
+      targetDays = [1, 3];
+    } else if (preset === 'mon-wed-fri') {
+      targetDays = [1, 3, 5];
+    } else if (preset === 'tue-thu') {
+      targetDays = [2, 4];
+    } else if (preset === 'clear') {
+      targetDays = [];
+    }
+
+    checkboxes.forEach(cb => {
+      cb.checked = targetDays.includes(parseInt(cb.value, 10));
+    });
+
+    document.querySelectorAll('.btn-day-preset').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`preset-${preset}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    updateSelectedDaysSummary();
+  }
+
+  function updateSelectedDaysSummary() {
+    const checked = Array.from(document.querySelectorAll('input[name="schedule-days"]:checked'))
+      .map(cb => parseInt(cb.value, 10))
+      .sort((a,b) => a - b);
+    const summaryEl = document.getElementById('selected-days-summary');
+    if (!summaryEl) return;
+
+    if (checked.length === 0) {
+      summaryEl.textContent = 'មិនទាន់ជ្រើសរើសថ្ងៃ!';
+      summaryEl.style.color = '#EF4444';
+      summaryEl.style.background = '#FEE2E2';
+      return;
+    }
+
+    summaryEl.style.color = '#1B365D';
+    summaryEl.style.background = '#EEF2F6';
+
+    if (checked.length === 5 && checked[0] === 1 && checked[4] === 5) {
+      summaryEl.textContent = 'បានជ្រើសរើស: ចន្ទ ដល់ សុក្រ';
+    } else {
+      const names = { 1: 'ចន្ទ', 2: 'អង្គារ', 3: 'ពុធ', 4: 'ព្រហ', 5: 'សុក្រ' };
+      summaryEl.textContent = 'បានជ្រើសរើស: ' + checked.map(d => names[d] || d).join(', ');
+    }
+  }
+
+  function onScheduleDayCheckboxChange() {
+    const checked = Array.from(document.querySelectorAll('input[name="schedule-days"]:checked'))
+      .map(cb => parseInt(cb.value, 10))
+      .sort((a,b) => a - b);
+    const str = checked.join(',');
+
+    document.querySelectorAll('.btn-day-preset').forEach(btn => btn.classList.remove('active'));
+    if (str === '1,2,3,4,5') {
+      const b = document.getElementById('preset-mon-fri');
+      if (b) b.classList.add('active');
+    } else if (str === '1,3') {
+      const b = document.getElementById('preset-mon-wed');
+      if (b) b.classList.add('active');
+    } else if (str === '1,3,5') {
+      const b = document.getElementById('preset-mon-wed-fri');
+      if (b) b.classList.add('active');
+    } else if (str === '2,4') {
+      const b = document.getElementById('preset-tue-thu');
+      if (b) b.classList.add('active');
+    }
+
+    updateSelectedDaysSummary();
+  }
+
+  function onScheduleTeacherSelectChange(selectEl) {
+    if (!selectEl) return;
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    if (!selectedOption) return;
+    const level = selectedOption.getAttribute('data-level');
+    const defaultClass = selectedOption.getAttribute('data-class');
+
+    const classInput = document.getElementById('schedule-class');
+    if (classInput && defaultClass) {
+      classInput.value = defaultClass;
+    }
+
+    // Auto-suggest preset based on teacher's education level
+    if (level === 'មត្តេយ្យ' || level === 'បឋមសិក្សា') {
+      applyDayPreset('mon-fri');
+    } else if (level === 'អនុវិទ្យាល័យ-វិទ្យាល័យ') {
+      applyDayPreset('mon-wed');
+    }
+  }
+
   function openAddScheduleModal() {
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
-      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-shift="${escapeHtml(t.shift)}">${escapeHtml(t.name)} (${escapeHtml(t.level)} - ${escapeHtml(t.shift)})</option>`
+      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-shift="${escapeHtml(t.shift)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)} - ${escapeHtml(t.shift)})</option>`
     ).join('');
+
+    if (state.teachers.length > 0) {
+      onScheduleTeacherSelectChange(teacherSelect);
+    } else {
+      applyDayPreset('mon-fri');
+    }
 
     openModal('schedule-modal');
   }
@@ -898,10 +1002,18 @@ const PSIS_App = (() => {
     const teacherName = selectedOption.getAttribute('data-name');
     const level = selectedOption.getAttribute('data-level');
 
-    const dayOfWeek = parseInt(document.getElementById('schedule-day').value, 10);
+    const checkedDays = Array.from(document.querySelectorAll('input[name="schedule-days"]:checked'))
+      .map(cb => parseInt(cb.value, 10))
+      .sort((a,b) => a - b);
+
+    if (checkedDays.length === 0) {
+      alert('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយថ្ងៃ!');
+      return;
+    }
+
     const shift = document.getElementById('schedule-shift').value;
     const classGrade = document.getElementById('schedule-class').value.trim();
-    const timeSlot = document.getElementById('schedule-time').value.trim();
+    const timeSlot = document.getElementById('schedule-time').value.trim() || (shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00');
     const room = document.getElementById('schedule-room').value.trim();
 
     if (!classGrade) {
@@ -912,7 +1024,8 @@ const PSIS_App = (() => {
     const schData = {
       teacherId,
       teacherName,
-      dayOfWeek,
+      days: checkedDays,
+      dayOfWeek: checkedDays[0],
       shift,
       classGrade,
       level,
@@ -922,16 +1035,21 @@ const PSIS_App = (() => {
 
     PSIS_Storage.addSchedule(schData, state.currentBranchId);
     state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
-    renderSchedulesTable();
+
+    // Refresh daily records with new schedule
+    loadDailyRecords();
+    renderAll();
+
     closeModal('schedule-modal');
-    showToast('បានចាត់ចែងកាលវិភាគថ្មីជោគជ័យ!', 'success');
+    showToast(`បានចាត់ចែងកាលវិភាគថ្មីជូន ${teacherName} ជោគជ័យ!`, 'success');
   }
 
   function handleDeleteSchedule(id) {
     if (confirm('តើអ្នកពិតជាចង់លុបកាលវិភាគនេះមែនទេ?')) {
       PSIS_Storage.deleteSchedule(id, state.currentBranchId);
       state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
-      renderSchedulesTable();
+      loadDailyRecords();
+      renderAll();
       showToast('បានលុបកាលវិភាគ', 'warning');
     }
   }
@@ -1217,6 +1335,9 @@ const PSIS_App = (() => {
     openEditTeacherModal,
     handleDeleteTeacher,
     openAddScheduleModal,
+    applyDayPreset,
+    onScheduleDayCheckboxChange,
+    onScheduleTeacherSelectChange,
     handleDeleteSchedule,
     openBiometricModal,
     handlePreviewBiometricData,

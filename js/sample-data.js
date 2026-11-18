@@ -142,23 +142,33 @@ const PSIS_SAMPLE_DATA = {
 
   getSchedulesForBranch(branchId, teachers) {
     const schedules = [];
-    const days = [1, 2, 3, 4, 5];
 
     teachers.forEach((t, tIdx) => {
-      days.forEach(day => {
-        if ((tIdx % 2 === 0) || (day % 2 === 1)) {
-          schedules.push({
-            id: `SCH_${branchId}_${t.id}_D${day}`,
-            teacherId: t.id,
-            teacherName: t.name,
-            dayOfWeek: day,
-            shift: t.shift,
-            classGrade: t.defaultClass || 'ថ្នាក់ទី 1',
-            level: t.level,
-            timeSlot: t.shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00',
-            room: `បន្ទប់ ${100 + (tIdx + 1)}`
-          });
+      // Determine teaching days based on education level requested:
+      // មត្តេយ្យ & បឋមសិក្សា -> ចន្ទ ដល់ សុក្រ (Days 1, 2, 3, 4, 5)
+      // អនុវិទ្យាល័យ-វិទ្យាល័យ -> ចន្ទ, ពុធ [1, 3] ឬ ចន្ទ ដល់ សុក្រ [1, 2, 3, 4, 5] ឬ ចន្ទ, ពុធ, សុក្រ [1, 3, 5]
+      let days = [1, 2, 3, 4, 5];
+      if (t.level === 'អនុវិទ្យាល័យ-វិទ្យាល័យ') {
+        if (tIdx % 3 === 0) {
+          days = [1, 3]; // ចន្ទ, ពុធ
+        } else if (tIdx % 3 === 1) {
+          days = [1, 3, 5]; // ចន្ទ, ពុធ, សុក្រ
+        } else {
+          days = [1, 2, 3, 4, 5]; // ចន្ទ ដល់ សុក្រ
         }
+      }
+
+      schedules.push({
+        id: `SCH_${branchId}_${t.id}`,
+        teacherId: t.id,
+        teacherName: t.name,
+        days: days,
+        dayOfWeek: days[0],
+        shift: t.shift,
+        classGrade: t.defaultClass || 'ថ្នាក់ទី 1',
+        level: t.level,
+        timeSlot: t.shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00',
+        room: `បន្ទប់ ${100 + (tIdx + 1)}`
       });
     });
 
@@ -170,7 +180,13 @@ const PSIS_SAMPLE_DATA = {
     let dayOfWeek = d.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) dayOfWeek = 1;
 
-    const daySchedules = schedulesList.filter(s => s.dayOfWeek === dayOfWeek);
+    // Filter schedules where current dayOfWeek matches scheduled days
+    const daySchedules = schedulesList.filter(s => {
+      if (Array.isArray(s.days) && s.days.length > 0) {
+        return s.days.map(Number).includes(dayOfWeek);
+      }
+      return Number(s.dayOfWeek) === dayOfWeek;
+    });
 
     return daySchedules.map((sch, index) => {
       let scanIn = '06:55';
