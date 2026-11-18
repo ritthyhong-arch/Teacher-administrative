@@ -746,7 +746,7 @@ const PSIS_App = (() => {
           <div class="signature-col-right">
             <div class="sig-lunar-date">${escapeHtml(shortLunarStr)}</div>
             <div class="sig-solar-date">${escapeHtml(branchPrint)} ថ្ងៃទី${escapeHtml(dayKh)} ខែ${escapeHtml(monthKh)} ឆ្នាំ${escapeHtml(yearKh)}</div>
-            <div class="sig-title-moul" style="margin-top: 4px;">អ្នករៀបចំត្រួតពិនិត្យ</div>
+            <div class="sig-title-moul" style="margin-top: 4px;">អ្នកត្រួតពិនិត្យ</div>
             <div class="sig-space"></div>
             <div class="sig-name-moul">${escapeHtml(inspector)}</div>
           </div>

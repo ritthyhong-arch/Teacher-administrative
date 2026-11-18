@@ -89,7 +89,7 @@ const PSIS_XlsxExport = (() => {
     ]);
     rows.push([
       '', '', '', '', '', '',
-      'អ្នករៀបចំត្រួតពិនិត្យ'
+      'អ្នកត្រួតពិនិត្យ'
     ]);
     rows.push(['']);
     rows.push(['']);
@@ -216,7 +216,7 @@ const PSIS_XlsxExport = (() => {
       </Row>
       <Row ss:Height="18">
         <Cell ss:MergeAcross="4"></Cell>
-        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">អ្នករៀបចំត្រួតពិនិត្យ</Data></Cell>
+        <Cell ss:MergeAcross="4" ss:StyleID="sigRoleStyle"><Data ss:Type="String">អ្នកត្រួតពិនិត្យ</Data></Cell>
       </Row>
       <Row ss:Height="40"></Row>
       <Row ss:Height="22">
