@@ -796,9 +796,14 @@ const PSIS_App = (() => {
           <td style="text-align: center; font-weight: 600;"><span style="padding: 2px 8px; background: #EEF2F6; border-radius: 4px;">${escapeHtml(s.classGrade)}</span></td>
           <td>${escapeHtml(s.level)}</td>
           <td style="text-align: center;">
-            <button class="btn btn-sm btn-outline btn-icon" style="color: #EF4444;" title="លុបកាលវិភាគ" onclick="PSIS_App.handleDeleteSchedule('${s.id}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            </button>
+            <div style="display: flex; justify-content: center; gap: 0.35rem;">
+              <button class="btn btn-sm btn-outline btn-icon" title="កែប្រែកាលវិភាគ" onclick="PSIS_App.openEditScheduleModal('${s.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+              <button class="btn btn-sm btn-outline btn-icon" style="color: #EF4444;" title="លុបកាលវិភាគ" onclick="PSIS_App.handleDeleteSchedule('${s.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -972,6 +977,13 @@ const PSIS_App = (() => {
   }
 
   function openAddScheduleModal() {
+    const form = document.getElementById('schedule-form');
+    if (form) form.reset();
+    const idInput = document.getElementById('schedule-id');
+    if (idInput) idInput.value = '';
+    const titleEl = document.getElementById('schedule-modal-title');
+    if (titleEl) titleEl.textContent = 'ចាត់ចែងកាលវិភាគបង្រៀនថ្មី';
+
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
       `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
@@ -986,8 +998,43 @@ const PSIS_App = (() => {
     openModal('schedule-modal');
   }
 
+  function openEditScheduleModal(id) {
+    const s = state.schedules.find(item => item.id === id);
+    if (!s) return;
+
+    const idInput = document.getElementById('schedule-id');
+    if (idInput) idInput.value = s.id;
+    const titleEl = document.getElementById('schedule-modal-title');
+    if (titleEl) titleEl.textContent = 'កែប្រែកាលវិភាគបង្រៀន';
+
+    const teacherSelect = document.getElementById('schedule-teacher-select');
+    teacherSelect.innerHTML = state.teachers.map(t => 
+      `<option value="${t.id}" data-name="${escapeHtml(t.name)}" data-level="${escapeHtml(t.level)}" data-class="${escapeHtml(t.defaultClass || '')}">${escapeHtml(t.name)} (${escapeHtml(t.level)})</option>`
+    ).join('');
+
+    if (s.teacherId) {
+      teacherSelect.value = s.teacherId;
+    }
+
+    const classInput = document.getElementById('schedule-class');
+    if (classInput) {
+      classInput.value = s.classGrade || '';
+    }
+
+    // Populate day checkboxes
+    const days = (Array.isArray(s.days) && s.days.length > 0) ? s.days.map(Number) : [Number(s.dayOfWeek || 1)];
+    const checkboxes = document.querySelectorAll('input[name="schedule-days"]');
+    checkboxes.forEach(cb => {
+      cb.checked = days.includes(parseInt(cb.value, 10));
+    });
+    onScheduleDayCheckboxChange();
+
+    openModal('schedule-modal');
+  }
+
   function handleSaveSchedule(e) {
     e.preventDefault();
+    const scheduleId = document.getElementById('schedule-id') ? document.getElementById('schedule-id').value : '';
     const teacherSelect = document.getElementById('schedule-teacher-select');
     const selectedOption = teacherSelect.options[teacherSelect.selectedIndex];
 
@@ -1020,7 +1067,15 @@ const PSIS_App = (() => {
       level
     };
 
-    PSIS_Storage.addSchedule(schData, state.currentBranchId);
+    if (scheduleId) {
+      schData.id = scheduleId;
+      PSIS_Storage.updateSchedule(schData, state.currentBranchId);
+      showToast(`បានកែប្រែកាលវិភាគជូន ${teacherName} ជោគជ័យ!`, 'success');
+    } else {
+      PSIS_Storage.addSchedule(schData, state.currentBranchId);
+      showToast(`បានចាត់ចែងកាលវិភាគថ្មីជូន ${teacherName} ជោគជ័យ!`, 'success');
+    }
+
     state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
 
     // Refresh daily records with new schedule
@@ -1028,7 +1083,6 @@ const PSIS_App = (() => {
     renderAll();
 
     closeModal('schedule-modal');
-    showToast(`បានចាត់ចែងកាលវិភាគថ្មីជូន ${teacherName} ជោគជ័យ!`, 'success');
   }
 
   function handleDeleteSchedule(id) {
@@ -1314,6 +1368,7 @@ const PSIS_App = (() => {
     openEditTeacherModal,
     handleDeleteTeacher,
     openAddScheduleModal,
+    openEditScheduleModal,
     applyDayPreset,
     onScheduleDayCheckboxChange,
     onScheduleTeacherSelectChange,

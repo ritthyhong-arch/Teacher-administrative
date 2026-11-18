@@ -149,6 +149,18 @@ const PSIS_Storage = (() => {
     return sch;
   }
 
+  function updateSchedule(updated, branchId) {
+    const list = getSchedules(branchId);
+    const idx = list.findIndex(s => s.id === updated.id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...updated };
+      saveSchedules(list, branchId);
+      clearDailyChecklists(branchId);
+      return list[idx];
+    }
+    return null;
+  }
+
   function deleteSchedule(id, branchId) {
     let list = getSchedules(branchId);
     list = list.filter(s => s.id !== id);
@@ -241,6 +253,7 @@ const PSIS_Storage = (() => {
     getSchedules,
     saveSchedules,
     addSchedule,
+    updateSchedule,
     deleteSchedule,
     getAllChecklists,
     getDailyChecklist,

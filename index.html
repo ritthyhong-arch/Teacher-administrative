@@ -14,8 +14,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=2.3">
-  <link rel="stylesheet" href="css/print.css?v=2.3">
+  <link rel="stylesheet" href="css/styles.css?v=2.4">
+  <link rel="stylesheet" href="css/print.css?v=2.4">
 </head>
 <body>
 
@@ -414,7 +414,7 @@
                   <th>ថ្ងៃក្នុងសប្តាហ៍</th>
                   <th>ថ្នាក់/កម្រិត</th>
                   <th>កម្រិតសិក្សា</th>
-                  <th style="width: 80px;">សកម្មភាព</th>
+                  <th style="width: 95px;">សកម្មភាព</th>
                 </tr>
               </thead>
               <tbody id="schedules-table-body">
@@ -519,16 +519,17 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- MODAL 2: ADD SCHEDULE MAPPING -->
+    <!-- MODAL 2: ADD / EDIT SCHEDULE MAPPING -->
     <!-- ========================================== -->
     <div id="schedule-modal" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title">ចាត់ចែងកាលវិភាគបង្រៀនប្រចាំសប្តាហ៍</h3>
+          <h3 class="modal-title" id="schedule-modal-title">ចាត់ចែងកាលវិភាគបង្រៀនប្រចាំសប្តាហ៍</h3>
           <button type="button" class="modal-close-btn" onclick="PSIS_App.closeModal('schedule-modal')">&times;</button>
         </div>
         <form id="schedule-form">
           <div class="modal-body">
+            <input type="hidden" id="schedule-id">
             <div class="form-grid">
               <div class="form-group form-group-full">
                 <label class="form-label">ជ្រើសរើសគ្រូបង្រៀន *</label>
@@ -725,12 +726,12 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=2.3"></script>
-  <script src="js/sample-data.js?v=2.3"></script>
-  <script src="js/storage.js?v=2.3"></script>
-  <script src="js/analytics.js?v=2.3"></script>
-  <script src="js/xlsx-export.js?v=2.3"></script>
-  <script src="js/biometric-import.js?v=2.3"></script>
-  <script src="js/app.js?v=2.3"></script>
+  <script src="js/khmer-lunar.js?v=2.4"></script>
+  <script src="js/sample-data.js?v=2.4"></script>
+  <script src="js/storage.js?v=2.4"></script>
+  <script src="js/analytics.js?v=2.4"></script>
+  <script src="js/xlsx-export.js?v=2.4"></script>
+  <script src="js/biometric-import.js?v=2.4"></script>
+  <script src="js/app.js?v=2.4"></script>
 </body>
 </html>
