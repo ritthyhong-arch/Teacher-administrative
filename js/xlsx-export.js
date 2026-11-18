@@ -54,9 +54,12 @@ const PSIS_XlsxExport = (() => {
     ];
 
     records.forEach((r, idx) => {
-      let remarksText = r.remarks || '';
+      let remarksText = '';
+      if (r.remarks && r.remarks !== 'ធម្មតា') {
+        remarksText = r.remarks;
+      }
       if (r.note && r.note.trim()) {
-        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+        remarksText = remarksText ? `${remarksText} (${r.note.trim()})` : r.note.trim();
       }
 
       rows.push([
@@ -177,9 +180,12 @@ const PSIS_XlsxExport = (() => {
       const summ = isLeave ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ');
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
 
-      let remarksText = r.remarks || '';
+      let remarksText = '';
+      if (r.remarks && r.remarks !== 'ធម្មតា') {
+        remarksText = r.remarks;
+      }
       if (r.note && r.note.trim()) {
-        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+        remarksText = remarksText ? `${remarksText} (${r.note.trim()})` : r.note.trim();
       }
 
       rowsXml += `

@@ -685,9 +685,12 @@ const PSIS_App = (() => {
       const teacher = state.teachers.find(t => t.id === r.teacherId);
       const teacherName = teacher ? teacher.name : r.teacherName;
 
-      let remarksText = r.remarks || '';
+      let remarksText = '';
+      if (r.remarks && r.remarks !== 'ធម្មតា') {
+        remarksText = r.remarks;
+      }
       if (r.note && r.note.trim()) {
-        remarksText = (r.remarks && r.remarks !== 'ធម្មតា') ? `${r.remarks} (${r.note})` : r.note;
+        remarksText = remarksText ? `${remarksText} (${r.note.trim()})` : r.note.trim();
       }
 
       const isAttNotDone = att && att.includes('មិន');
@@ -780,7 +783,7 @@ const PSIS_App = (() => {
             <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('principal')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
               ${state.schoolInfo.principalSignature ? `<img src="${state.schoolInfo.principalSignature}" alt="ហត្ថលេខានាយកសាលា" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
             </div>
-            <div class="sig-name-moul">${escapeHtml(principal)}</div>
+            <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(principal)}</div>
           </div>
 
           <div class="signature-col-right">
@@ -790,7 +793,7 @@ const PSIS_App = (() => {
             <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('inspector')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
               ${state.schoolInfo.inspectorSignature ? `<img src="${state.schoolInfo.inspectorSignature}" alt="ហត្ថលេខាអ្នកត្រួតពិនិត្យ" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
             </div>
-            <div class="sig-name-moul">${escapeHtml(inspector)}</div>
+            <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(inspector)}</div>
           </div>
         </div>
       </div>
