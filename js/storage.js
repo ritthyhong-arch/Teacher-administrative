@@ -109,7 +109,8 @@ const PSIS_Storage = (() => {
   }
 
   function addTeacher(teacher, branchId) {
-    const list = getTeachers(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const list = getTeachers(bId);
     if (!teacher.id) {
       teacher.id = 'T' + String(Date.now()).slice(-4);
     }
@@ -117,22 +118,41 @@ const PSIS_Storage = (() => {
       teacher.defaultClass = cleanClassGrade(teacher.defaultClass);
     }
     list.push(teacher);
-    saveTeachers(list, branchId);
+    saveTeachers(list, bId);
+
+    // Auto-create a default schedule if none exists for this teacher
+    const schedules = getSchedules(bId);
+    if (!schedules.some(s => s.teacherId === teacher.id)) {
+      const days = (teacher.level === 'មត្តេយ្យ' || teacher.level === 'បឋមសិក្សា') ? [1, 2, 3, 4, 5] : [1, 3, 5];
+      addSchedule({
+        teacherId: teacher.id,
+        teacherName: teacher.name,
+        days: days,
+        dayOfWeek: days[0],
+        shift: teacher.shift || 'ព្រឹក',
+        classGrade: teacher.defaultClass || '1A',
+        level: teacher.level,
+        timeSlot: (teacher.shift === 'ល្ងាច' ? '13:00 - 17:00' : '07:00 - 11:15'),
+        room: 'បន្ទប់ ១០១'
+      }, bId);
+    }
+
     return teacher;
   }
 
   function updateTeacher(updated, branchId) {
-    const list = getTeachers(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const list = getTeachers(bId);
     const idx = list.findIndex(t => t.id === updated.id);
     if (idx !== -1) {
       if (updated.defaultClass) {
         updated.defaultClass = cleanClassGrade(updated.defaultClass);
       }
       list[idx] = { ...list[idx], ...updated };
-      saveTeachers(list, branchId);
+      saveTeachers(list, bId);
 
-      // Cascade update to all schedules for this teacher
-      let schedules = getSchedules(branchId);
+      // Cascade update to all schedules for this teacher (including classGrade)
+      let schedules = getSchedules(bId);
       let schedChanged = false;
       schedules = schedules.map(s => {
         if (s.teacherId === updated.id) {
@@ -140,17 +160,18 @@ const PSIS_Storage = (() => {
           return {
             ...s,
             teacherName: updated.name,
-            level: updated.level
+            level: updated.level,
+            classGrade: updated.defaultClass || s.classGrade
           };
         }
         return s;
       });
       if (schedChanged) {
-        saveSchedules(schedules, branchId);
+        saveSchedules(schedules, bId);
       }
 
-      // Cascade update to all daily checklists
-      const allChecklists = getAllChecklists(branchId);
+      // Cascade update to all daily checklists (including classGrade)
+      const allChecklists = getAllChecklists(bId);
       let checkChanged = false;
       for (const d in allChecklists) {
         if (Array.isArray(allChecklists[d])) {
@@ -160,7 +181,8 @@ const PSIS_Storage = (() => {
               return {
                 ...rec,
                 teacherName: updated.name,
-                level: updated.level
+                level: updated.level,
+                classGrade: updated.defaultClass || rec.classGrade
               };
             }
             return rec;
@@ -168,7 +190,7 @@ const PSIS_Storage = (() => {
         }
       }
       if (checkChanged) {
-        saveAllChecklists(allChecklists, branchId);
+        saveAllChecklists(allChecklists, bId);
       }
 
       return list[idx];
@@ -228,6 +250,10 @@ const PSIS_Storage = (() => {
         }
         const t = teacherMap.get(s.teacherId);
         if (t) {
+          if (t.defaultClass && s.classGrade !== t.defaultClass) {
+            s.classGrade = t.defaultClass;
+            changed = true;
+          }
           if (s.level !== t.level || s.teacherName !== t.name) {
             s.level = t.level;
             s.teacherName = t.name;
@@ -250,7 +276,8 @@ const PSIS_Storage = (() => {
   }
 
   function addSchedule(sch, branchId) {
-    const list = getSchedules(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const list = getSchedules(bId);
     if (!sch.id) {
       sch.id = 'SCH' + String(Date.now()).slice(-4);
     }
@@ -258,31 +285,114 @@ const PSIS_Storage = (() => {
       sch.classGrade = cleanClassGrade(sch.classGrade);
     }
     list.push(sch);
-    saveSchedules(list, branchId);
-    clearDailyChecklists(branchId);
+    saveSchedules(list, bId);
+
+    // Sync teacher defaultClass
+    if (sch.teacherId && sch.classGrade) {
+      const teachers = getTeachers(bId);
+      const tIdx = teachers.findIndex(t => t.id === sch.teacherId);
+      if (tIdx !== -1 && teachers[tIdx].defaultClass !== sch.classGrade) {
+        teachers[tIdx].defaultClass = sch.classGrade;
+        saveTeachers(teachers, bId);
+      }
+    }
+
+    // Cascade update to all daily checklists
+    const allChecklists = getAllChecklists(bId);
+    let checkChanged = false;
+    for (const d in allChecklists) {
+      if (Array.isArray(allChecklists[d])) {
+        const existing = allChecklists[d].find(rec => rec.teacherId === sch.teacherId);
+        if (existing) {
+          if (existing.classGrade !== sch.classGrade || existing.teacherName !== sch.teacherName || existing.level !== sch.level) {
+            existing.classGrade = sch.classGrade;
+            existing.teacherName = sch.teacherName;
+            existing.level = sch.level;
+            checkChanged = true;
+          }
+        } else {
+          allChecklists[d].push({
+            id: 'REC_' + sch.teacherId + '_' + d,
+            date: d,
+            teacherId: sch.teacherId,
+            teacherName: sch.teacherName,
+            level: sch.level,
+            classGrade: sch.classGrade,
+            shift: sch.shift || 'ព្រឹក',
+            scanInTime: '',
+            scanOutTime: '',
+            attendanceRecorded: 'បានស្រង់',
+            scoreEvaluated: 'បានដាក់ពិន្ទុ',
+            telegramUsed: 'បានប្រើ',
+            lessonSummaryWritten: 'បានសរសេរ',
+            remarks: 'ធម្មតា',
+            note: ''
+          });
+          checkChanged = true;
+        }
+      }
+    }
+    if (checkChanged) {
+      saveAllChecklists(allChecklists, bId);
+    }
+
     return sch;
   }
 
   function updateSchedule(updated, branchId) {
-    const list = getSchedules(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const list = getSchedules(bId);
     const idx = list.findIndex(s => s.id === updated.id);
     if (idx !== -1) {
       if (updated.classGrade) {
         updated.classGrade = cleanClassGrade(updated.classGrade);
       }
       list[idx] = { ...list[idx], ...updated };
-      saveSchedules(list, branchId);
-      clearDailyChecklists(branchId);
+      saveSchedules(list, bId);
+
+      // Sync teacher defaultClass
+      if (updated.teacherId && updated.classGrade) {
+        const teachers = getTeachers(bId);
+        const tIdx = teachers.findIndex(t => t.id === updated.teacherId);
+        if (tIdx !== -1 && teachers[tIdx].defaultClass !== updated.classGrade) {
+          teachers[tIdx].defaultClass = updated.classGrade;
+          saveTeachers(teachers, bId);
+        }
+      }
+
+      // Cascade update to all daily checklists
+      const allChecklists = getAllChecklists(bId);
+      let checkChanged = false;
+      for (const d in allChecklists) {
+        if (Array.isArray(allChecklists[d])) {
+          allChecklists[d] = allChecklists[d].map(rec => {
+            if (rec.teacherId === updated.teacherId) {
+              checkChanged = true;
+              return {
+                ...rec,
+                teacherName: updated.teacherName || rec.teacherName,
+                level: updated.level || rec.level,
+                classGrade: updated.classGrade || rec.classGrade
+              };
+            }
+            return rec;
+          });
+        }
+      }
+      if (checkChanged) {
+        saveAllChecklists(allChecklists, bId);
+      }
+
       return list[idx];
     }
     return null;
   }
 
   function deleteSchedule(id, branchId) {
-    let list = getSchedules(branchId);
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    let list = getSchedules(bId);
     list = list.filter(s => s.id !== id);
-    saveSchedules(list, branchId);
-    clearDailyChecklists(branchId);
+    saveSchedules(list, bId);
   }
 
   // Checklists
@@ -323,7 +433,10 @@ const PSIS_Storage = (() => {
         changed = true;
       }
 
-      // 2. Sync level & teacherName with active teachers, and strip ថ្នាក់ទី from classGrade
+      // 2. Sync level, teacherName & classGrade with active teachers and schedules
+      const schedules = getSchedules(bId);
+      const scheduleMap = new Map(schedules.map(s => [s.teacherId, s]));
+
       all[dateStr].forEach(rec => {
         if (rec.classGrade && rec.classGrade.includes('ថ្នាក់ទី')) {
           rec.classGrade = cleanClassGrade(rec.classGrade);
@@ -331,11 +444,43 @@ const PSIS_Storage = (() => {
         }
         const t = teacherMap.get(rec.teacherId);
         if (t) {
+          const sch = scheduleMap.get(rec.teacherId);
+          const targetClass = (sch && sch.classGrade) || t.defaultClass;
+          if (targetClass && rec.classGrade !== targetClass) {
+            rec.classGrade = targetClass;
+            changed = true;
+          }
           if (rec.level !== t.level || rec.teacherName !== t.name) {
             rec.level = t.level;
             rec.teacherName = t.name;
             changed = true;
           }
+        }
+      });
+
+      // 3. Ensure any active teacher missing from today's checklist is automatically appended
+      const existingTeacherIds = new Set(all[dateStr].map(r => r.teacherId));
+      teachers.forEach(t => {
+        if (!existingTeacherIds.has(t.id)) {
+          const sch = scheduleMap.get(t.id);
+          all[dateStr].push({
+            id: 'REC_' + t.id + '_' + dateStr,
+            date: dateStr,
+            teacherId: t.id,
+            teacherName: t.name,
+            level: t.level,
+            classGrade: (sch && sch.classGrade) || t.defaultClass || '1A',
+            shift: t.shift || (sch && sch.shift) || 'ព្រឹក',
+            scanInTime: '',
+            scanOutTime: '',
+            attendanceRecorded: 'បានស្រង់',
+            scoreEvaluated: 'បានដាក់ពិន្ទុ',
+            telegramUsed: 'បានប្រើ',
+            lessonSummaryWritten: 'បានសរសេរ',
+            remarks: 'ធម្មតា',
+            note: ''
+          });
+          changed = true;
         }
       });
       if (changed) {
