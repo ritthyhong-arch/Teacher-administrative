@@ -1,244 +1,231 @@
 /**
- * Storage Layer with LocalStorage persistence and backup/restore capabilities
+ * Storage Layer with Multi-Branch Support & LocalStorage Persistence
+ * Manages 5 PSIS Branches independently with branch switching.
  */
 
 const PSIS_Storage = (() => {
-  const KEYS = {
-    TEACHERS: 'psis_teachers_v1',
-    SCHEDULES: 'psis_schedules_v1',
-    CHECKLISTS: 'psis_checklists_v1',
-    SCHOOL_INFO: 'psis_school_info_v1',
-    SETTINGS: 'psis_settings_v1'
-  };
+  const CURRENT_BRANCH_KEY = 'psis_active_branch_id_v2';
 
-  function initStorage() {
-    if (!localStorage.getItem(KEYS.TEACHERS)) {
-      localStorage.setItem(KEYS.TEACHERS, JSON.stringify(PSIS_SAMPLE_DATA.teachers));
+  function getCurrentBranchId() {
+    return localStorage.getItem(CURRENT_BRANCH_KEY) || null;
+  }
+
+  function setCurrentBranchId(branchId) {
+    if (branchId) {
+      localStorage.setItem(CURRENT_BRANCH_KEY, branchId);
+    } else {
+      localStorage.removeItem(CURRENT_BRANCH_KEY);
     }
-    if (!localStorage.getItem(KEYS.SCHEDULES)) {
-      localStorage.setItem(KEYS.SCHEDULES, JSON.stringify(PSIS_SAMPLE_DATA.schedules));
+  }
+
+  function getBranches() {
+    return PSIS_BRANCHES;
+  }
+
+  function getBranchById(id) {
+    return PSIS_BRANCHES.find(b => b.id === id) || PSIS_BRANCHES[0];
+  }
+
+  // Branch-specific storage key generator
+  function getKey(type, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    return `psis_${bId}_${type}_v2`;
+  }
+
+  // Init storage for a branch if not already existing
+  function initBranchStorage(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+
+    const teachersKey = getKey('teachers', bId);
+    const schedulesKey = getKey('schedules', bId);
+    const schoolInfoKey = getKey('school_info', bId);
+    const checklistsKey = getKey('checklists', bId);
+
+    if (!localStorage.getItem(teachersKey)) {
+      const teachers = PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
+      localStorage.setItem(teachersKey, JSON.stringify(teachers));
     }
-    if (!localStorage.getItem(KEYS.SCHOOL_INFO)) {
-      localStorage.setItem(KEYS.SCHOOL_INFO, JSON.stringify(PSIS_SAMPLE_DATA.schoolInfo));
+
+    if (!localStorage.getItem(schedulesKey)) {
+      const teachers = JSON.parse(localStorage.getItem(teachersKey));
+      const schedules = PSIS_SAMPLE_DATA.getSchedulesForBranch(bId, teachers);
+      localStorage.setItem(schedulesKey, JSON.stringify(schedules));
     }
-    if (!localStorage.getItem(KEYS.CHECKLISTS)) {
-      // Pre-populate with initial checklists for today and demo date
+
+    if (!localStorage.getItem(schoolInfoKey)) {
+      const info = PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
+      localStorage.setItem(schoolInfoKey, JSON.stringify(info));
+    }
+
+    if (!localStorage.getItem(checklistsKey)) {
       const checklists = {};
       const today = new Date().toISOString().split('T')[0];
       const demoDate = '2026-10-05';
 
-      const schedules = JSON.parse(localStorage.getItem(KEYS.SCHEDULES));
-      const teachers = JSON.parse(localStorage.getItem(KEYS.TEACHERS));
+      const schedules = JSON.parse(localStorage.getItem(schedulesKey));
+      const teachers = JSON.parse(localStorage.getItem(teachersKey));
 
       checklists[today] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(today, schedules, teachers);
       if (today !== demoDate) {
         checklists[demoDate] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(demoDate, schedules, teachers);
       }
-      localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(checklists));
+      localStorage.setItem(checklistsKey, JSON.stringify(checklists));
     }
   }
 
   // Teachers
-  function getTeachers() {
+  function getTeachers(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    initBranchStorage(bId);
     try {
-      const data = localStorage.getItem(KEYS.TEACHERS);
-      return data ? JSON.parse(data) : [...PSIS_SAMPLE_DATA.teachers];
+      const data = localStorage.getItem(getKey('teachers', bId));
+      return data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
     } catch (e) {
-      console.error('Error reading teachers:', e);
-      return [...PSIS_SAMPLE_DATA.teachers];
+      return PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
     }
   }
 
-  function saveTeachers(teachers) {
-    localStorage.setItem(KEYS.TEACHERS, JSON.stringify(teachers));
+  function saveTeachers(teachers, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    localStorage.setItem(getKey('teachers', bId), JSON.stringify(teachers));
   }
 
-  function addTeacher(teacher) {
-    const list = getTeachers();
+  function addTeacher(teacher, branchId) {
+    const list = getTeachers(branchId);
     if (!teacher.id) {
       teacher.id = 'T' + String(Date.now()).slice(-4);
     }
     list.push(teacher);
-    saveTeachers(list);
+    saveTeachers(list, branchId);
     return teacher;
   }
 
-  function updateTeacher(updated) {
-    const list = getTeachers();
+  function updateTeacher(updated, branchId) {
+    const list = getTeachers(branchId);
     const idx = list.findIndex(t => t.id === updated.id);
     if (idx !== -1) {
       list[idx] = { ...list[idx], ...updated };
-      saveTeachers(list);
+      saveTeachers(list, branchId);
       return list[idx];
     }
     return null;
   }
 
-  function deleteTeacher(id) {
-    let list = getTeachers();
+  function deleteTeacher(id, branchId) {
+    let list = getTeachers(branchId);
     list = list.filter(t => t.id !== id);
-    saveTeachers(list);
+    saveTeachers(list, branchId);
 
-    // Also remove from schedules
-    let schedules = getSchedules();
+    let schedules = getSchedules(branchId);
     schedules = schedules.filter(s => s.teacherId !== id);
-    saveSchedules(schedules);
+    saveSchedules(schedules, branchId);
   }
 
   // Schedules
-  function getSchedules() {
+  function getSchedules(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    initBranchStorage(bId);
     try {
-      const data = localStorage.getItem(KEYS.SCHEDULES);
-      return data ? JSON.parse(data) : [...PSIS_SAMPLE_DATA.schedules];
+      const data = localStorage.getItem(getKey('schedules', bId));
+      return data ? JSON.parse(data) : [];
     } catch (e) {
-      console.error('Error reading schedules:', e);
-      return [...PSIS_SAMPLE_DATA.schedules];
+      return [];
     }
   }
 
-  function saveSchedules(schedules) {
-    localStorage.setItem(KEYS.SCHEDULES, JSON.stringify(schedules));
+  function saveSchedules(schedules, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    localStorage.setItem(getKey('schedules', bId), JSON.stringify(schedules));
   }
 
-  function addSchedule(sch) {
-    const list = getSchedules();
+  function addSchedule(sch, branchId) {
+    const list = getSchedules(branchId);
     if (!sch.id) {
       sch.id = 'SCH' + String(Date.now()).slice(-4);
     }
     list.push(sch);
-    saveSchedules(list);
+    saveSchedules(list, branchId);
     return sch;
   }
 
-  function updateSchedule(updated) {
-    const list = getSchedules();
-    const idx = list.findIndex(s => s.id === updated.id);
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], ...updated };
-      saveSchedules(list);
-      return list[idx];
-    }
-    return null;
-  }
-
-  function deleteSchedule(id) {
-    let list = getSchedules();
+  function deleteSchedule(id, branchId) {
+    let list = getSchedules(branchId);
     list = list.filter(s => s.id !== id);
-    saveSchedules(list);
+    saveSchedules(list, branchId);
   }
 
-  // Daily Checklists
-  function getAllChecklists() {
+  // Checklists
+  function getAllChecklists(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    initBranchStorage(bId);
     try {
-      const data = localStorage.getItem(KEYS.CHECKLISTS);
+      const data = localStorage.getItem(getKey('checklists', bId));
       return data ? JSON.parse(data) : {};
     } catch (e) {
-      console.error('Error reading checklists:', e);
       return {};
     }
   }
 
-  function saveAllChecklists(all) {
-    localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(all));
+  function saveAllChecklists(all, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    localStorage.setItem(getKey('checklists', bId), JSON.stringify(all));
   }
 
-  function getDailyChecklist(dateStr) {
-    const all = getAllChecklists();
+  function getDailyChecklist(dateStr, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const all = getAllChecklists(bId);
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
       return all[dateStr];
     }
-    // Generate new checklist for this date based on schedule
-    const schedules = getSchedules();
-    const teachers = getTeachers();
+
+    const schedules = getSchedules(bId);
+    const teachers = getTeachers(bId);
     const generated = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(dateStr, schedules, teachers);
     all[dateStr] = generated;
-    saveAllChecklists(all);
+    saveAllChecklists(all, bId);
     return generated;
   }
 
-  function saveDailyChecklist(dateStr, records) {
-    const all = getAllChecklists();
+  function saveDailyChecklist(dateStr, records, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const all = getAllChecklists(bId);
     all[dateStr] = records;
-    saveAllChecklists(all);
-  }
-
-  function updateDailyRecord(dateStr, recordId, updates) {
-    const records = getDailyChecklist(dateStr);
-    const idx = records.findIndex(r => r.id === recordId);
-    if (idx !== -1) {
-      records[idx] = { ...records[idx], ...updates };
-      saveDailyChecklist(dateStr, records);
-      return records[idx];
-    }
-    return null;
+    saveAllChecklists(all, bId);
   }
 
   // School Info
-  function getSchoolInfo() {
+  function getSchoolInfo(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    initBranchStorage(bId);
     try {
-      const data = localStorage.getItem(KEYS.SCHOOL_INFO);
-      return data ? JSON.parse(data) : { ...PSIS_SAMPLE_DATA.schoolInfo };
+      const data = localStorage.getItem(getKey('school_info', bId));
+      return data ? JSON.parse(data) : PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
     } catch (e) {
-      return { ...PSIS_SAMPLE_DATA.schoolInfo };
+      return PSIS_SAMPLE_DATA.getSchoolInfoForBranch(bId);
     }
   }
 
-  function saveSchoolInfo(info) {
-    localStorage.setItem(KEYS.SCHOOL_INFO, JSON.stringify(info));
+  function saveSchoolInfo(info, branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    localStorage.setItem(getKey('school_info', bId), JSON.stringify(info));
   }
 
-  // Reset to default
-  function resetToDefault() {
-    localStorage.setItem(KEYS.TEACHERS, JSON.stringify(PSIS_SAMPLE_DATA.teachers));
-    localStorage.setItem(KEYS.SCHEDULES, JSON.stringify(PSIS_SAMPLE_DATA.schedules));
-    localStorage.setItem(KEYS.SCHOOL_INFO, JSON.stringify(PSIS_SAMPLE_DATA.schoolInfo));
-
-    const checklists = {};
-    const today = new Date().toISOString().split('T')[0];
-    const demoDate = '2026-10-05';
-    checklists[today] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(today, PSIS_SAMPLE_DATA.schedules, PSIS_SAMPLE_DATA.teachers);
-    checklists[demoDate] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(demoDate, PSIS_SAMPLE_DATA.schedules, PSIS_SAMPLE_DATA.teachers);
-    localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(checklists));
+  // Reset current branch data
+  function resetBranchData(branchId) {
+    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    localStorage.removeItem(getKey('teachers', bId));
+    localStorage.removeItem(getKey('schedules', bId));
+    localStorage.removeItem(getKey('school_info', bId));
+    localStorage.removeItem(getKey('checklists', bId));
+    initBranchStorage(bId);
   }
-
-  // Export full JSON backup
-  function exportBackup() {
-    return JSON.stringify({
-      version: '1.0',
-      exportedAt: new Date().toISOString(),
-      schoolInfo: getSchoolInfo(),
-      teachers: getTeachers(),
-      schedules: getSchedules(),
-      checklists: getAllChecklists()
-    }, null, 2);
-  }
-
-  // Import JSON backup
-  function importBackup(jsonString) {
-    try {
-      const parsed = JSON.parse(jsonString);
-      if (parsed.teachers && Array.isArray(parsed.teachers)) {
-        saveTeachers(parsed.teachers);
-      }
-      if (parsed.schedules && Array.isArray(parsed.schedules)) {
-        saveSchedules(parsed.schedules);
-      }
-      if (parsed.schoolInfo) {
-        saveSchoolInfo(parsed.schoolInfo);
-      }
-      if (parsed.checklists) {
-        saveAllChecklists(parsed.checklists);
-      }
-      return { success: true };
-    } catch (e) {
-      return { success: false, error: e.message };
-    }
-  }
-
-  // Self-initialize
-  initStorage();
 
   return {
+    getCurrentBranchId,
+    setCurrentBranchId,
+    getBranches,
+    getBranchById,
+    initBranchStorage,
     getTeachers,
     saveTeachers,
     addTeacher,
@@ -247,21 +234,16 @@ const PSIS_Storage = (() => {
     getSchedules,
     saveSchedules,
     addSchedule,
-    updateSchedule,
     deleteSchedule,
+    getAllChecklists,
     getDailyChecklist,
     saveDailyChecklist,
-    updateDailyRecord,
-    getAllChecklists,
     getSchoolInfo,
     saveSchoolInfo,
-    resetToDefault,
-    exportBackup,
-    importBackup
+    resetBranchData
   };
 })();
 
-// Export for module/global usage
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PSIS_Storage;
 }

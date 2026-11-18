@@ -1,237 +1,195 @@
 /**
  * Sample Master Data for Paññāsāstra International School (សាលាបញ្ញាសាស្រ្តអន្តរជាតិ)
- * Includes the requested teachers:
- * - ហេង ឆេងលី
- * - ព្រះអង្គគ្រូ ស៊ន ប៉ោធី
- * - បេន វី
- * - ក ធារិទ្ធ
- * - ហុក វិសាល
- * - ហែម អឿន
- * and other teachers across Kindergarten (K2), Primary (Grades 1-6), Secondary (Grades 7-12).
+ * Supports 5 Official Branches:
+ * 1. សាខាកណ្តាល (Central Norodom Campus)
+ * 2. សាខាទួលគោក (Toul Kork Campus)
+ * 3. សាខាច្បារអំពៅ (Chbar Ampov Campus)
+ * 4. សាខាសែនសុខ (Sen Sok Campus)
+ * 5. សាខាបឹងកេងកង (Boeung Keng Kang Campus)
  */
 
-const PSIS_SAMPLE_DATA = {
-  schoolInfo: {
-    nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ',
-    nameEn: 'PAÑÑĀSĀSTRA INTERNATIONAL SCHOOL',
-    mottoKh: 'វិន័យ គុណធម៌ សុភមង្គល',
-    branch: 'សាខាកណ្តាល (Central Campus)',
+const PSIS_BRANCHES = [
+  {
+    id: 'branch-central',
+    code: 'B01',
+    nameKh: 'សាខាកណ្តាល (នរោត្តម)',
+    nameEn: 'Central Norodom Campus',
+    address: 'មហាវិថីព្រះនរោត្តម សង្កាត់បឹងកេងកង១ ខណ្ឌបឹងកេងកង រាជធានីភ្នំពេញ',
     principalName: 'លោកស្រី គង់ វណ្ណារី (នាយិកាសាខា)',
-    inspectorName: 'លោក ស៊ុន សុខជា (អ្នកត្រួតពិនិត្យរដ្ឋបាល)',
-    academicYear: '២០២៦-២០២៧',
-    morningScanStart: '06:45',
-    morningScanLateThreshold: '07:15',
-    morningScanEnd: '11:30',
-    afternoonScanStart: '12:45',
-    afternoonScanLateThreshold: '13:15',
-    afternoonScanEnd: '17:15'
+    inspectorName: 'លោក ស៊ុន សុខជា (អ្នកត្រួតពិនិត្យ)',
+    phone: '023 990 111',
+    iconColor: '#1B365D',
+    accentColor: '#D4AF37',
+    badgeText: 'ទីស្នាក់ការកណ្តាល'
+  },
+  {
+    id: 'branch-toulkork',
+    code: 'B02',
+    nameKh: 'សាខាទួលគោក',
+    nameEn: 'Toul Kork Campus',
+    address: 'ផ្លូវលេខ ៣១៥ សង្កាត់បឹងកក់១ ខណ្ឌទួលគោក រាជធានីភ្នំពេញ',
+    principalName: 'លោក ឈុន វុទ្ធី (នាយកសាខា)',
+    inspectorName: 'កញ្ញា ម៉ៅ ស្រីពៅ (អ្នកត្រួតពិនិត្យ)',
+    phone: '023 990 222',
+    iconColor: '#0D9488',
+    accentColor: '#14B8A6',
+    badgeText: 'សាខាទី២'
+  },
+  {
+    id: 'branch-chbarampov',
+    code: 'B03',
+    nameKh: 'សាខាច្បារអំពៅ',
+    nameEn: 'Chbar Ampov Campus',
+    address: 'ផ្លូវជាតិលេខ១ សង្កាត់ច្បារអំពៅ១ ខណ្ឌច្បារអំពៅ រាជធានីភ្នំពេញ',
+    principalName: 'លោកស្រី កែវ មុនីរ័ត្ន (នាយិកាសាខា)',
+    inspectorName: 'លោក ហេង រតនា (អ្នកត្រួតពិនិត្យ)',
+    phone: '023 990 333',
+    iconColor: '#B45309',
+    accentColor: '#F59E0B',
+    badgeText: 'សាខាទី៣'
+  },
+  {
+    id: 'branch-sensok',
+    code: 'B04',
+    nameKh: 'សាខាសែនសុខ',
+    nameEn: 'Sen Sok Campus',
+    address: 'ផ្លូវលេខ ១០០៣ សង្កាត់ភ្នំពេញថ្មី ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ',
+    principalName: 'លោក ឌី ច័ន្ទដារ៉ា (នាយកសាខា)',
+    inspectorName: 'លោកស្រី ឡុង គន្ធា (អ្នកត្រួតពិនិត្យ)',
+    phone: '023 990 444',
+    iconColor: '#7C3AED',
+    accentColor: '#8B5CF6',
+    badgeText: 'សាខាទី៤'
+  },
+  {
+    id: 'branch-bkk',
+    code: 'B05',
+    nameKh: 'សាខាបឹងកេងកង',
+    nameEn: 'Boeung Keng Kang Campus',
+    address: 'ផ្លូវលេខ ៥៧ សង្កាត់បឹងកេងកង១ ខណ្ឌបឹងកេងកង រាជធានីភ្នំពេញ',
+    principalName: 'លោកស្រី ស៊ឹម វ៉ានដា (នាយិកាសាខា)',
+    inspectorName: 'លោក អ៊ុក វិបុល (អ្នកត្រួតពិនិត្យ)',
+    phone: '023 990 555',
+    iconColor: '#BE123C',
+    accentColor: '#F43F5E',
+    badgeText: 'សាខាទី៥'
+  }
+];
+
+const PSIS_SAMPLE_DATA = {
+  branches: PSIS_BRANCHES,
+
+  getSchoolInfoForBranch(branchId) {
+    const b = PSIS_BRANCHES.find(item => item.id === branchId) || PSIS_BRANCHES[0];
+    return {
+      nameKh: 'សាលាបញ្ញាសាស្រ្តអន្តរជាតិ',
+      nameEn: 'PAÑÑĀSĀSTRA INTERNATIONAL SCHOOL',
+      mottoKh: 'វិន័យ គុណធម៌ សុភមង្គល',
+      branchId: b.id,
+      branch: b.nameKh,
+      branchEn: b.nameEn,
+      principalName: b.principalName,
+      inspectorName: b.inspectorName,
+      phone: b.phone,
+      academicYear: '២០២៦-២០២៧',
+      morningScanStart: '06:45',
+      morningScanLateThreshold: '07:15',
+      morningScanEnd: '11:30',
+      afternoonScanStart: '12:45',
+      afternoonScanLateThreshold: '13:15',
+      afternoonScanEnd: '17:15'
+    };
   },
 
-  teachers: [
-    {
-      id: 'T001',
-      name: 'ហេង ឆេងលី',
-      gender: 'ស្រី',
-      phone: '012 889 912',
-      level: 'បឋមសិក្សា',
-      shift: 'ព្រឹក',
-      subject: 'ភាសាខ្មែរ & គណិតវិទ្យា',
-      defaultClass: 'ថ្នាក់ទី 1A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T002',
-      name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី',
-      gender: 'ប្រុស',
-      phone: '097 554 332',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ព្រឹក',
-      subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី',
-      defaultClass: 'ថ្នាក់ទី 11A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T003',
-      name: 'បេន វី',
-      gender: 'ប្រុស',
-      phone: '010 334 556',
-      level: 'បឋមសិក្សា',
-      shift: 'ល្ងាច',
-      subject: 'ភាសាអង់គ្លេស (ESL)',
-      defaultClass: 'ថ្នាក់ទី 3B',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T004',
-      name: 'ក ធារិទ្ធ',
-      gender: 'ប្រុស',
-      phone: '017 665 443',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ព្រឹក',
-      subject: 'រូបវិទ្យា & គណិតវិទ្យា',
-      defaultClass: 'ថ្នាក់ទី 9B',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T005',
-      name: 'ហុក វិសាល',
-      gender: 'ប្រុស',
-      phone: '089 778 899',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ព្រឹក',
-      subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ',
-      defaultClass: 'ថ្នាក់ទី 10A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T006',
-      name: 'ហែម អឿន',
-      gender: 'ប្រុស',
-      phone: '012 334 455',
-      level: 'បឋមសិក្សា',
-      shift: 'ព្រឹក',
-      subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ',
-      defaultClass: 'ថ្នាក់ទី 5A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T007',
-      name: 'សួស ចរិយា',
-      gender: 'ស្រី',
-      phone: '098 221 144',
-      level: 'មត្តេយ្យ',
-      shift: 'ព្រឹក',
-      subject: 'មត្តេយ្យសិក្សា (Kindergarten)',
-      defaultClass: 'K2 (កម្រិតមធ្យម)',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T008',
-      name: 'ចាន់ ផល្លា',
-      gender: 'ស្រី',
-      phone: '015 990 011',
-      level: 'បឋមសិក្សា',
-      shift: 'ព្រឹក',
-      subject: 'ភាសាខ្មែរ & តែងសេចក្តី',
-      defaultClass: 'ថ្នាក់ទី 2B',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T009',
-      name: 'លី សុខុម',
-      gender: 'ប្រុស',
-      phone: '092 445 566',
-      level: 'បឋមសិក្សា',
-      shift: 'ល្ងាច',
-      subject: 'គណិតវិទ្យា',
-      defaultClass: 'ថ្នាក់ទី 4A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T010',
-      name: 'អ៊ុក សុផល',
-      gender: 'ប្រុស',
-      phone: '070 112 233',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ព្រឹក',
-      subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា',
-      defaultClass: 'ថ្នាក់ទី 7A',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T011',
-      name: 'ម៉ម សុវណ្ណារ័ត្ន',
-      gender: 'ស្រី',
-      phone: '011 776 655',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ល្ងាច',
-      subject: 'ជីវវិទ្យា',
-      defaultClass: 'ថ្នាក់ទី 8B',
-      status: 'សកម្ម'
-    },
-    {
-      id: 'T012',
-      name: 'កែវ សោភា',
-      gender: 'ស្រី',
-      phone: '085 443 322',
-      level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ',
-      shift: 'ព្រឹក',
-      subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ',
-      defaultClass: 'ថ្នាក់ទី 12A',
-      status: 'សកម្ម'
+  // Teachers mapped per branch
+  getTeachersForBranch(branchId) {
+    if (branchId === 'branch-toulkork') {
+      return [
+        { id: 'TK001', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: 'ថ្នាក់ទី 3B', status: 'សកម្ម' },
+        { id: 'TK002', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 4A', status: 'សកម្ម' },
+        { id: 'TK003', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: 'ថ្នាក់ទី 8B', status: 'សកម្ម' },
+        { id: 'TK004', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: 'ថ្នាក់ទី 2B', status: 'សកម្ម' },
+        { id: 'TK005', name: 'សុខ គឹមលី', gender: 'ស្រី', phone: '012 554 433', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា', defaultClass: 'K2', status: 'សកម្ម' },
+        { id: 'TK006', name: 'ស៊ន វណ្ណា', gender: 'ប្រុស', phone: '077 889 900', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា', defaultClass: 'ថ្នាក់ទី 10B', status: 'សកម្ម' }
+      ];
+    } else if (branchId === 'branch-chbarampov') {
+      return [
+        { id: 'CA001', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 5A', status: 'សកម្ម' },
+        { id: 'CA002', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 12A', status: 'សកម្ម' },
+        { id: 'CA003', name: 'នួន វិរៈ', gender: 'ប្រុស', phone: '093 223 344', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 3A', status: 'សកម្ម' },
+        { id: 'CA004', name: 'ទេព ម៉ាលីស', gender: 'ស្រី', phone: '088 776 655', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា', defaultClass: 'K2', status: 'សកម្ម' },
+        { id: 'CA005', name: 'អ៊ឹម សំបូរ', gender: 'ប្រុស', phone: '016 445 566', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'រូបវិទ្យា', defaultClass: 'ថ្នាក់ទី 9A', status: 'សកម្ម' }
+      ];
+    } else if (branchId === 'branch-sensok') {
+      return [
+        { id: 'SS001', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 9B', status: 'សកម្ម' },
+        { id: 'SS002', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា', defaultClass: 'K2', status: 'សកម្ម' },
+        { id: 'SS003', name: 'មាស សុជាតិ', gender: 'ប្រុស', phone: '012 998 877', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាអង់គ្លេស', defaultClass: 'ថ្នាក់ទី 4B', status: 'សកម្ម' },
+        { id: 'SS004', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: 'ថ្នាក់ទី 7A', status: 'សកម្ម' },
+        { id: 'SS005', name: 'ជា ស្រីមុំ', gender: 'ស្រី', phone: '097 332 211', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាខ្មែរ', defaultClass: 'ថ្នាក់ទី 2A', status: 'សកម្ម' }
+      ];
+    } else if (branchId === 'branch-bkk') {
+      return [
+        { id: 'BK001', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 10A', status: 'សកម្ម' },
+        { id: 'BK002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: 'ថ្នាក់ទី 11A', status: 'សកម្ម' },
+        { id: 'BK003', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 1A', status: 'សកម្ម' },
+        { id: 'BK004', name: 'ស៊ុន ធីតា', gender: 'ស្រី', phone: '011 665 544', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា', defaultClass: 'K2', status: 'សកម្ម' },
+        { id: 'BK005', name: 'ផន ពិសិដ្ឋ', gender: 'ប្រុស', phone: '085 221 133', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស', defaultClass: 'ថ្នាក់ទី 8A', status: 'សកម្ម' }
+      ];
     }
-  ],
 
-  // Weekly Schedule Mappings (ចាត់ចែងតាមថ្ងៃ ចន្ទ ដល់ សុក្រ)
-  // Day: 1=ចន្ទ (Mon), 2=អង្គារ (Tue), 3=ពុធ (Wed), 4=ព្រហស្បតិ៍ (Thu), 5=សុក្រ (Fri)
-  schedules: [
-    // ថ្ងៃចន្ទ (Monday - Day 1) - ព្រឹក (Morning)
-    { id: 'SCH001', teacherId: 'T007', teacherName: 'សួស ចរិយា', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'K2', level: 'មត្តេយ្យ', timeSlot: '07:30 - 11:00', room: 'បន្ទប់ K2-A' },
-    { id: 'SCH002', teacherId: 'T001', teacherName: 'ហេង ឆេងលី', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 1A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០១' },
-    { id: 'SCH003', teacherId: 'T008', teacherName: 'ចាន់ ផល្លា', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 2B', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០២' },
-    { id: 'SCH004', teacherId: 'T006', teacherName: 'ហែម អឿន', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 5A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០៥' },
-    { id: 'SCH005', teacherId: 'T010', teacherName: 'អ៊ុក សុផល', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 7A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០១' },
-    { id: 'SCH006', teacherId: 'T004', teacherName: 'ក ធារិទ្ធ', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 9B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០៣' },
-    { id: 'SCH007', teacherId: 'T005', teacherName: 'ហុក វិសាល', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 10A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០១' },
-    { id: 'SCH008', teacherId: 'T002', teacherName: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 11A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០២' },
-    { id: 'SCH009', teacherId: 'T012', teacherName: 'កែវ សោភា', dayOfWeek: 1, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 12A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០៣' },
+    // Default Central Campus (branch-central)
+    return [
+      { id: 'T001', name: 'ហេង ឆេងលី', gender: 'ស្រី', phone: '012 889 912', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 1A', status: 'សកម្ម' },
+      { id: 'T002', name: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', gender: 'ប្រុស', phone: '097 554 332', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'សីលធម៌ ពលរដ្ឋវិទ្យា & ភាសាបាលី', defaultClass: 'ថ្នាក់ទី 11A', status: 'សកម្ម' },
+      { id: 'T003', name: 'បេន វី', gender: 'ប្រុស', phone: '010 334 556', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'ភាសាអង់គ្លេស (ESL)', defaultClass: 'ថ្នាក់ទី 3B', status: 'សកម្ម' },
+      { id: 'T004', name: 'ក ធារិទ្ធ', gender: 'ប្រុស', phone: '017 665 443', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'រូបវិទ្យា & គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 9B', status: 'សកម្ម' },
+      { id: 'T005', name: 'ហុក វិសាល', gender: 'ប្រុស', phone: '089 778 899', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'គីមីវិទ្យា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 10A', status: 'សកម្ម' },
+      { id: 'T006', name: 'ហែម អឿន', gender: 'ប្រុស', phone: '012 334 455', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'សង្គមសិក្សា & វិទ្យាសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 5A', status: 'សកម្ម' },
+      { id: 'T007', name: 'សួស ចរិយា', gender: 'ស្រី', phone: '098 221 144', level: 'មត្តេយ្យ', shift: 'ព្រឹក', subject: 'មត្តេយ្យសិក្សា (Kindergarten)', defaultClass: 'K2', status: 'សកម្ម' },
+      { id: 'T008', name: 'ចាន់ ផល្លា', gender: 'ស្រី', phone: '015 990 011', level: 'បឋមសិក្សា', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & តែងសេចក្តី', defaultClass: 'ថ្នាក់ទី 2B', status: 'សកម្ម' },
+      { id: 'T009', name: 'លី សុខុម', gender: 'ប្រុស', phone: '092 445 566', level: 'បឋមសិក្សា', shift: 'ល្ងាច', subject: 'គណិតវិទ្យា', defaultClass: 'ថ្នាក់ទី 4A', status: 'សកម្ម' },
+      { id: 'T010', name: 'អ៊ុក សុផល', gender: 'ប្រុស', phone: '070 112 233', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ប្រវត្តិវិទ្យា & ភូមិវិទ្យា', defaultClass: 'ថ្នាក់ទី 7A', status: 'សកម្ម' },
+      { id: 'T011', name: 'ម៉ម សុវណ្ណារ័ត្ន', gender: 'ស្រី', phone: '011 776 655', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ល្ងាច', subject: 'ជីវវិទ្យា', defaultClass: 'ថ្នាក់ទី 8B', status: 'សកម្ម' },
+      { id: 'T012', name: 'កែវ សោភា', gender: 'ស្រី', phone: '085 443 322', level: 'អនុវិទ្យាល័យ-វិទ្យាល័យ', shift: 'ព្រឹក', subject: 'ភាសាខ្មែរ & អក្សរសាស្ត្រ', defaultClass: 'ថ្នាក់ទី 12A', status: 'សកម្ម' }
+    ];
+  },
 
-    // ថ្ងៃចន្ទ (Monday - Day 1) - ល្ងាច (Afternoon)
-    { id: 'SCH010', teacherId: 'T003', teacherName: 'បេន វី', dayOfWeek: 1, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 3B', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៣' },
-    { id: 'SCH011', teacherId: 'T009', teacherName: 'លី សុខុម', dayOfWeek: 1, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 4A', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៤' },
-    { id: 'SCH012', teacherId: 'T011', teacherName: 'ម៉ម សុវណ្ណារ័ត្ន', dayOfWeek: 1, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 8B', level: 'មធ្យមសិក្សា', timeSlot: '13:00 - 17:15', room: 'បន្ទប់ ២០២' },
+  // Schedules generated for branch
+  getSchedulesForBranch(branchId, teachers) {
+    const schedules = [];
+    const days = [1, 2, 3, 4, 5]; // Mon to Fri
 
-    // ថ្ងៃអង្គារ (Tuesday - Day 2)
-    { id: 'SCH013', teacherId: 'T007', teacherName: 'សួស ចរិយា', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'K2', level: 'មត្តេយ្យ', timeSlot: '07:30 - 11:00', room: 'បន្ទប់ K2-A' },
-    { id: 'SCH014', teacherId: 'T001', teacherName: 'ហេង ឆេងលី', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 1A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០១' },
-    { id: 'SCH015', teacherId: 'T008', teacherName: 'ចាន់ ផល្លា', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 2B', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០២' },
-    { id: 'SCH016', teacherId: 'T006', teacherName: 'ហែម អឿន', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 6A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០៦' },
-    { id: 'SCH017', teacherId: 'T004', teacherName: 'ក ធារិទ្ធ', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 8A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០២' },
-    { id: 'SCH018', teacherId: 'T005', teacherName: 'ហុក វិសាល', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 11B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០២' },
-    { id: 'SCH019', teacherId: 'T002', teacherName: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', dayOfWeek: 2, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 12A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០៣' },
-    { id: 'SCH020', teacherId: 'T003', teacherName: 'បេន វី', dayOfWeek: 2, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 5B', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៥' },
+    teachers.forEach((t, tIdx) => {
+      days.forEach(day => {
+        if ((tIdx % 2 === 0) || (day % 2 === 1)) {
+          schedules.push({
+            id: `SCH_${branchId}_${t.id}_D${day}`,
+            teacherId: t.id,
+            teacherName: t.name,
+            dayOfWeek: day,
+            shift: t.shift,
+            classGrade: t.defaultClass || 'ថ្នាក់ទី 1',
+            level: t.level,
+            timeSlot: t.shift === 'ព្រឹក' ? '07:00 - 11:15' : '13:00 - 17:00',
+            room: `បន្ទប់ ${100 + (tIdx + 1)}`
+          });
+        }
+      });
+    });
 
-    // ថ្ងៃពុធ (Wednesday - Day 3)
-    { id: 'SCH021', teacherId: 'T007', teacherName: 'សួស ចរិយា', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'K2', level: 'មត្តេយ្យ', timeSlot: '07:30 - 11:00', room: 'បន្ទប់ K2-A' },
-    { id: 'SCH022', teacherId: 'T001', teacherName: 'ហេង ឆេងលី', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 1B', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០១' },
-    { id: 'SCH023', teacherId: 'T006', teacherName: 'ហែម អឿន', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 5A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០៥' },
-    { id: 'SCH024', teacherId: 'T004', teacherName: 'ក ធារិទ្ធ', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 9B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០៣' },
-    { id: 'SCH025', teacherId: 'T005', teacherName: 'ហុក វិសាល', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 10A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០១' },
-    { id: 'SCH026', teacherId: 'T002', teacherName: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', dayOfWeek: 3, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 11A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០២' },
-    { id: 'SCH027', teacherId: 'T003', teacherName: 'បេន វី', dayOfWeek: 3, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 3B', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៣' },
+    return schedules;
+  },
 
-    // ថ្ងៃព្រហស្បតិ៍ (Thursday - Day 4)
-    { id: 'SCH028', teacherId: 'T007', teacherName: 'សួស ចរិយា', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'K2', level: 'មត្តេយ្យ', timeSlot: '07:30 - 11:00', room: 'បន្ទប់ K2-A' },
-    { id: 'SCH029', teacherId: 'T001', teacherName: 'ហេង ឆេងលី', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 1A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០១' },
-    { id: 'SCH030', teacherId: 'T006', teacherName: 'ហែម អឿន', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 5A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០៥' },
-    { id: 'SCH031', teacherId: 'T004', teacherName: 'ក ធារិទ្ធ', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 9A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០៣' },
-    { id: 'SCH032', teacherId: 'T005', teacherName: 'ហុក វិសាល', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 12B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០៣' },
-    { id: 'SCH033', teacherId: 'T002', teacherName: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', dayOfWeek: 4, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 10B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០១' },
-    { id: 'SCH034', teacherId: 'T003', teacherName: 'បេន វី', dayOfWeek: 4, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 4B', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៤' },
-
-    // ថ្ងៃសុក្រ (Friday - Day 5)
-    { id: 'SCH035', teacherId: 'T007', teacherName: 'សួស ចរិយា', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'K2', level: 'មត្តេយ្យ', timeSlot: '07:30 - 11:00', room: 'បន្ទប់ K2-A' },
-    { id: 'SCH036', teacherId: 'T001', teacherName: 'ហេង ឆេងលី', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 1A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០១' },
-    { id: 'SCH037', teacherId: 'T008', teacherName: 'ចាន់ ផល្លា', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 2B', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០២' },
-    { id: 'SCH038', teacherId: 'T006', teacherName: 'ហែម អឿន', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 5A', level: 'បឋមសិក្សា', timeSlot: '07:00 - 11:15', room: 'បន្ទប់ ១០៥' },
-    { id: 'SCH039', teacherId: 'T004', teacherName: 'ក ធារិទ្ធ', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 9B', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ២០៣' },
-    { id: 'SCH040', teacherId: 'T005', teacherName: 'ហុក វិសាល', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 10A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០១' },
-    { id: 'SCH041', teacherId: 'T002', teacherName: 'ព្រះអង្គគ្រូ ស៊ន ប៉ោធី', dayOfWeek: 5, shift: 'ព្រឹក', classGrade: 'ថ្នាក់ទី 11A', level: 'មធ្យមសិក្សា', timeSlot: '07:00 - 11:30', room: 'បន្ទប់ ៣០២' },
-    { id: 'SCH042', teacherId: 'T003', teacherName: 'បេន វី', dayOfWeek: 5, shift: 'ល្ងាច', classGrade: 'ថ្នាក់ទី 3B', level: 'បឋមសិក្សា', timeSlot: '13:00 - 17:00', room: 'បន្ទប់ ១០៣' }
-  ],
-
-  // Default checklist templates generator for dates
+  // Checklist generator
   createDefaultChecklistForDate(dateStr, schedulesList, teachersList) {
     const d = new Date(dateStr + 'T00:00:00');
-    let dayOfWeek = d.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-    // If weekend, map to Monday for easy demo testing
+    let dayOfWeek = d.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) dayOfWeek = 1;
 
-    // Filter schedules for this day
     const daySchedules = schedulesList.filter(s => s.dayOfWeek === dayOfWeek);
 
     return daySchedules.map((sch, index) => {
-      // Create varied realistic records for demonstration
       let scanIn = '06:55';
       let attendance = 'បានស្រង់';
       let scoreEvaluation = 'បានដាក់ពិន្ទុ';
@@ -246,14 +204,11 @@ const PSIS_SAMPLE_DATA = {
         scanOut = '17:10';
       }
 
-      // Demonstration variations for testing alerts
-      if (sch.teacherName === 'ក ធារិទ្ធ') {
-        // Teacher is Late
+      if (index === 2) {
         scanIn = '07:25';
         remarks = 'យឺត';
         note = 'មកយឺតដោយសារស្ទះចរាចរណ៍';
-      } else if (sch.teacherName === 'ហុក វិសាល') {
-        // Teacher on leave (ច្បាប់) -> Columns 4 to 9 should be grayed out!
+      } else if (index === 4) {
         scanIn = '';
         attendance = 'មិនបានស្រង់';
         scoreEvaluation = 'មិនបានដាក់ពិន្ទុ';
@@ -262,8 +217,7 @@ const PSIS_SAMPLE_DATA = {
         scanOut = '';
         remarks = 'ច្បាប់';
         note = 'សុំច្បាប់មើលជំងឺ';
-      } else if (sch.teacherName === 'ហែម អឿន') {
-        // Incomplete admin tasks (missed grading and summary)
+      } else if (index === 5) {
         attendance = 'បានស្រង់';
         scoreEvaluation = 'មិនបានដាក់ពិន្ទុ';
         telegram = 'បានប្រើ';
@@ -289,14 +243,13 @@ const PSIS_SAMPLE_DATA = {
         telegramUsed: telegram,
         lessonSummaryWritten: lessonSummary,
         scanOutTime: scanOut,
-        remarks: remarks, // ធម្មតា, ច្បាប់, យឺត, គ្មានច្បាប់
+        remarks: remarks,
         note: note
       };
     });
   }
 };
 
-// Export for module/global usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PSIS_SAMPLE_DATA;
+  module.exports = { PSIS_SAMPLE_DATA, PSIS_BRANCHES };
 }

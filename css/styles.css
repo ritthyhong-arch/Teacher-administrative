@@ -43,6 +43,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -78,7 +79,234 @@ body {
   min-height: 100vh;
 }
 
-/* App Header */
+/* ========================================= */
+/* BRANCH SELECTION PORTAL (ផ្ទាំងជ្រើសរើសសាខា) */
+/* ========================================= */
+.portal-container {
+  min-height: 100vh;
+  background: radial-gradient(circle at top center, #1B365D 0%, #0A192F 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+}
+
+.portal-container::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.portal-container::after {
+  content: '';
+  position: absolute;
+  bottom: -150px;
+  left: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(27, 54, 93, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.portal-hero {
+  text-align: center;
+  max-width: 860px;
+  margin-bottom: 2.5rem;
+  z-index: 10;
+}
+
+.portal-logo {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 1.25rem auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  animation: logoFloat 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoFloat {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+
+.portal-title-kh {
+  font-family: var(--font-moul);
+  font-size: 1.65rem;
+  color: #FFF275;
+  margin-bottom: 0.35rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.portal-title-en {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #CBD5E1;
+  margin-bottom: 0.6rem;
+}
+
+.portal-motto {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.portal-motto-tag {
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  color: #FCEE21;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.portal-instruction {
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-block;
+  padding: 0.4rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 5 Branches Grid */
+.portal-branches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.5rem;
+  max-width: 1320px;
+  width: 100%;
+  z-index: 10;
+}
+
+.branch-card {
+  background: #FFFFFF;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.branch-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--psis-gold);
+}
+
+.branch-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.branch-card-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.branch-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.branch-card-name-kh {
+  font-family: var(--font-moul);
+  font-size: 1.15rem;
+  color: var(--psis-blue);
+  margin-bottom: 0.2rem;
+  line-height: 1.35;
+}
+
+.branch-card-name-en {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0.85rem;
+}
+
+.branch-card-meta {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 0.85rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.branch-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.branch-card-meta-item svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.branch-card-btn {
+  background: linear-gradient(135deg, var(--psis-blue) 0%, var(--psis-blue-dark) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.branch-card:hover .branch-card-btn {
+  background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
+  color: #0A192F;
+}
+
+/* ========================================= */
+/* ACTIVE APP HEADER WITH BRANCH SWITCHER */
+/* ========================================= */
 .app-header {
   background: linear-gradient(135deg, var(--psis-blue-dark) 0%, var(--psis-blue) 100%);
   color: #FFFFFF;
@@ -107,8 +335,8 @@ body {
 }
 
 .header-logo {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
@@ -124,6 +352,40 @@ body {
   font-size: 0.82rem;
   color: #E2E8F0;
   font-weight: 500;
+}
+
+/* Active Branch Pill & Switcher in Header */
+.header-branch-pill {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #FFFFFF;
+}
+
+.header-branch-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #FCEE21;
+}
+
+.header-branch-name {
+  font-weight: 700;
+  color: #FCEE21;
+}
+
+.header-branch-switch-tag {
+  font-size: 0.72rem;
+  background: var(--psis-gold);
+  color: #0A192F;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  font-weight: 800;
 }
 
 .header-lunar-badge {
@@ -567,7 +829,6 @@ body {
   background: #FFFFFF;
 }
 
-/* Warning: Missed scan or missed 1+ administrative tasks */
 .row-incomplete td {
   background-color: #FFFDF0 !important;
 }
@@ -575,7 +836,6 @@ body {
   border-left: 4px solid #F59E0B;
 }
 
-/* Danger: Unexcused absent or major issue */
 .row-danger td {
   background-color: #FEF2F2 !important;
 }
@@ -583,7 +843,6 @@ body {
   border-left: 4px solid #EF4444;
 }
 
-/* Late scan */
 .row-late td {
   background-color: #FFF8EB !important;
 }
@@ -591,7 +850,6 @@ body {
   border-left: 4px solid #D97706;
 }
 
-/* On Leave: Grayed out / disabled columns 4 to 9 */
 .row-leave td {
   background-color: #F1F5F9 !important;
   color: #94A3B8;
@@ -680,7 +938,6 @@ body {
   color: #FFFFFF;
 }
 
-/* Toggle Check Buttons */
 .task-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -858,7 +1115,6 @@ body {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Quick schedule badges */
 .shift-pill {
   display: inline-block;
   padding: 0.15rem 0.5rem;
@@ -869,7 +1125,6 @@ body {
 .shift-morning { background: #FEF3C7; color: #92400E; }
 .shift-afternoon { background: #E0E7FF; color: #3730A3; }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
   .psis-table th, .psis-table td {
     padding: 0.4rem 0.3rem;
@@ -885,5 +1140,8 @@ body {
   }
   .form-group-full {
     grid-column: span 1;
+  }
+  .portal-title-kh {
+    font-size: 1.35rem;
   }
 }

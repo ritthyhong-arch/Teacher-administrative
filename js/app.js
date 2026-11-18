@@ -1,15 +1,17 @@
 /**
  * Main Application Controller for PSIS Daily Teacher Administration Monitoring System
  * (ប្រព័ន្ធត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ - សាលាបញ្ញាសាស្រ្តអន្តរជាតិ)
+ * With 5-Branch Selection Portal & Switching Support.
  */
 
 const PSIS_App = (() => {
   // Application State
   const state = {
-    currentDate: '2026-10-05', // Default anchor date for instant demonstration
-    selectedShift: 'all',       // 'all', 'ព្រឹក', 'ល្ងាច'
-    selectedLevel: 'all',       // 'all', 'មត្តេយ្យ', 'បឋមសិក្សា', 'មធ្យមសិក្សា'
-    selectedStatus: 'all',      // 'all', 'complete', 'incomplete', 'leave', 'late'
+    currentBranchId: null,      // Active branch ID
+    currentDate: '2026-10-05',  // Default anchor date for demonstration
+    selectedShift: 'all',        // 'all', 'ព្រឹក', 'ល្ងាច'
+    selectedLevel: 'all',        // 'all', 'មត្តេយ្យ', 'បឋមសិក្សា', 'មធ្យមសិក្សា'
+    selectedStatus: 'all',       // 'all', 'complete', 'incomplete', 'leave', 'late'
     searchQuery: '',
     activeTab: 'tab-dashboard',
     schoolInfo: {},
@@ -23,47 +25,143 @@ const PSIS_App = (() => {
    * Initialize Application
    */
   function init() {
-    state.schoolInfo = PSIS_Storage.getSchoolInfo();
-    state.teachers = PSIS_Storage.getTeachers();
-    state.schedules = PSIS_Storage.getSchedules();
+    renderBranchPortalCards();
 
-    // Check if URL has a date param or use default anchor
-    const urlParams = new URLSearchParams(window.location.search);
-    const dateParam = urlParams.get('date');
-    if (dateParam) {
-      state.currentDate = dateParam;
+    // Check if user has already selected a branch in localStorage
+    const savedBranchId = PSIS_Storage.getCurrentBranchId();
+    if (savedBranchId) {
+      selectBranch(savedBranchId, false);
+    } else {
+      showBranchPortal();
+    }
+
+    setupEventListeners();
+  }
+
+  /**
+   * Render the 5 Branch Selection Cards in the Portal
+   */
+  function renderBranchPortalCards() {
+    const grid = document.getElementById('portal-branches-grid');
+    if (!grid) return;
+
+    const branches = PSIS_Storage.getBranches();
+    let html = '';
+
+    branches.forEach((b, idx) => {
+      const teachers = PSIS_Storage.getTeachers(b.id);
+
+      html += `
+        <div class="branch-card" onclick="PSIS_App.handleSelectBranch('${b.id}')">
+          <div>
+            <div class="branch-card-header">
+              <span class="branch-card-badge" style="background: ${b.iconColor}15; color: ${b.iconColor}; border: 1px solid ${b.iconColor}30;">
+                ${b.code} • ${b.badgeText}
+              </span>
+              <div class="branch-card-icon" style="background: ${b.iconColor};">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+            </div>
+
+            <h3 class="branch-card-name-kh">${escapeHtml(b.nameKh)}</h3>
+            <div class="branch-card-name-en">${escapeHtml(b.nameEn)}</div>
+
+            <div class="branch-card-meta">
+              <div class="branch-card-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>${escapeHtml(b.address)}</span>
+              </div>
+              <div class="branch-card-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>គ្រូបង្រៀន: <strong>${KhmerCalendar.toKhmerNumber(teachers.length)} នាក់</strong></span>
+              </div>
+              <div class="branch-card-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>នាយិកា/នាយក: ${escapeHtml(b.principalName.split('(')[0])}</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="branch-card-btn">
+            <span>ចូលប្រើប្រាស់សាខានេះ</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      `;
+    });
+
+    grid.innerHTML = html;
+  }
+
+  /**
+   * Display Branch Selection Portal
+   */
+  function showBranchPortal() {
+    const portal = document.getElementById('branch-selection-portal');
+    const mainApp = document.getElementById('main-app-layout');
+    if (portal) portal.style.display = 'flex';
+    if (mainApp) mainApp.style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Select a Branch and enter the main monitoring dashboard
+   */
+  function selectBranch(branchId, showNotification = true) {
+    state.currentBranchId = branchId;
+    PSIS_Storage.setCurrentBranchId(branchId);
+
+    state.schoolInfo = PSIS_Storage.getSchoolInfo(branchId);
+    state.teachers = PSIS_Storage.getTeachers(branchId);
+    state.schedules = PSIS_Storage.getSchedules(branchId);
+
+    // Switch view
+    const portal = document.getElementById('branch-selection-portal');
+    const mainApp = document.getElementById('main-app-layout');
+    if (portal) portal.style.display = 'none';
+    if (mainApp) mainApp.style.display = 'block';
+
+    // Update active branch indicators
+    const branchNameEl = document.getElementById('header-active-branch-name');
+    if (branchNameEl) {
+      branchNameEl.textContent = state.schoolInfo.branch;
     }
 
     loadDailyRecords();
-    setupEventListeners();
     updateHeaderDateDisplay();
     renderAll();
+
+    if (showNotification) {
+      showToast(`បានចូលប្រើប្រាស់ ${state.schoolInfo.branch}`, 'success');
+    }
+  }
+
+  function handleSelectBranch(branchId) {
+    selectBranch(branchId, true);
+  }
+
+  function handleSwitchBranch() {
+    renderBranchPortalCards();
+    showBranchPortal();
   }
 
   /**
-   * Load or create daily records for state.currentDate
+   * Load daily records for current date & active branch
    */
   function loadDailyRecords() {
-    state.dailyRecords = PSIS_Storage.getDailyChecklist(state.currentDate);
+    state.dailyRecords = PSIS_Storage.getDailyChecklist(state.currentDate, state.currentBranchId);
   }
 
-  /**
-   * Save current daily records
-   */
   function saveCurrentRecords() {
-    PSIS_Storage.saveDailyChecklist(state.currentDate, state.dailyRecords);
+    PSIS_Storage.saveDailyChecklist(state.currentDate, state.dailyRecords, state.currentBranchId);
     updateKPIs();
     renderPrintReport();
   }
 
-  /**
-   * Update header date display with real-time Khmer Lunar Date
-   */
   function updateHeaderDateDisplay() {
     const lunarHeaderEl = document.getElementById('header-lunar-text');
     if (lunarHeaderEl) {
-      const lunarStr = KhmerCalendar.getFullOfficialKhmerDate(state.currentDate);
-      lunarHeaderEl.textContent = lunarStr;
+      lunarHeaderEl.textContent = KhmerCalendar.getFullOfficialKhmerDate(state.currentDate);
     }
 
     const datePickerInput = document.getElementById('filter-date');
@@ -72,9 +170,6 @@ const PSIS_App = (() => {
     }
   }
 
-  /**
-   * Render All UI Components
-   */
   function renderAll() {
     renderKPIs();
     renderChecklistTable();
@@ -84,9 +179,6 @@ const PSIS_App = (() => {
     renderMonthlySummary();
   }
 
-  /**
-   * Update and Render KPI Summary Cards
-   */
   function updateKPIs() {
     renderKPIs();
   }
@@ -109,20 +201,11 @@ const PSIS_App = (() => {
     if (elRate) elRate.textContent = KhmerCalendar.toKhmerNumber(stats.completionRate) + '%';
   }
 
-  /**
-   * Filter daily records based on active filters
-   */
   function getFilteredRecords() {
     return state.dailyRecords.filter(rec => {
-      // Shift filter
-      if (state.selectedShift !== 'all' && rec.shift !== state.selectedShift) {
-        return false;
-      }
-      // Level filter
-      if (state.selectedLevel !== 'all' && rec.level !== state.selectedLevel) {
-        return false;
-      }
-      // Status filter
+      if (state.selectedShift !== 'all' && rec.shift !== state.selectedShift) return false;
+      if (state.selectedLevel !== 'all' && rec.level !== state.selectedLevel) return false;
+
       if (state.selectedStatus !== 'all') {
         const isLate = PSIS_Analytics.isRecordLate(rec, state.schoolInfo);
         const isIncomplete = PSIS_Analytics.isRecordIncomplete(rec, state.schoolInfo);
@@ -132,13 +215,12 @@ const PSIS_App = (() => {
         if (state.selectedStatus === 'incomplete' && !isIncomplete) return false;
         if (state.selectedStatus === 'complete' && (isIncomplete || rec.remarks === 'ច្បាប់' || rec.remarks === 'គ្មានច្បាប់')) return false;
       }
-      // Search query
+
       if (state.searchQuery) {
         const q = state.searchQuery.toLowerCase();
         const matchName = rec.teacherName.toLowerCase().includes(q);
         const matchClass = rec.classGrade.toLowerCase().includes(q);
-        const matchSubject = (rec.subject || '').toLowerCase().includes(q);
-        if (!matchName && !matchClass && !matchSubject) return false;
+        if (!matchName && !matchClass) return false;
       }
 
       return true;
@@ -161,12 +243,9 @@ const PSIS_App = (() => {
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="11" class="text-center py-8 text-gray-500 font-reading">
-            <div style="padding: 2.5rem; text-align: center; color: #64748B;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 0.5rem auto; color: #94A3B8;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-              <p style="font-size: 1rem; font-weight: 600;">មិនមានទិន្នន័យគ្រូបង្រៀនត្រូវនឹងលក្ខខណ្ឌចម្រាញ់នេះទេ</p>
-              <p style="font-size: 0.85rem; margin-top: 0.25rem;">សូមពិនិត្យមើលកាលវិភាគ ឬជ្រើសរើសវេន/កម្រិតផ្សេងទៀត</p>
-            </div>
+          <td colspan="11" style="padding: 2.5rem; text-align: center; color: #64748B;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 0.5rem auto; color: #94A3B8;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <p style="font-size: 1rem; font-weight: 600;">មិនមានទិន្នន័យគ្រូបង្រៀនត្រូវនឹងលក្ខខណ្ឌចម្រាញ់នេះទេ</p>
           </td>
         </tr>
       `;
@@ -179,7 +258,6 @@ const PSIS_App = (() => {
       const isLate = PSIS_Analytics.isRecordLate(rec, state.schoolInfo);
       const isIncomplete = PSIS_Analytics.isRecordIncomplete(rec, state.schoolInfo);
 
-      // Determine row style
       let rowClass = 'row-normal';
       if (isLeave) {
         rowClass = 'row-leave';
@@ -191,7 +269,6 @@ const PSIS_App = (() => {
         rowClass = 'row-incomplete';
       }
 
-      // Check toggles values
       const attDone = rec.attendanceRecorded === 'បានស្រង់';
       const scoreDone = rec.scoreEvaluated === 'បានដាក់ពិន្ទុ';
       const tgDone = rec.telegramUsed === 'បានប្រើ';
@@ -309,7 +386,7 @@ const PSIS_App = (() => {
             </div>
           </td>
 
-          <!-- 11. សកម្មភាព (Bulk row action) -->
+          <!-- 11. សកម្មភាព -->
           <td style="text-align: center; width: 110px;">
             <button type="button" class="btn btn-sm btn-outline" 
               title="បំពេញគ្រប់កិច្ចការទាំងអស់សម្រាប់គ្រូនេះតែម្តង"
@@ -325,9 +402,6 @@ const PSIS_App = (() => {
     tbody.innerHTML = html;
   }
 
-  /**
-   * Event Handlers for Table Interactions
-   */
   function handleFieldChange(recordId, field, value) {
     const rec = state.dailyRecords.find(r => r.id === recordId);
     if (!rec) return;
@@ -367,10 +441,6 @@ const PSIS_App = (() => {
     updateKPIs();
   }
 
-  /**
-   * CRITICAL REQUIREMENT: If "ច្បាប់" (On Leave) is selected,
-   * automatically disable / gray out columns 4 to 9.
-   */
   function handleRemarksChange(recordId, newRemarks) {
     const rec = state.dailyRecords.find(r => r.id === recordId);
     if (!rec) return;
@@ -378,7 +448,6 @@ const PSIS_App = (() => {
     rec.remarks = newRemarks;
 
     if (newRemarks === 'ច្បាប់') {
-      // Gray out & deactivate administrative tasks
       rec.attendanceRecorded = 'មិនបានស្រង់';
       rec.scoreEvaluated = 'មិនបានដាក់ពិន្ទុ';
       rec.telegramUsed = 'មិនបានប្រើ';
@@ -388,7 +457,6 @@ const PSIS_App = (() => {
       if (!rec.note) rec.note = 'គ្រូសុំច្បាប់សម្រាក';
       showToast(`គ្រូ ${rec.teacherName} បានជ្រើសរើសច្បាប់ (បិទជួរឈរ ៤ ដល់ ៩)`, 'warning');
     } else if (newRemarks === 'ធម្មតា' && rec.attendanceRecorded === 'មិនបានស្រង់') {
-      // Reset to active defaults
       rec.attendanceRecorded = 'បានស្រង់';
       rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
       rec.telegramUsed = 'បានប្រើ';
@@ -400,9 +468,6 @@ const PSIS_App = (() => {
     updateKPIs();
   }
 
-  /**
-   * Mark all completed for a specific row
-   */
   function handleMarkRowCompleted(recordId) {
     const rec = state.dailyRecords.find(r => r.id === recordId);
     if (!rec) return;
@@ -422,16 +487,10 @@ const PSIS_App = (() => {
     showToast(`បានបំពេញកិច្ចការគ្រប់ជ្រុងជ្រោយសម្រាប់ ${rec.teacherName}`, 'success');
   }
 
-  /**
-   * Bulk Actions: Mark All Completed for all teachers today
-   */
   function handleBulkCompleteAll() {
-    const filtered = getFilteredRecords();
-    if (filtered.length === 0) return;
-
     let count = 0;
     state.dailyRecords.forEach(rec => {
-      if (rec.remarks === 'ច្បាប់') return; // Don't override teachers on leave
+      if (rec.remarks === 'ច្បាប់') return;
       const isMorning = rec.shift === 'ព្រឹក';
       rec.scanInTime = rec.scanInTime || (isMorning ? '06:55' : '12:55');
       rec.attendanceRecorded = 'បានស្រង់';
@@ -484,7 +543,7 @@ const PSIS_App = (() => {
   }
 
   /**
-   * Render Official A4 Print & PDF Preview
+   * Render Official A4 Print & PDF Preview (Reflects Active Branch)
    */
   function renderPrintReport() {
     const printArea = document.getElementById('print-document-content');
@@ -524,9 +583,7 @@ const PSIS_App = (() => {
 
     const docHtml = `
       <div class="official-document-sheet" id="official-sheet">
-        <!-- 1. Top Header -->
         <div class="official-top-header">
-          <!-- Left: School Info -->
           <div class="official-school-side">
             <div class="official-school-name">
               <img src="assets/logo.svg" alt="PSIS Logo" class="official-school-logo-print" />
@@ -534,10 +591,9 @@ const PSIS_App = (() => {
             </div>
             <div class="official-school-en">${escapeHtml(state.schoolInfo.nameEn || 'PAÑÑĀSĀSTRA INTERNATIONAL SCHOOL')}</div>
             <div class="official-school-motto">បាវចនា: ${escapeHtml(state.schoolInfo.mottoKh || 'វិន័យ គុណធម៌ សុភមង្គល')}</div>
-            <div class="official-school-branch">សាខា: ${escapeHtml(state.schoolInfo.branch || 'សាខាកណ្តាល')}</div>
+            <div class="official-school-branch">សាខា: <strong>${escapeHtml(state.schoolInfo.branch)}</strong></div>
           </div>
 
-          <!-- Right / Center: Kingdom Motto -->
           <div class="official-kingdom-side">
             <div class="official-kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
             <div class="official-kingdom-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
@@ -545,7 +601,6 @@ const PSIS_App = (() => {
           </div>
         </div>
 
-        <!-- 2. Document Title -->
         <div class="official-report-title-block">
           <div class="official-report-title">របាយការណ៍ត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ</div>
           <div class="official-report-subtitle">
@@ -555,7 +610,6 @@ const PSIS_App = (() => {
           </div>
         </div>
 
-        <!-- 3. Main Official Table -->
         <table class="official-print-table">
           <thead>
             <tr>
@@ -580,9 +634,7 @@ const PSIS_App = (() => {
           </tbody>
         </table>
 
-        <!-- 4. Official Signature Block -->
         <div class="official-signature-block">
-          <!-- Left: Principal Approval -->
           <div class="signature-col-left">
             <div class="sig-agree">បានឃើញ និង ឯកភាព</div>
             <div class="sig-role">នាយិកាសាខា</div>
@@ -590,7 +642,6 @@ const PSIS_App = (() => {
             <div class="sig-line">ហត្ថលេខា និង ត្រា</div>
           </div>
 
-          <!-- Right: Inspector Signature & Khmer Lunar Date -->
           <div class="signature-col-right">
             <div class="sig-lunar-date">${escapeHtml(lunarDateStr)}</div>
             <div class="sig-solar-date">${escapeHtml(solarDateStr)}</div>
@@ -606,13 +657,13 @@ const PSIS_App = (() => {
   }
 
   /**
-   * Render Monthly Summary & Teacher Analytics
+   * Render Monthly Summary
    */
   function renderMonthlySummary() {
     const container = document.getElementById('monthly-summary-container');
     if (!container) return;
 
-    const allChecklists = PSIS_Storage.getAllChecklists();
+    const allChecklists = PSIS_Storage.getAllChecklists(state.currentBranchId);
     const stats = PSIS_Analytics.calculateMonthlyStats(allChecklists, state.monthlyYearMonth, state.teachers, state.schoolInfo);
 
     let rowsHtml = '';
@@ -655,7 +706,7 @@ const PSIS_App = (() => {
         <div class="card-header">
           <div class="card-header-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-            <span>របាយការណ៍សង្ខេបការអនុវត្តរដ្ឋបាលគ្រូប្រចាំខែ (${escapeHtml(state.monthlyYearMonth)})</span>
+            <span>របាយការណ៍សង្ខេបការអនុវត្តរដ្ឋបាលគ្រូប្រចាំខែ (${escapeHtml(state.monthlyYearMonth)}) - ${escapeHtml(state.schoolInfo.branch)}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <input type="month" class="form-control" value="${state.monthlyYearMonth}" 
@@ -696,9 +747,6 @@ const PSIS_App = (() => {
     renderMonthlySummary();
   }
 
-  /**
-   * Master Data: Teacher Profiles Table
-   */
   function renderTeachersTable() {
     const tbody = document.getElementById('teachers-table-body');
     if (!tbody) return;
@@ -742,9 +790,6 @@ const PSIS_App = (() => {
     tbody.innerHTML = html;
   }
 
-  /**
-   * Master Data: Weekly Schedule Table
-   */
   function renderSchedulesTable() {
     const tbody = document.getElementById('schedules-table-body');
     if (!tbody) return;
@@ -781,9 +826,6 @@ const PSIS_App = (() => {
     tbody.innerHTML = html;
   }
 
-  /**
-   * Teacher CRUD
-   */
   function openAddTeacherModal() {
     document.getElementById('teacher-form').reset();
     document.getElementById('teacher-id').value = '';
@@ -830,14 +872,14 @@ const PSIS_App = (() => {
 
     if (id) {
       teacherData.id = id;
-      PSIS_Storage.updateTeacher(teacherData);
+      PSIS_Storage.updateTeacher(teacherData, state.currentBranchId);
       showToast('បានកែប្រែព័ត៌មានគ្រូជោគជ័យ!', 'success');
     } else {
-      PSIS_Storage.addTeacher(teacherData);
+      PSIS_Storage.addTeacher(teacherData, state.currentBranchId);
       showToast('បានបន្ថែមគ្រូបង្រៀនថ្មីជោគជ័យ!', 'success');
     }
 
-    state.teachers = PSIS_Storage.getTeachers();
+    state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
     renderTeachersTable();
     closeModal('teacher-modal');
   }
@@ -845,19 +887,16 @@ const PSIS_App = (() => {
   function handleDeleteTeacher(id) {
     const t = state.teachers.find(item => item.id === id);
     if (!t) return;
-    if (confirm(`តើអ្នកពិតជាចង់លុបគ្រូ "${t.name}" មែនទេ? (កាលវិភាគពាក់ព័ន្ធនឹងត្រូវបានលុបផងដែរ)`)) {
-      PSIS_Storage.deleteTeacher(id);
-      state.teachers = PSIS_Storage.getTeachers();
-      state.schedules = PSIS_Storage.getSchedules();
+    if (confirm(`តើអ្នកពិតជាចង់លុបគ្រូ "${t.name}" មែនទេ?`)) {
+      PSIS_Storage.deleteTeacher(id, state.currentBranchId);
+      state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
+      state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
       renderTeachersTable();
       renderSchedulesTable();
       showToast(`បានលុបគ្រូ ${t.name}`, 'warning');
     }
   }
 
-  /**
-   * Schedule CRUD
-   */
   function openAddScheduleModal() {
     const teacherSelect = document.getElementById('schedule-teacher-select');
     teacherSelect.innerHTML = state.teachers.map(t => 
@@ -898,8 +937,8 @@ const PSIS_App = (() => {
       room
     };
 
-    PSIS_Storage.addSchedule(schData);
-    state.schedules = PSIS_Storage.getSchedules();
+    PSIS_Storage.addSchedule(schData, state.currentBranchId);
+    state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
     renderSchedulesTable();
     closeModal('schedule-modal');
     showToast('បានចាត់ចែងកាលវិភាគថ្មីជោគជ័យ!', 'success');
@@ -907,8 +946,8 @@ const PSIS_App = (() => {
 
   function handleDeleteSchedule(id) {
     if (confirm('តើអ្នកពិតជាចង់លុបកាលវិភាគនេះមែនទេ?')) {
-      PSIS_Storage.deleteSchedule(id);
-      state.schedules = PSIS_Storage.getSchedules();
+      PSIS_Storage.deleteSchedule(id, state.currentBranchId);
+      state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
       renderSchedulesTable();
       showToast('បានលុបកាលវិភាគ', 'warning');
     }
@@ -972,32 +1011,25 @@ const PSIS_App = (() => {
     showToast('បានអនុវត្តទិន្នន័យស្កេនចូលក្នុងតារាងត្រួតពិនិត្យជោគជ័យ!', 'success');
   }
 
-  /**
-   * Export Handlers
-   */
   function handleExportDailyExcel() {
     PSIS_XlsxExport.exportDailyToExcel(state.currentDate, state.dailyRecords, state.schoolInfo);
     showToast('បានទាញយកឯកសារ Excel សម្រាប់របាយការណ៍ប្រចាំថ្ងៃ!', 'success');
   }
 
   function handleExportMonthlyExcel() {
-    const allChecklists = PSIS_Storage.getAllChecklists();
+    const allChecklists = PSIS_Storage.getAllChecklists(state.currentBranchId);
     const stats = PSIS_Analytics.calculateMonthlyStats(allChecklists, state.monthlyYearMonth, state.teachers, state.schoolInfo);
     PSIS_XlsxExport.exportMonthlyToExcel(stats, state.schoolInfo);
     showToast('បានទាញយកឯកសារ Excel សម្រាប់របាយការណ៍សង្ខេបប្រចាំខែ!', 'success');
   }
 
   function handlePrint() {
-    // Switch to print view and trigger window.print
     switchTab('tab-print');
     setTimeout(() => {
       window.print();
     }, 300);
   }
 
-  /**
-   * Date change handlers
-   */
   function handleDateChange(newDateStr) {
     state.currentDate = newDateStr;
     loadDailyRecords();
@@ -1013,9 +1045,6 @@ const PSIS_App = (() => {
     handleDateChange(dateStr);
   }
 
-  /**
-   * Settings & School Info
-   */
   function openSettingsModal() {
     document.getElementById('school-name-kh').value = state.schoolInfo.nameKh || '';
     document.getElementById('school-branch').value = state.schoolInfo.branch || '';
@@ -1035,54 +1064,21 @@ const PSIS_App = (() => {
     state.schoolInfo.morningScanLateThreshold = document.getElementById('school-morning-late').value.trim();
     state.schoolInfo.afternoonScanLateThreshold = document.getElementById('school-afternoon-late').value.trim();
 
-    PSIS_Storage.saveSchoolInfo(state.schoolInfo);
+    PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
     closeModal('settings-modal');
     renderPrintReport();
     updateKPIs();
-    showToast('បានរក្សាទុកការកំណត់សាលាជោគជ័យ!', 'success');
+    showToast('បានរក្សាទុកការកំណត់សាខាជោគជ័យ!', 'success');
   }
 
-  function handleDownloadBackup() {
-    const json = PSIS_Storage.exportBackup();
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `PSIS_Backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }, 150);
-  }
-
-  function handleRestoreBackupFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const res = PSIS_Storage.importBackup(evt.target.result);
-      if (res.success) {
-        showToast('បានស្តារទិន្នន័យពីឯកសារបម្រុងទុកជោគជ័យ!', 'success');
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        alert('បរាជ័យក្នុងការស្តារទិន្នន័យ: ' + res.error);
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function handleResetAllData() {
-    if (confirm('តើអ្នកពិតជាចង់កំណត់ទិន្នន័យទាំងអស់ឡើងវិញទៅទម្រង់ដើមគំរូ (Demo Data) មែនទេ?')) {
-      PSIS_Storage.resetToDefault();
+  function handleResetBranchData() {
+    if (confirm(`តើអ្នកពិតជាចង់កំណត់ទិន្នន័យសម្រាប់ "${state.schoolInfo.branch}" ឡើងវិញទៅទម្រង់ដើមគំរូមែនទេ?`)) {
+      PSIS_Storage.resetBranchData(state.currentBranchId);
       showToast('បានកំណត់ទិន្នន័យឡើងវិញជោគជ័យ!', 'success');
       setTimeout(() => window.location.reload(), 800);
     }
   }
 
-  /**
-   * Navigation Tabs
-   */
   function switchTab(tabId) {
     state.activeTab = tabId;
     document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -1099,9 +1095,6 @@ const PSIS_App = (() => {
     }
   }
 
-  /**
-   * Modal Helpers
-   */
   function openModal(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.add('active');
@@ -1112,9 +1105,6 @@ const PSIS_App = (() => {
     if (el) el.classList.remove('active');
   }
 
-  /**
-   * Toast Notifications
-   */
   function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -1150,11 +1140,7 @@ const PSIS_App = (() => {
       .replace(/'/g, '&#039;');
   }
 
-  /**
-   * Event Listeners Setup
-   */
   function setupEventListeners() {
-    // Navigation Tabs
     document.querySelectorAll('.nav-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.getAttribute('data-tab');
@@ -1162,7 +1148,6 @@ const PSIS_App = (() => {
       });
     });
 
-    // Date Picker
     const dateInput = document.getElementById('filter-date');
     if (dateInput) {
       dateInput.addEventListener('change', (e) => {
@@ -1170,7 +1155,6 @@ const PSIS_App = (() => {
       });
     }
 
-    // Shift Filter
     const shiftSelect = document.getElementById('filter-shift');
     if (shiftSelect) {
       shiftSelect.addEventListener('change', (e) => {
@@ -1179,7 +1163,6 @@ const PSIS_App = (() => {
       });
     }
 
-    // Level Filter
     const levelSelect = document.getElementById('filter-level');
     if (levelSelect) {
       levelSelect.addEventListener('change', (e) => {
@@ -1188,7 +1171,6 @@ const PSIS_App = (() => {
       });
     }
 
-    // Status Filter
     const statusSelect = document.getElementById('filter-status');
     if (statusSelect) {
       statusSelect.addEventListener('change', (e) => {
@@ -1197,7 +1179,6 @@ const PSIS_App = (() => {
       });
     }
 
-    // Search Query
     const searchInput = document.getElementById('filter-search');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -1206,7 +1187,6 @@ const PSIS_App = (() => {
       });
     }
 
-    // Forms
     const teacherForm = document.getElementById('teacher-form');
     if (teacherForm) {
       teacherForm.addEventListener('submit', handleSaveTeacher);
@@ -1222,7 +1202,6 @@ const PSIS_App = (() => {
       settingsForm.addEventListener('submit', handleSaveSettings);
     }
 
-    // Close modal on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
@@ -1232,9 +1211,10 @@ const PSIS_App = (() => {
     });
   }
 
-  // Public Interface
   return {
     init,
+    handleSelectBranch,
+    handleSwitchBranch,
     handleFieldChange,
     handleSetCurrentTime,
     handleToggleTask,
@@ -1258,16 +1238,13 @@ const PSIS_App = (() => {
     handleExportMonthlyExcel,
     handlePrint,
     openSettingsModal,
-    handleDownloadBackup,
-    handleRestoreBackupFile,
-    handleResetAllData,
+    handleResetBranchData,
     switchTab,
     closeModal,
     showToast
   };
 })();
 
-// Start application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   PSIS_App.init();
 });
