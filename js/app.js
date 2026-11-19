@@ -236,7 +236,9 @@ const PSIS_App = (() => {
 
     // Trigger Cloud sync for this branch immediately!
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.syncBranchFromCloud === 'function') {
-      PSIS_SupabaseSync.syncBranchFromCloud(branchId, true);
+      PSIS_SupabaseSync.syncBranchFromCloud(branchId, true).then(() => {
+        refreshAllData();
+      }).catch(() => {});
     }
 
     if (showNotification) {

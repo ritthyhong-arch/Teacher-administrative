@@ -5,23 +5,20 @@
 
 const PSIS_SupabaseSync = (() => {
   let supabaseClient = null;
-  let isSyncing = false;
   let isApplyingCloudData = false;
-  let autoSaveTimer = null;
   let backgroundInterval = null;
   let realtimeChannel = null;
 
   // Unique identifier for this client session to filter out self-broadcasted echo events
   const clientId = 'client_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
 
-  // Map of last known Supabase cloud updated_at per branch
+  // Per-branch tracking to avoid global locks and dropped syncs
+  const syncingBranches = new Set();
   const lastSyncedCloudUpdatedAt = {};
-
-  // Track whether initial cloud pull has completed for each branch
   const hasSyncedFromCloud = {};
-
-  // Track pending force sync requests if sync is already running
   const pendingForceSync = {};
+  const pendingSaveAfterPull = {};
+  const autoSaveTimers = {};
 
   function getConfig() {
     return window.SUPABASE_CONFIG || {
@@ -75,6 +72,14 @@ const PSIS_SupabaseSync = (() => {
       const activeBranchId = getActiveBranchId();
       syncBranchFromCloud(activeBranchId, true);
 
+      // Pre-warm cache for all branches in background so switching is instant and seamless
+      const allBranches = ['psis-ii', 'psis-iii', 'psis-vii', 'psis-viii', 'psis-ix'];
+      allBranches.forEach((bId, idx) => {
+        if (bId !== activeBranchId) {
+          setTimeout(() => syncBranchFromCloud(bId, false), 400 + idx * 300);
+        }
+      });
+
       // Start Realtime WebSockets & Background Polling
       startRealtime();
       startBackgroundPolling();
@@ -111,7 +116,7 @@ const PSIS_SupabaseSync = (() => {
     if (!supabaseClient) return;
     const bId = branchId || getActiveBranchId();
 
-    if (isSyncing) {
+    if (syncingBranches.has(bId)) {
       if (force) {
         pendingForceSync[bId] = true;
       }
@@ -121,8 +126,10 @@ const PSIS_SupabaseSync = (() => {
     const key = getStorageKey(bId);
 
     try {
-      isSyncing = true;
-      updateStatusUI('syncing', 'កំពុង Sync...');
+      syncingBranches.add(bId);
+      if (bId === getActiveBranchId()) {
+        updateStatusUI('syncing', 'កំពុង Sync...');
+      }
 
       const cfg = getConfig();
       const { data, error } = await supabaseClient
@@ -171,7 +178,9 @@ const PSIS_SupabaseSync = (() => {
             }
           }
         }
-        updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+        if (bId === getActiveBranchId()) {
+          updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+        }
       } else {
         // Cloud has no data row for this branch yet -> push local data to Cloud
         hasSyncedFromCloud[bId] = true;
@@ -180,12 +189,17 @@ const PSIS_SupabaseSync = (() => {
       }
     } catch (err) {
       console.warn('[Supabase Sync Error]', err);
-      updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+      if (bId === getActiveBranchId()) {
+        updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+      }
     } finally {
-      isSyncing = false;
+      syncingBranches.delete(bId);
       if (pendingForceSync[bId]) {
         pendingForceSync[bId] = false;
-        setTimeout(() => syncBranchFromCloud(bId, true), 60);
+        setTimeout(() => syncBranchFromCloud(bId, true), 50);
+      } else if (pendingSaveAfterPull[bId]) {
+        pendingSaveAfterPull[bId] = false;
+        setTimeout(() => saveBranchToCloud(bId, true), 80);
       }
     }
   }
@@ -199,15 +213,17 @@ const PSIS_SupabaseSync = (() => {
     if (!supabaseClient || isApplyingCloudData) return;
     const bId = branchId || getActiveBranchId();
 
-    // Guard: NEVER push to cloud until this client has completed initial pull for this branch
+    // Guard: If client has not completed initial cloud pull, defer and automatically push after pull
     if (!hasSyncedFromCloud[bId]) {
       console.log('[Supabase Sync] Deferring save: waiting for initial cloud pull for', bId);
+      pendingSaveAfterPull[bId] = true;
+      syncBranchFromCloud(bId, true);
       return;
     }
 
     if (!immediate) {
-      if (autoSaveTimer) clearTimeout(autoSaveTimer);
-      autoSaveTimer = setTimeout(() => {
+      if (autoSaveTimers[bId]) clearTimeout(autoSaveTimers[bId]);
+      autoSaveTimers[bId] = setTimeout(() => {
         saveBranchToCloud(bId, true);
       }, 250);
       return;
@@ -216,7 +232,9 @@ const PSIS_SupabaseSync = (() => {
     const key = getStorageKey(bId);
 
     try {
-      updateStatusUI('syncing', 'កំពុងរក្សាទុក...');
+      if (bId === getActiveBranchId()) {
+        updateStatusUI('syncing', 'កំពុងរក្សាទុក...');
+      }
       const cfg = getConfig();
       const nowIso = new Date().toISOString();
 
@@ -241,7 +259,9 @@ const PSIS_SupabaseSync = (() => {
 
       hasSyncedFromCloud[bId] = true;
       lastSyncedCloudUpdatedAt[bId] = nowIso;
-      updateStatusUI('connected', 'Cloud រួចរាល់');
+      if (bId === getActiveBranchId()) {
+        updateStatusUI('connected', 'Cloud រួចរាល់');
+      }
 
       // Instant WebSocket Broadcast to all other devices (< 50ms)
       if (realtimeChannel) {
@@ -257,12 +277,16 @@ const PSIS_SupabaseSync = (() => {
       }
 
       setTimeout(() => {
-        updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+        if (bId === getActiveBranchId()) {
+          updateStatusUI('connected', 'Cloud បានភ្ជាប់');
+        }
       }, 1000);
 
     } catch (err) {
       console.warn('[Supabase Save Error]', err);
-      updateStatusUI('error', 'Sync មិនជោគជ័យ');
+      if (bId === getActiveBranchId()) {
+        updateStatusUI('error', 'Sync មិនជោគជ័យ');
+      }
     }
   }
 
@@ -275,7 +299,7 @@ const PSIS_SupabaseSync = (() => {
       const cfg = getConfig();
 
       // Realtime Broadcast Channel: Instant peer-to-peer updates without relying on postgres replication
-      realtimeChannel = supabaseClient.channel('psis_branch_realtime_v3', {
+      realtimeChannel = supabaseClient.channel('psis_branch_realtime_v4', {
         config: {
           broadcast: { ack: false, self: false }
         }
@@ -326,12 +350,13 @@ const PSIS_SupabaseSync = (() => {
    */
   function startBackgroundPolling() {
     if (backgroundInterval) clearInterval(backgroundInterval);
-    // Poll every 2 seconds when active, every 6 seconds when backgrounded
+    // Poll every 2.5 seconds when active
     backgroundInterval = setInterval(() => {
-      if (isSyncing) return;
       const activeBranchId = getActiveBranchId();
-      syncBranchFromCloud(activeBranchId, false);
-    }, 2000);
+      if (!syncingBranches.has(activeBranchId)) {
+        syncBranchFromCloud(activeBranchId, false);
+      }
+    }, 2500);
   }
 
   return {

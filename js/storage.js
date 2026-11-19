@@ -644,29 +644,32 @@ const PSIS_Storage = (() => {
           }
         }
 
-        // Auto-sanitize old mock dummy values (06:55, 11:35, mock notes, mock missing tasks) to Auto 07:30 / 17:00
-        const isOldMockNote = rec.note === 'សុំច្បាប់មើលជំងឺ' || rec.note === 'មិនទាន់បានបញ្ចូលពិន្ទុប្រចាំខែ' || rec.note === 'មកយឺតដោយសារស្ទះចរាចរណ៍';
-        const isOldMockTimes = (rec.scanInTime === '06:55' || rec.scanInTime === '07:25') && (rec.scanOutTime === '11:35' || !rec.scanOutTime);
-        const isOldMockTasks = rec.scoreEvaluated === 'មិនបានដាក់ពិន្ទុ' || rec.lessonSummaryWritten === 'មិនបានសរសេរ';
-        const isBlankTimeWithMock = (isOldMockNote || isOldMockTimes || isOldMockTasks) && (!rec.scanInTime || !rec.scanOutTime);
+        // Respect user statuses: NEVER overwrite 'ច្បាប់' (leave), 'អវត្តមាន' (absent), or 'គ្មានច្បាប់'
+        if (rec.remarks === 'ច្បាប់' || rec.remarks === 'អវត្តមាន' || rec.remarks === 'គ្មានច្បាប់') {
+          return;
+        }
 
-        if (isOldMockNote || isOldMockTimes || isOldMockTasks || isBlankTimeWithMock) {
-          if (isOldMockTimes || isBlankTimeWithMock || !rec.scanInTime || rec.scanInTime === '06:55' || (rec.scanInTime === '07:25' && rec.scanOutTime === '11:35')) {
+        // Auto-sanitize old mock dummy values (06:55, 11:35 with mock note, mock notes) to Auto 07:30 / 17:00
+        const isOldMockNote = rec.note === 'សុំច្បាប់មើលជំងឺ' || rec.note === 'មិនទាន់បានបញ្ចូលពិន្ទុប្រចាំខែ' || rec.note === 'មកយឺតដោយសារស្ទះចរាចរណ៍';
+        const isOldMockTimes = (rec.scanInTime === '06:55' || (rec.scanInTime === '07:25' && rec.scanOutTime === '11:35')) && (isOldMockNote || !rec.note);
+
+        if (isOldMockNote || isOldMockTimes) {
+          if (rec.scanInTime === '06:55' || (rec.scanInTime === '07:25' && rec.scanOutTime === '11:35') || !rec.scanInTime) {
             rec.scanInTime = '07:30';
           }
-          if (isOldMockTimes || isBlankTimeWithMock || !rec.scanOutTime || rec.scanOutTime === '11:35') {
+          if (rec.scanOutTime === '11:35' || !rec.scanOutTime) {
             rec.scanOutTime = '17:00';
           }
           if (!rec.attendanceRecorded || rec.attendanceRecorded === 'មិនបានស្រង់') {
             rec.attendanceRecorded = 'បានស្រង់';
           }
-          if (!rec.scoreEvaluated || isOldMockTasks) {
+          if (!rec.scoreEvaluated || rec.scoreEvaluated === 'មិនបានដាក់ពិន្ទុ') {
             rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
           }
-          if (!rec.telegramUsed) {
+          if (!rec.telegramUsed || rec.telegramUsed === 'មិនបានប្រើ') {
             rec.telegramUsed = 'បានប្រើ';
           }
-          if (!rec.lessonSummaryWritten || isOldMockTasks) {
+          if (!rec.lessonSummaryWritten || rec.lessonSummaryWritten === 'មិនបានសរសេរ') {
             rec.lessonSummaryWritten = 'បានសរសេរ';
           }
           if (!rec.remarks || rec.remarks === '-') {
