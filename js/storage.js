@@ -81,6 +81,26 @@ const PSIS_Storage = (() => {
     return String(str).replace(/^ថ្នាក់ទី\s*/g, '').trim();
   }
 
+  // Helper for sorting by teaching level in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ
+  function getLevelOrderWeight(level) {
+    if (!level) return 99;
+    const l = String(level).trim();
+    if (l.includes('មត្តេយ្យ') || l.toLowerCase().includes('kindergarten')) return 1;
+    if (l.includes('បឋម') || l.toLowerCase().includes('primary')) return 2;
+    if (l.includes('អនុវិទ្យាល័យ') || l.includes('វិទ្យាល័យ') || l.includes('មធ្យម') || l.toLowerCase().includes('secondary') || l.toLowerCase().includes('high')) return 3;
+    return 4;
+  }
+
+  function sortTeachersByLevel(teachers) {
+    if (!Array.isArray(teachers)) return [];
+    return [...teachers].sort((a, b) => {
+      const wA = getLevelOrderWeight(a.level);
+      const wB = getLevelOrderWeight(b.level);
+      if (wA !== wB) return wA - wB;
+      return (a.name || '').localeCompare(b.name || '', 'km');
+    });
+  }
+
   // Teachers
   function getTeachers(branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
@@ -100,9 +120,9 @@ const PSIS_Storage = (() => {
           saveTeachers(list, bId);
         }
       }
-      return list;
+      return sortTeachersByLevel(list);
     } catch (e) {
-      return PSIS_SAMPLE_DATA.getTeachersForBranch(bId);
+      return sortTeachersByLevel(PSIS_SAMPLE_DATA.getTeachersForBranch(bId));
     }
   }
 
@@ -605,6 +625,18 @@ const PSIS_Storage = (() => {
       if (changed) {
         saveAllChecklists(all, bId);
       }
+      all[dateStr].sort((a, b) => {
+        const teacherA = teacherMap.get(a.teacherId);
+        const teacherB = teacherMap.get(b.teacherId);
+        const lvlA = (teacherA && teacherA.level) || a.level;
+        const lvlB = (teacherB && teacherB.level) || b.level;
+        const wA = getLevelOrderWeight(lvlA);
+        const wB = getLevelOrderWeight(lvlB);
+        if (wA !== wB) return wA - wB;
+        const nameA = (teacherA && teacherA.name) || a.teacherName || '';
+        const nameB = (teacherB && teacherB.name) || b.teacherName || '';
+        return nameA.localeCompare(nameB, 'km');
+      });
       return all[dateStr];
     }
 
@@ -734,7 +766,9 @@ const PSIS_Storage = (() => {
     resetBranchData,
     getLocalDateString,
     exportAllData,
-    importAllData
+    importAllData,
+    getLevelOrderWeight,
+    sortTeachersByLevel
   };
 })();
 

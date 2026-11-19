@@ -262,6 +262,20 @@ const PSIS_App = (() => {
       if (!teacher) return false;
       return PSIS_Storage.isTeacherScheduledOnDay(r.teacherId, dayOfWeek, state.currentBranchId);
     });
+
+    // Sort daily records in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ
+    state.dailyRecords.sort((a, b) => {
+      const teacherA = state.teachers.find(t => t.id === a.teacherId);
+      const teacherB = state.teachers.find(t => t.id === b.teacherId);
+      const lvlA = (teacherA && teacherA.level) || a.level;
+      const lvlB = (teacherB && teacherB.level) || b.level;
+      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
+      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
+      if (wA !== wB) return wA - wB;
+      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
+      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
+      return nameA.localeCompare(nameB, 'km');
+    });
   }
 
   function saveCurrentRecords() {
@@ -322,13 +336,18 @@ const PSIS_App = (() => {
   }
 
   function getFilteredRecords() {
-    return state.dailyRecords.filter(rec => {
+    const list = state.dailyRecords.filter(rec => {
       const teacher = state.teachers.find(t => t.id === rec.teacherId);
       if (!teacher) return false;
       const recLevel = teacher.level;
       const recTeacherName = teacher.name;
 
-      if (state.selectedLevel !== 'all' && recLevel !== state.selectedLevel) return false;
+      if (state.selectedLevel !== 'all') {
+        const matchesLevel = (state.selectedLevel === 'អនុវិទ្យាល័យ-វិទ្យាល័យ')
+          ? (recLevel.includes('អនុវិទ្យាល័យ') || recLevel.includes('វិទ្យាល័យ'))
+          : (recLevel === state.selectedLevel);
+        if (!matchesLevel) return false;
+      }
 
       if (state.selectedStatus !== 'all') {
         const isLate = PSIS_Analytics.isRecordLate(rec, state.schoolInfo);
@@ -348,6 +367,19 @@ const PSIS_App = (() => {
       }
 
       return true;
+    });
+
+    return list.sort((a, b) => {
+      const teacherA = state.teachers.find(t => t.id === a.teacherId);
+      const teacherB = state.teachers.find(t => t.id === b.teacherId);
+      const lvlA = (teacherA && teacherA.level) || a.level;
+      const lvlB = (teacherB && teacherB.level) || b.level;
+      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
+      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
+      if (wA !== wB) return wA - wB;
+      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
+      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
+      return nameA.localeCompare(nameB, 'km');
     });
   }
 
@@ -672,7 +704,20 @@ const PSIS_App = (() => {
     const inspector = state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី';
 
     let rowsHtml = '';
-    const activeRecords = state.dailyRecords.filter(r => state.teachers.some(t => t.id === r.teacherId));
+    const activeRecords = state.dailyRecords
+      .filter(r => state.teachers.some(t => t.id === r.teacherId))
+      .sort((a, b) => {
+        const teacherA = state.teachers.find(t => t.id === a.teacherId);
+        const teacherB = state.teachers.find(t => t.id === b.teacherId);
+        const lvlA = (teacherA && teacherA.level) || a.level;
+        const lvlB = (teacherB && teacherB.level) || b.level;
+        const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
+        const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
+        if (wA !== wB) return wA - wB;
+        const nameA = (teacherA && teacherA.name) || a.teacherName || '';
+        const nameB = (teacherB && teacherB.name) || b.teacherName || '';
+        return nameA.localeCompare(nameB, 'km');
+      });
     activeRecords.forEach((r, idx) => {
       const isLeave = r.remarks === 'ច្បាប់';
       const scanIn = isLeave ? '-' : (r.scanInTime || '-');
@@ -1014,7 +1059,11 @@ const PSIS_App = (() => {
     if (!tbody) return;
 
     let html = '';
-    state.teachers.forEach((t, idx) => {
+    const sortedTeachers = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortTeachersByLevel === 'function')
+      ? PSIS_Storage.sortTeachersByLevel(state.teachers)
+      : [...state.teachers];
+
+    sortedTeachers.forEach((t, idx) => {
       html += `
         <tr>
           <td style="text-align: center; font-weight: 700;">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
@@ -1067,7 +1116,20 @@ const PSIS_App = (() => {
     if (!tbody) return;
 
     let html = '';
-    state.schedules.forEach((s, idx) => {
+    const sortedSchedules = [...state.schedules].sort((a, b) => {
+      const teacherA = state.teachers.find(t => t.id === a.teacherId);
+      const teacherB = state.teachers.find(t => t.id === b.teacherId);
+      const lvlA = (teacherA && teacherA.level) || a.level;
+      const lvlB = (teacherB && teacherB.level) || b.level;
+      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
+      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
+      if (wA !== wB) return wA - wB;
+      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
+      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
+      return nameA.localeCompare(nameB, 'km');
+    });
+
+    sortedSchedules.forEach((s, idx) => {
       const teacher = state.teachers.find(t => t.id === s.teacherId);
       const teacherName = teacher ? teacher.name : s.teacherName;
       const teacherLevel = teacher ? teacher.level : s.level;
