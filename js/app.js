@@ -5,20 +5,33 @@
  */
 
 const PSIS_App = (() => {
+  function getLocalDateString(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function getLocalYearMonth(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  }
+
   // Application State
   const state = {
-    currentBranchId: null,      // Active branch ID
-    currentDate: '2026-10-05',  // Default anchor date for demonstration
-    selectedShift: 'all',        // 'all', 'ព្រឹក', 'ល្ងាច'
-    selectedLevel: 'all',        // 'all', 'មត្តេយ្យ', 'បឋមសិក្សា', 'មធ្យមសិក្សា'
-    selectedStatus: 'all',       // 'all', 'complete', 'incomplete', 'leave', 'late'
+    currentBranchId: null,             // Active branch ID
+    currentDate: getLocalDateString(), // Default to today's date
+    selectedShift: 'all',               // 'all', 'ព្រឹក', 'ល្ងាច'
+    selectedLevel: 'all',               // 'all', 'មត្តេយ្យ', 'បឋមសិក្សា', 'មធ្យមសិក្សា'
+    selectedStatus: 'all',              // 'all', 'complete', 'incomplete', 'leave', 'late'
     searchQuery: '',
     activeTab: 'tab-dashboard',
     schoolInfo: {},
     teachers: [],
     schedules: [],
     dailyRecords: [],
-    monthlyYearMonth: '2026-10'
+    monthlyYearMonth: getLocalYearMonth()
   };
 
   /**
@@ -54,6 +67,8 @@ const PSIS_App = (() => {
    * Initialize Application
    */
   function init() {
+    state.currentDate = getLocalDateString();
+    state.monthlyYearMonth = getLocalYearMonth();
     const savedBranchId = PSIS_Storage.getCurrentBranchId() || 'psis-ix';
     const authBranch = sessionStorage.getItem('psis_auth_branch');
     const branchModal = document.getElementById('branch-modal-overlay');
@@ -347,7 +362,7 @@ const PSIS_App = (() => {
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="11" style="padding: 2.5rem; text-align: center; color: #64748B;">
+          <td colspan="10" style="padding: 2.5rem; text-align: center; color: #64748B;">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 0.5rem auto; color: #94A3B8;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
             <p style="font-size: 1rem; font-weight: 600;">មិនមានទិន្នន័យគ្រូបង្រៀនត្រូវនឹងលក្ខខណ្ឌចម្រាញ់នេះទេ</p>
           </td>
@@ -410,16 +425,11 @@ const PSIS_App = (() => {
           </td>
 
           <!-- 4. ម៉ោងស្កេនចូល -->
-          <td class="${leaveColClass}" style="text-align: center; width: 125px;">
+          <td class="${leaveColClass}" style="text-align: center; width: 110px;">
             <div class="time-input-container">
               <input type="time" class="time-input" value="${rec.scanInTime || ''}" 
                 ${leaveDisabledAttr}
                 onchange="PSIS_App.handleFieldChange('${rec.id}', 'scanInTime', this.value)" />
-              <button type="button" class="time-btn-now" title="ដាក់ម៉ោងបច្ចុប្បន្ន"
-                ${leaveDisabledAttr}
-                onclick="PSIS_App.handleSetCurrentTime('${rec.id}', 'scanInTime')">
-                ឥឡូវ
-              </button>
             </div>
           </td>
 
@@ -464,16 +474,11 @@ const PSIS_App = (() => {
           </td>
 
           <!-- 9. ម៉ោងស្កេនចេញ -->
-          <td class="${leaveColClass}" style="text-align: center; width: 125px;">
+          <td class="${leaveColClass}" style="text-align: center; width: 110px;">
             <div class="time-input-container">
               <input type="time" class="time-input" value="${rec.scanOutTime || ''}" 
                 ${leaveDisabledAttr}
                 onchange="PSIS_App.handleFieldChange('${rec.id}', 'scanOutTime', this.value)" />
-              <button type="button" class="time-btn-now" title="ដាក់ម៉ោងបច្ចុប្បន្ន"
-                ${leaveDisabledAttr}
-                onclick="PSIS_App.handleSetCurrentTime('${rec.id}', 'scanOutTime')">
-                ឥឡូវ
-              </button>
             </div>
           </td>
 
@@ -491,16 +496,6 @@ const PSIS_App = (() => {
                 style="width: 115px; font-size: 0.75rem; padding: 2px 5px; border: 1px solid #CBD5E1; border-radius: 3px;"
                 onchange="PSIS_App.handleFieldChange('${rec.id}', 'note', this.value)" />
             </div>
-          </td>
-
-          <!-- 11. សកម្មភាព -->
-          <td style="text-align: center; width: 110px;">
-            <button type="button" class="btn btn-sm btn-outline" 
-              title="បំពេញគ្រប់កិច្ចការទាំងអស់សម្រាប់គ្រូនេះតែម្តង"
-              onclick="PSIS_App.handleMarkRowCompleted('${rec.id}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>បំពេញគ្រប់</span>
-            </button>
           </td>
         </tr>
       `;
@@ -1473,6 +1468,26 @@ const PSIS_App = (() => {
     handleDateChange(dateStr);
   }
 
+  function goToToday() {
+    const todayStr = getLocalDateString();
+    if (state.currentDate === todayStr) {
+      showToast(`កំពុងស្ថិតនៅលើថ្ងៃនេះ (${KhmerCalendar.formatKhmerShortDate(todayStr)}) រួចហើយ`, 'info');
+      return;
+    }
+    handleDateChange(todayStr);
+  }
+
+  function handleResetTodaySampleData() {
+    const schedules = state.schedules;
+    const teachers = state.teachers;
+    const generated = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(state.currentDate, schedules, teachers);
+    state.dailyRecords = generated;
+    saveCurrentRecords();
+    renderChecklistTable();
+    updateKPIs();
+    showToast(`បានទាញយកទិន្នន័យគំរូសម្រាប់ថ្ងៃ ${KhmerCalendar.formatKhmerShortDate(state.currentDate)} រួចរាល់!`, 'success');
+  }
+
   function openSettingsModal() {
     document.getElementById('school-name-kh').value = state.schoolInfo.nameKh || '';
     document.getElementById('school-branch').value = state.schoolInfo.branch || '';
@@ -1712,6 +1727,9 @@ const PSIS_App = (() => {
     handleBulkFillScanTimes,
     handleDateChange,
     handleQuickDate,
+    goToToday,
+    handleResetTodaySampleData,
+    getLocalDateString,
     handleMonthChange,
     openAddTeacherModal,
     openEditTeacherModal,

@@ -26,6 +26,13 @@ const PSIS_Storage = (() => {
     return PSIS_BRANCHES.find(b => b.id === id) || PSIS_BRANCHES[0];
   }
 
+  function getLocalDateString(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   // Branch-specific storage key generator
   function getKey(type, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
@@ -59,16 +66,12 @@ const PSIS_Storage = (() => {
 
     if (!localStorage.getItem(checklistsKey)) {
       const checklists = {};
-      const today = new Date().toISOString().split('T')[0];
-      const demoDate = '2026-10-05';
+      const today = getLocalDateString();
 
       const schedules = JSON.parse(localStorage.getItem(schedulesKey));
       const teachers = JSON.parse(localStorage.getItem(teachersKey));
 
       checklists[today] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(today, schedules, teachers);
-      if (today !== demoDate) {
-        checklists[demoDate] = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(demoDate, schedules, teachers);
-      }
       localStorage.setItem(checklistsKey, JSON.stringify(checklists));
     }
   }
@@ -721,6 +724,7 @@ const PSIS_Storage = (() => {
     getSchoolInfo,
     saveSchoolInfo,
     resetBranchData,
+    getLocalDateString,
     exportAllData,
     importAllData
   };

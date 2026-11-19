@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=5.1">
-  <link rel="stylesheet" href="css/print.css?v=5.1">
+  <link rel="stylesheet" href="css/styles.css?v=5.3">
+  <link rel="stylesheet" href="css/print.css?v=5.3">
 </head>
 <body>
 
@@ -231,7 +231,15 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
               កាលបរិច្ឆេទ (ថ្ងៃទី ខែ ឆ្នាំ):
             </label>
-            <input type="date" id="filter-date" class="form-control" style="font-weight: 600;">
+            <div style="display: flex; gap: 0.35rem; align-items: center;">
+              <input type="date" id="filter-date" class="form-control" style="font-weight: 600;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.goToToday()" title="ត្រឡប់មកថ្ងៃនេះ">
+                ថ្ងៃនេះ
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="PSIS_App.handleResetTodaySampleData()" title="ទាញយកទិន្នន័យគំរូសម្រាប់ថ្ងៃនេះឡើងវិញ">
+                ទិន្នន័យគំរូ
+              </button>
+            </div>
           </div>
 
           <div class="filter-group">
@@ -316,13 +324,12 @@
                   <th rowspan="2" style="width: 42px;">ល.រ</th>
                   <th rowspan="2" style="min-width: 140px;">ឈ្មោះគ្រូ</th>
                   <th rowspan="2" style="min-width: 85px;">ថ្នាក់</th>
-                  <th rowspan="2" style="width: 125px;">ម៉ោងស្កេនចូល</th>
+                  <th rowspan="2" style="width: 110px;">ម៉ោងស្កេនចូល</th>
                   <th colspan="4" class="sub-th" style="background-color: #0A2540;">
                     កិច្ចការរដ្ឋបាលក្នុងថ្នាក់រៀន (Administrative Tasks)
                   </th>
-                  <th rowspan="2" style="width: 125px;">ម៉ោងស្កេនចេញ</th>
+                  <th rowspan="2" style="width: 110px;">ម៉ោងស្កេនចេញ</th>
                   <th rowspan="2" style="min-width: 130px;">ផ្សេងៗ (Status/Note)</th>
-                  <th rowspan="2" style="width: 110px;">សកម្មភាព</th>
                 </tr>
                 <tr>
                   <th class="sub-th" style="width: 115px;">ស្រង់វត្តមានសិស្ស</th>
@@ -883,16 +890,16 @@
 
   <!-- Supabase Cloud Synchronization (Multi-User Realtime Sync) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=5.1"></script>
-  <script src="js/supabase-sync.js?v=5.1"></script>
+  <script src="supabase-config.js?v=5.3"></script>
+  <script src="js/supabase-sync.js?v=5.3"></script>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=5.1"></script>
-  <script src="js/sample-data.js?v=5.1"></script>
-  <script src="js/storage.js?v=5.1"></script>
-  <script src="js/analytics.js?v=5.1"></script>
-  <script src="js/xlsx-export.js?v=5.1"></script>
-  <script src="js/biometric-import.js?v=5.1"></script>
-  <script src="js/app.js?v=5.1"></script>
+  <script src="js/khmer-lunar.js?v=5.3"></script>
+  <script src="js/sample-data.js?v=5.3"></script>
+  <script src="js/storage.js?v=5.3"></script>
+  <script src="js/analytics.js?v=5.3"></script>
+  <script src="js/xlsx-export.js?v=5.3"></script>
+  <script src="js/biometric-import.js?v=5.3"></script>
+  <script src="js/app.js?v=5.3"></script>
 </body>
 </html>
