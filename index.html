@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=6.2">
-  <link rel="stylesheet" href="css/print.css?v=6.2">
+  <link rel="stylesheet" href="css/styles.css?v=6.3">
+  <link rel="stylesheet" href="css/print.css?v=6.3">
 </head>
 <body>
 
@@ -280,11 +280,7 @@
               <span>តារាងត្រួតពិនិត្យរដ្ឋបាលគ្រូប្រចាំថ្ងៃ (Daily Monitoring Checklist)</span>
             </div>
 
-            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="PSIS_App.handleResetTodaySampleData()" title="កំណត់លំនាំគំរូ auto (07:30 - 05:00 PM) សម្រាប់ថ្ងៃនេះ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
-                <span>⚡ លំនាំគំរូ auto</span>
-              </button>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
               <button type="button" class="btn btn-success btn-sm" onclick="PSIS_App.handleBulkCompleteAll()" title="បំពេញគ្រប់កិច្ចការទាំងអស់សម្រាប់គ្រូមានវត្តមានថ្ងៃនេះ">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 <span>បំពេញរួចរាល់ទាំងអស់ (Mark All Completed)</span>
@@ -895,16 +891,16 @@
 
   <!-- Supabase Cloud Synchronization (Multi-User Realtime Sync) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=6.2"></script>
-  <script src="js/supabase-sync.js?v=6.2"></script>
+  <script src="supabase-config.js?v=6.3"></script>
+  <script src="js/supabase-sync.js?v=6.3"></script>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=6.2"></script>
-  <script src="js/sample-data.js?v=6.2"></script>
-  <script src="js/storage.js?v=6.2"></script>
-  <script src="js/analytics.js?v=6.2"></script>
-  <script src="js/xlsx-export.js?v=6.2"></script>
-  <script src="js/biometric-import.js?v=6.2"></script>
-  <script src="js/app.js?v=6.2"></script>
+  <script src="js/khmer-lunar.js?v=6.3"></script>
+  <script src="js/sample-data.js?v=6.3"></script>
+  <script src="js/storage.js?v=6.3"></script>
+  <script src="js/analytics.js?v=6.3"></script>
+  <script src="js/xlsx-export.js?v=6.3"></script>
+  <script src="js/biometric-import.js?v=6.3"></script>
+  <script src="js/app.js?v=6.3"></script>
 </body>
 </html>
