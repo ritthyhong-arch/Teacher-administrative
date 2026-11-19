@@ -949,6 +949,9 @@ const PSIS_App = (() => {
 
       // Save to localStorage
       PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
+      if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+        PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+      }
 
       // Re-render modal preview and document
       openSignatureModal();
@@ -971,6 +974,9 @@ const PSIS_App = (() => {
 
     // Save to localStorage
     PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+    }
 
     // Re-render modal preview and document
     openSignatureModal();
@@ -1596,11 +1602,11 @@ const PSIS_App = (() => {
 
     try {
       if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.syncBranchFromCloud === 'function') {
-        await PSIS_SupabaseSync.syncBranchFromCloud(state.currentBranchId, false);
+        await PSIS_SupabaseSync.syncBranchFromCloud(state.currentBranchId, true);
       }
       refreshAllData();
       updateHeaderDateDisplay();
-      showToast('បាន Refresh ធ្វើបច្ចុប្បន្នភាពទិន្នន័យជោគជ័យ!', 'success');
+      showToast('បាន Refresh ធ្វើបច្ចុប្បន្នភាពទិន្នន័យពី Cloud ជោគជ័យ!', 'success');
     } catch (err) {
       console.warn('Refresh error:', err);
       refreshAllData();

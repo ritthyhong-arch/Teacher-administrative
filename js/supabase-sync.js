@@ -20,6 +20,9 @@ const PSIS_SupabaseSync = (() => {
   // Track whether initial cloud pull has completed for each branch
   const hasSyncedFromCloud = {};
 
+  // Track pending force sync requests if sync is already running
+  const pendingForceSync = {};
+
   function getConfig() {
     return window.SUPABASE_CONFIG || {
       url: 'https://dtfoaumajfkxavqbmnix.supabase.co',
@@ -105,8 +108,16 @@ const PSIS_SupabaseSync = (() => {
    * @param {boolean} force - Whether to force re-render even if updated_at matches
    */
   async function syncBranchFromCloud(branchId, force = false) {
-    if (!supabaseClient || isSyncing) return;
+    if (!supabaseClient) return;
     const bId = branchId || getActiveBranchId();
+
+    if (isSyncing) {
+      if (force) {
+        pendingForceSync[bId] = true;
+      }
+      return;
+    }
+
     const key = getStorageKey(bId);
 
     try {
@@ -172,6 +183,10 @@ const PSIS_SupabaseSync = (() => {
       updateStatusUI('connected', 'Cloud បានភ្ជាប់');
     } finally {
       isSyncing = false;
+      if (pendingForceSync[bId]) {
+        pendingForceSync[bId] = false;
+        setTimeout(() => syncBranchFromCloud(bId, true), 60);
+      }
     }
   }
 
@@ -184,8 +199,8 @@ const PSIS_SupabaseSync = (() => {
     if (!supabaseClient || isApplyingCloudData) return;
     const bId = branchId || getActiveBranchId();
 
-    // Guard: Do not auto-push to cloud until this client has completed initial pull for this branch
-    if (!hasSyncedFromCloud[bId] && !immediate) {
+    // Guard: NEVER push to cloud until this client has completed initial pull for this branch
+    if (!hasSyncedFromCloud[bId]) {
       console.log('[Supabase Sync] Deferring save: waiting for initial cloud pull for', bId);
       return;
     }
