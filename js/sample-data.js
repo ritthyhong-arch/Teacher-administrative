@@ -258,42 +258,15 @@ const PSIS_SAMPLE_DATA = {
     });
 
     return daySchedules.map((sch, index) => {
-      let scanIn = '06:55';
+      // Auto sample pattern (លំនាំគំរូ auto): Scan In 07:30, Scan Out 17:00 (05:00 PM), All 4 tasks completed
+      let scanIn = '07:30';
       let attendance = 'បានស្រង់';
       let scoreEvaluation = 'បានដាក់ពិន្ទុ';
       let telegram = 'បានប្រើ';
       let lessonSummary = 'បានសរសេរ';
-      let scanOut = '11:35';
+      let scanOut = '17:00';
       let remarks = 'ធម្មតា';
       let note = '';
-
-      if (sch.shift === 'ល្ងាច') {
-        scanIn = '12:50';
-        scanOut = '17:10';
-      }
-
-      if (index === 2) {
-        scanIn = '07:25';
-        remarks = 'យឺត';
-        note = 'មកយឺតដោយសារស្ទះចរាចរណ៍';
-      } else if (index === 4) {
-        scanIn = '';
-        attendance = 'មិនបានស្រង់';
-        scoreEvaluation = 'មិនបានដាក់ពិន្ទុ';
-        telegram = 'មិនបានប្រើ';
-        lessonSummary = 'មិនបានសរសេរ';
-        scanOut = '';
-        remarks = 'ច្បាប់';
-        note = 'សុំច្បាប់មើលជំងឺ';
-      } else if (index === 5) {
-        attendance = 'បានស្រង់';
-        scoreEvaluation = 'មិនបានដាក់ពិន្ទុ';
-        telegram = 'បានប្រើ';
-        lessonSummary = 'មិនបានសរសេរ';
-        scanOut = '';
-        remarks = 'ធម្មតា';
-        note = 'មិនទាន់បានបញ្ចូលពិន្ទុប្រចាំខែ';
-      }
 
       return {
         id: `LOG_${dateStr}_${sch.id}`,

@@ -623,14 +623,14 @@ const PSIS_App = (() => {
     const rec = state.dailyRecords.find(r => r.id === recordId);
     if (!rec) return;
 
-    const isMorning = rec.shift === 'ព្រឹក';
-    rec.scanInTime = isMorning ? '06:55' : '12:55';
+    rec.scanInTime = '07:30';
     rec.attendanceRecorded = 'បានស្រង់';
     rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
     rec.telegramUsed = 'បានប្រើ';
     rec.lessonSummaryWritten = 'បានសរសេរ';
-    rec.scanOutTime = isMorning ? '11:35' : '17:15';
+    rec.scanOutTime = '17:00';
     rec.remarks = 'ធម្មតា';
+    rec.note = '';
 
     saveCurrentRecords();
     renderChecklistTable();
@@ -642,13 +642,12 @@ const PSIS_App = (() => {
     let count = 0;
     state.dailyRecords.forEach(rec => {
       if (rec.remarks === 'ច្បាប់') return;
-      const isMorning = rec.shift === 'ព្រឹក';
-      rec.scanInTime = rec.scanInTime || (isMorning ? '06:55' : '12:55');
+      rec.scanInTime = rec.scanInTime || '07:30';
       rec.attendanceRecorded = 'បានស្រង់';
       rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
       rec.telegramUsed = 'បានប្រើ';
       rec.lessonSummaryWritten = 'បានសរសេរ';
-      rec.scanOutTime = rec.scanOutTime || (isMorning ? '11:35' : '17:15');
+      rec.scanOutTime = rec.scanOutTime || '17:00';
       rec.remarks = 'ធម្មតា';
       count++;
     });
@@ -677,12 +676,11 @@ const PSIS_App = (() => {
     let count = 0;
     state.dailyRecords.forEach(rec => {
       if (rec.remarks === 'ច្បាប់') return;
-      const isMorning = rec.shift === 'ព្រឹក';
       if (type === 'in' && !rec.scanInTime) {
-        rec.scanInTime = isMorning ? '06:55' : '12:55';
+        rec.scanInTime = '07:30';
         count++;
       } else if (type === 'out' && !rec.scanOutTime) {
-        rec.scanOutTime = isMorning ? '11:35' : '17:15';
+        rec.scanOutTime = '17:00';
         count++;
       }
     });
@@ -1592,7 +1590,7 @@ const PSIS_App = (() => {
     saveCurrentRecords();
     renderChecklistTable();
     updateKPIs();
-    showToast(`បានទាញយកទិន្នន័យគំរូសម្រាប់ថ្ងៃ ${KhmerCalendar.formatKhmerShortDate(state.currentDate)} រួចរាល់!`, 'success');
+    showToast(`បានអនុវត្តលំនាំគំរូ auto (ម៉ោងចូល 07:30 / ម៉ោងចេញ 05:00 PM) សម្រាប់ថ្ងៃ ${KhmerCalendar.formatKhmerShortDate(state.currentDate)} ជោគជ័យ!`, 'success');
   }
 
   async function handleRefreshAll() {
