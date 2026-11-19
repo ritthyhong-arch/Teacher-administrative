@@ -15,8 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css?v=5.4">
-  <link rel="stylesheet" href="css/print.css?v=5.4">
+  <link rel="stylesheet" href="css/styles.css?v=5.5">
+  <link rel="stylesheet" href="css/print.css?v=5.5">
 </head>
 <body>
 
@@ -97,6 +97,10 @@
             <span class="sync-dot"></span>
             <span id="cloud-sync-text">Cloud Sync</span>
           </div>
+          <button type="button" class="btn btn-outline-gold btn-sm" id="btn-header-refresh" onclick="PSIS_App.handleRefreshAll()" title="Refresh ធ្វើបច្ចុប្បន្នភាពទិន្នន័យ (ផ្ទុកទិន្នន័យពី Cloud និងប្រព័ន្ធឡើងវិញ)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="refresh-icon"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+            <span>Refresh</span>
+          </button>
           <button type="button" class="btn btn-outline-gold btn-sm" onclick="PSIS_App.handleExportDailyExcel()" title="ទាញយកជា Excel">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span>នាំចេញ Excel</span>
@@ -887,16 +891,16 @@
 
   <!-- Supabase Cloud Synchronization (Multi-User Realtime Sync) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=5.4"></script>
-  <script src="js/supabase-sync.js?v=5.4"></script>
+  <script src="supabase-config.js?v=5.5"></script>
+  <script src="js/supabase-sync.js?v=5.5"></script>
 
   <!-- Application Logic Scripts -->
-  <script src="js/khmer-lunar.js?v=5.4"></script>
-  <script src="js/sample-data.js?v=5.4"></script>
-  <script src="js/storage.js?v=5.4"></script>
-  <script src="js/analytics.js?v=5.4"></script>
-  <script src="js/xlsx-export.js?v=5.4"></script>
-  <script src="js/biometric-import.js?v=5.4"></script>
-  <script src="js/app.js?v=5.4"></script>
+  <script src="js/khmer-lunar.js?v=5.5"></script>
+  <script src="js/sample-data.js?v=5.5"></script>
+  <script src="js/storage.js?v=5.5"></script>
+  <script src="js/analytics.js?v=5.5"></script>
+  <script src="js/xlsx-export.js?v=5.5"></script>
+  <script src="js/biometric-import.js?v=5.5"></script>
+  <script src="js/app.js?v=5.5"></script>
 </body>
 </html>

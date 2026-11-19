@@ -465,6 +465,15 @@ body {
   50% { opacity: 0.4; transform: scale(0.85); }
 }
 
+@keyframes spin-refresh {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.refresh-icon.spinning {
+  animation: spin-refresh 0.7s linear infinite;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

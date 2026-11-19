@@ -1488,6 +1488,29 @@ const PSIS_App = (() => {
     showToast(`បានទាញយកទិន្នន័យគំរូសម្រាប់ថ្ងៃ ${KhmerCalendar.formatKhmerShortDate(state.currentDate)} រួចរាល់!`, 'success');
   }
 
+  async function handleRefreshAll() {
+    const btn = document.getElementById('btn-header-refresh');
+    const icon = btn ? btn.querySelector('.refresh-icon') : null;
+    if (icon) icon.classList.add('spinning');
+
+    try {
+      if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.syncBranchFromCloud === 'function') {
+        await PSIS_SupabaseSync.syncBranchFromCloud(state.currentBranchId, false);
+      }
+      refreshAllData();
+      updateHeaderDateDisplay();
+      showToast('បាន Refresh ធ្វើបច្ចុប្បន្នភាពទិន្នន័យជោគជ័យ!', 'success');
+    } catch (err) {
+      console.warn('Refresh error:', err);
+      refreshAllData();
+      showToast('បាន Refresh ទិន្នន័យក្នុងប្រព័ន្ធ!', 'info');
+    } finally {
+      setTimeout(() => {
+        if (icon) icon.classList.remove('spinning');
+      }, 600);
+    }
+  }
+
   function openSettingsModal() {
     document.getElementById('school-name-kh').value = state.schoolInfo.nameKh || '';
     document.getElementById('school-branch').value = state.schoolInfo.branch || '';
@@ -1755,6 +1778,7 @@ const PSIS_App = (() => {
     handleResetBranchData,
     handleExportBackup,
     handleImportBackup,
+    handleRefreshAll,
     refreshAllData,
     switchTab,
     closeModal,
