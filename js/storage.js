@@ -643,6 +643,72 @@ const PSIS_Storage = (() => {
             changed = true;
           }
         }
+
+        // Auto-sanitize old mock dummy values (06:55, 11:35, mock notes, mock missing tasks) to Auto 07:30 / 17:00
+        const isOldMockNote = rec.note === 'សុំច្បាប់មើលជំងឺ' || rec.note === 'មិនទាន់បានបញ្ចូលពិន្ទុប្រចាំខែ' || rec.note === 'មកយឺតដោយសារស្ទះចរាចរណ៍';
+        const isOldMockTimes = (rec.scanInTime === '06:55' || rec.scanInTime === '07:25') && (rec.scanOutTime === '11:35' || !rec.scanOutTime);
+        const isOldMockTasks = rec.scoreEvaluated === 'មិនបានដាក់ពិន្ទុ' || rec.lessonSummaryWritten === 'មិនបានសរសេរ';
+        const isBlankTimeWithMock = (isOldMockNote || isOldMockTimes || isOldMockTasks) && (!rec.scanInTime || !rec.scanOutTime);
+
+        if (isOldMockNote || isOldMockTimes || isOldMockTasks || isBlankTimeWithMock) {
+          if (isOldMockTimes || isBlankTimeWithMock || !rec.scanInTime || rec.scanInTime === '06:55' || (rec.scanInTime === '07:25' && rec.scanOutTime === '11:35')) {
+            rec.scanInTime = '07:30';
+          }
+          if (isOldMockTimes || isBlankTimeWithMock || !rec.scanOutTime || rec.scanOutTime === '11:35') {
+            rec.scanOutTime = '17:00';
+          }
+          if (!rec.attendanceRecorded || rec.attendanceRecorded === 'មិនបានស្រង់') {
+            rec.attendanceRecorded = 'បានស្រង់';
+          }
+          if (!rec.scoreEvaluated || isOldMockTasks) {
+            rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
+          }
+          if (!rec.telegramUsed) {
+            rec.telegramUsed = 'បានប្រើ';
+          }
+          if (!rec.lessonSummaryWritten || isOldMockTasks) {
+            rec.lessonSummaryWritten = 'បានសរសេរ';
+          }
+          if (!rec.remarks || rec.remarks === '-') {
+            rec.remarks = 'ធម្មតា';
+          }
+          if (isOldMockNote) {
+            rec.note = '';
+          }
+          changed = true;
+        }
+
+        // Ensure every active normal row defaults to completed tasks and 07:30 / 17:00 if unset
+        if (rec.remarks === 'ធម្មតា' || !rec.remarks) {
+          if (!rec.scanInTime) {
+            rec.scanInTime = '07:30';
+            changed = true;
+          }
+          if (!rec.scanOutTime) {
+            rec.scanOutTime = '17:00';
+            changed = true;
+          }
+          if (!rec.attendanceRecorded) {
+            rec.attendanceRecorded = 'បានស្រង់';
+            changed = true;
+          }
+          if (!rec.scoreEvaluated) {
+            rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
+            changed = true;
+          }
+          if (!rec.telegramUsed) {
+            rec.telegramUsed = 'បានប្រើ';
+            changed = true;
+          }
+          if (!rec.lessonSummaryWritten) {
+            rec.lessonSummaryWritten = 'បានសរសេរ';
+            changed = true;
+          }
+          if (!rec.remarks) {
+            rec.remarks = 'ធម្មតា';
+            changed = true;
+          }
+        }
       });
 
       // 3. Ensure any active teacher who IS SCHEDULED on this day of week but missing from today's checklist is appended
