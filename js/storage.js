@@ -524,7 +524,10 @@ const PSIS_Storage = (() => {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const schedules = getSchedules(bId);
     const teacherSchedules = schedules.filter(s => s.teacherId === teacherId);
-    if (teacherSchedules.length === 0) return false;
+    if (teacherSchedules.length === 0) {
+      // Default to active on weekdays (Mon-Fri) if no specific schedule row exists yet
+      return dayOfWeek >= 1 && dayOfWeek <= 5;
+    }
     return teacherSchedules.some(s => {
       if (Array.isArray(s.days) && s.days.length > 0) {
         return s.days.map(Number).includes(Number(dayOfWeek));
@@ -550,7 +553,9 @@ const PSIS_Storage = (() => {
 
     function isTeacherScheduled(tId) {
       const tSchedules = schedules.filter(s => s.teacherId === tId);
-      if (tSchedules.length === 0) return false;
+      if (tSchedules.length === 0) {
+        return dayOfWeek >= 1 && dayOfWeek <= 5;
+      }
       return tSchedules.some(s => {
         if (Array.isArray(s.days) && s.days.length > 0) {
           return s.days.map(Number).includes(dayOfWeek);
@@ -562,12 +567,13 @@ const PSIS_Storage = (() => {
     if (all[dateStr] && Array.isArray(all[dateStr]) && all[dateStr].length > 0) {
       let changed = false;
 
-      // 1. Purge records of any deleted/inactive teacher OR any teacher NOT scheduled on this day of week!
+      // 1. Never purge records that have existing teacher data!
+      // Only filter out teachers that have been explicitly marked inactive
       const initialCount = all[dateStr].length;
       all[dateStr] = all[dateStr].filter(rec => {
-        const t = teacherMap.get(rec.teacherId);
-        if (!t || t.status === 'អសកម្ម') return false;
-        return isTeacherScheduled(rec.teacherId);
+        const t = teacherMap.get(rec.teacherId) || teachers.find(teacher => teacher.name === rec.teacherName);
+        if (t && t.status === 'អសកម្ម') return false;
+        return true;
       });
       if (all[dateStr].length !== initialCount) {
         changed = true;

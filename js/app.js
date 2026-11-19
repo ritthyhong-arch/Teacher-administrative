@@ -94,6 +94,11 @@ const PSIS_App = (() => {
       }
     }
 
+    // Immediately sync latest data from Supabase Cloud on application start!
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.syncBranchFromCloud === 'function') {
+      PSIS_SupabaseSync.syncBranchFromCloud(savedBranchId, true);
+    }
+
     setupEventListeners();
   }
 
@@ -254,19 +259,17 @@ const PSIS_App = (() => {
     state.teachers = PSIS_Storage.getTeachers(state.currentBranchId);
     state.schedules = PSIS_Storage.getSchedules(state.currentBranchId);
     state.dailyRecords = PSIS_Storage.getDailyChecklist(state.currentDate, state.currentBranchId);
-    // Ensure all daily records strictly belong to active teachers who have a schedule on this day of week!
-    const d = new Date(state.currentDate + 'T00:00:00');
-    const dayOfWeek = d.getDay();
+    
+    // Ensure records match active teachers (by ID or Name) and are not marked inactive
     state.dailyRecords = state.dailyRecords.filter(r => {
-      const teacher = state.teachers.find(t => t.id === r.teacherId && t.status !== 'អសកម្ម');
-      if (!teacher) return false;
-      return PSIS_Storage.isTeacherScheduledOnDay(r.teacherId, dayOfWeek, state.currentBranchId);
+      const teacher = state.teachers.find(t => (t.id === r.teacherId || t.name === r.teacherName) && t.status !== 'អសកម្ម');
+      return !!teacher;
     });
 
     // Sort daily records in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ
     state.dailyRecords.sort((a, b) => {
-      const teacherA = state.teachers.find(t => t.id === a.teacherId);
-      const teacherB = state.teachers.find(t => t.id === b.teacherId);
+      const teacherA = state.teachers.find(t => t.id === a.teacherId || t.name === a.teacherName);
+      const teacherB = state.teachers.find(t => t.id === b.teacherId || t.name === b.teacherName);
       const lvlA = (teacherA && teacherA.level) || a.level;
       const lvlB = (teacherB && teacherB.level) || b.level;
       const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
@@ -280,6 +283,9 @@ const PSIS_App = (() => {
 
   function saveCurrentRecords() {
     PSIS_Storage.saveDailyChecklist(state.currentDate, state.dailyRecords, state.currentBranchId);
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+    }
     updateKPIs();
     renderPrintReport();
   }
@@ -1869,6 +1875,7 @@ const PSIS_App = (() => {
     handleImportBackup,
     handleRefreshAll,
     refreshAllData,
+    getActiveBranchId: () => state.currentBranchId || 'psis-ix',
     switchTab,
     closeModal,
     showToast
