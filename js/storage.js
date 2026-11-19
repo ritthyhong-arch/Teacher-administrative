@@ -83,7 +83,7 @@ const PSIS_Storage = (() => {
 
   // Teachers
   function getTeachers(branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     initBranchStorage(bId);
     try {
       const data = localStorage.getItem(getKey('teachers', bId));
@@ -107,10 +107,12 @@ const PSIS_Storage = (() => {
   }
 
   function saveTeachers(teachers, branchId) {
-    const bId = branchId || getCurrentBranchId() || 'branch-central';
+    const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('teachers', bId), JSON.stringify(teachers));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
-      PSIS_SupabaseSync.saveBranchToCloud(bId);
+      if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
+        PSIS_SupabaseSync.saveBranchToCloud(bId);
+      }
     }
   }
 
@@ -280,7 +282,9 @@ const PSIS_Storage = (() => {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('schedules', bId), JSON.stringify(schedules));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
-      PSIS_SupabaseSync.saveBranchToCloud(bId);
+      if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
+        PSIS_SupabaseSync.saveBranchToCloud(bId);
+      }
     }
   }
 
@@ -485,7 +489,9 @@ const PSIS_Storage = (() => {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('checklists', bId), JSON.stringify(all));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
-      PSIS_SupabaseSync.saveBranchToCloud(bId);
+      if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
+        PSIS_SupabaseSync.saveBranchToCloud(bId);
+      }
     }
   }
 
@@ -648,7 +654,9 @@ const PSIS_Storage = (() => {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     localStorage.setItem(getKey('school_info', bId), JSON.stringify(info));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
-      PSIS_SupabaseSync.saveBranchToCloud(bId);
+      if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
+        PSIS_SupabaseSync.saveBranchToCloud(bId);
+      }
     }
   }
 

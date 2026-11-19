@@ -229,6 +229,11 @@ const PSIS_App = (() => {
     updateHeaderDateDisplay();
     renderAll();
 
+    // Trigger Cloud sync for this branch immediately!
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.syncBranchFromCloud === 'function') {
+      PSIS_SupabaseSync.syncBranchFromCloud(branchId, true);
+    }
+
     if (showNotification) {
       showToast(`បានចូលប្រើប្រាស់ ${state.schoolInfo.branch}`, 'success');
     }
@@ -1147,6 +1152,10 @@ const PSIS_App = (() => {
     loadDailyRecords();
     renderAll();
     closeModal('teacher-modal');
+
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+    }
   }
 
   function handleDeleteTeacher(id) {
@@ -1159,6 +1168,10 @@ const PSIS_App = (() => {
       loadDailyRecords();
       renderAll();
       showToast(`បានលុបគ្រូ ${t.name}`, 'warning');
+
+      if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+        PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+      }
     }
   }
 
@@ -1364,6 +1377,10 @@ const PSIS_App = (() => {
     renderAll();
 
     closeModal('schedule-modal');
+
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+    }
   }
 
   function handleDeleteSchedule(id) {
@@ -1373,6 +1390,10 @@ const PSIS_App = (() => {
       loadDailyRecords();
       renderAll();
       showToast('បានលុបកាលវិភាគ', 'warning');
+
+      if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+        PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+      }
     }
   }
 
@@ -1531,6 +1552,9 @@ const PSIS_App = (() => {
     state.schoolInfo.afternoonScanLateThreshold = document.getElementById('school-afternoon-late').value.trim();
 
     PSIS_Storage.saveSchoolInfo(state.schoolInfo, state.currentBranchId);
+    if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+      PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+    }
     closeModal('settings-modal');
     renderPrintReport();
     updateKPIs();
@@ -1540,6 +1564,9 @@ const PSIS_App = (() => {
   function handleResetBranchData() {
     if (confirm(`តើអ្នកពិតជាចង់កំណត់ទិន្នន័យសម្រាប់ "${state.schoolInfo.branch}" ឡើងវិញទៅទម្រង់ដើមគំរូមែនទេ?`)) {
       PSIS_Storage.resetBranchData(state.currentBranchId);
+      if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
+        PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
+      }
       showToast('បានកំណត់ទិន្នន័យឡើងវិញជោគជ័យ!', 'success');
       setTimeout(() => window.location.reload(), 800);
     }

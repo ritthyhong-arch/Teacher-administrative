@@ -1,15 +1,21 @@
 /**
  * Supabase Real-Time Cloud Synchronization Engine for PSIS Daily Teacher Administration
- * Automatically synchronizes teachers, schedules, and daily checklists across multiple computers and phones.
+ * Enables instantaneous, bi-directional live sync across multiple computers, phones, and tabs.
  */
 
 const PSIS_SupabaseSync = (() => {
   let supabaseClient = null;
   let isSyncing = false;
-  let lastCloudUpdatedAt = null;
+  let isApplyingCloudData = false;
   let autoSaveTimer = null;
   let backgroundInterval = null;
   let realtimeChannel = null;
+
+  // Unique identifier for this client session to filter out self-broadcasted echo events
+  const clientId = 'client_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+
+  // Map of last known Supabase cloud updated_at per branch
+  const lastSyncedCloudUpdatedAt = {};
 
   function getConfig() {
     return window.SUPABASE_CONFIG || {
@@ -26,6 +32,10 @@ const PSIS_SupabaseSync = (() => {
     return (cfg.storageKeyPrefix || 'psis_branch_admin_') + bId;
   }
 
+  function isSyncingFromCloud() {
+    return isApplyingCloudData;
+  }
+
   function init() {
     try {
       const cfg = getConfig();
@@ -34,21 +44,34 @@ const PSIS_SupabaseSync = (() => {
         return;
       }
 
-      supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+      supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey, {
+        realtime: {
+          params: {
+            eventsPerSecond: 10
+          }
+        }
+      });
       updateStatusUI('connected', 'Cloud បានភ្ជាប់');
 
-      // Hook initial sync for active branch
+      // Immediate initial sync for current branch
       const activeBranchId = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
       syncBranchFromCloud(activeBranchId, true);
 
-      // Start Realtime & Periodic Background Sync
+      // Start Realtime WebSockets & Background Polling
       startRealtime();
       startBackgroundPolling();
 
-      // Sync on window focus (when user switches back to this browser tab)
+      // Immediately sync when user returns to or focuses this browser tab
       window.addEventListener('focus', () => {
         const bId = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
-        syncBranchFromCloud(bId, false);
+        syncBranchFromCloud(bId, true);
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          const bId = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
+          syncBranchFromCloud(bId, true);
+        }
       });
 
     } catch (err) {
@@ -68,14 +91,17 @@ const PSIS_SupabaseSync = (() => {
 
   /**
    * Pull branch data from Supabase Cloud
+   * @param {string} branchId - The branch ID to sync
+   * @param {boolean} force - Whether to force re-render even if updated_at matches
    */
-  async function syncBranchFromCloud(branchId, isFirstLoad = false) {
+  async function syncBranchFromCloud(branchId, force = false) {
     if (!supabaseClient || isSyncing) return;
-    const key = getStorageKey(branchId);
+    const bId = branchId || (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
+    const key = getStorageKey(bId);
 
     try {
       isSyncing = true;
-      if (!isFirstLoad) updateStatusUI('syncing', 'កំពុង Sync...');
+      updateStatusUI('syncing', 'កំពុង Sync...');
 
       const cfg = getConfig();
       const { data, error } = await supabaseClient
@@ -88,45 +114,44 @@ const PSIS_SupabaseSync = (() => {
 
       if (data && data.data && typeof data.data === 'object') {
         const cloudData = data.data;
-        const cloudTime = new Date(data.updated_at || 0).getTime();
-        const localSavedTime = parseInt(localStorage.getItem(`psis_${branchId}_local_time`) || '0', 10);
-        const localTeachers = PSIS_Storage.getTeachers(branchId);
+        const cloudUpdatedAt = data.updated_at || (cloudData && cloudData.savedAt) || '';
+        const isNewCloudData = cloudUpdatedAt !== lastSyncedCloudUpdatedAt[bId];
 
-        // If local has 9+ teachers (like Computer 1) and cloud has fewer, push local to cloud!
-        if (isFirstLoad && localTeachers.length > (cloudData.teachers ? cloudData.teachers.length : 0)) {
-          console.log('[Supabase] Local has more teachers than cloud. Pushing local data to Cloud...');
-          await saveBranchToCloud(branchId, true);
-          return;
-        }
+        if (isNewCloudData || force) {
+          lastSyncedCloudUpdatedAt[bId] = cloudUpdatedAt;
 
-        // Apply cloud updates if cloud is newer or local is initial sample data
-        if (cloudTime > localSavedTime || isFirstLoad) {
-          lastCloudUpdatedAt = data.updated_at;
-          localStorage.setItem(`psis_${branchId}_local_time`, String(cloudTime));
-
-          if (Array.isArray(cloudData.teachers)) {
-            PSIS_Storage.saveTeachers(cloudData.teachers, branchId);
-          }
-          if (Array.isArray(cloudData.schedules)) {
-            PSIS_Storage.saveSchedules(cloudData.schedules, branchId);
-          }
-          if (cloudData.schoolInfo && typeof cloudData.schoolInfo === 'object') {
-            PSIS_Storage.saveSchoolInfo(cloudData.schoolInfo, branchId);
-          }
-          if (cloudData.checklists && typeof cloudData.checklists === 'object') {
-            PSIS_Storage.saveAllChecklists(cloudData.checklists, branchId);
+          // Mark applying cloud data so storage operations don't trigger recursive saves back to Cloud
+          isApplyingCloudData = true;
+          try {
+            if (Array.isArray(cloudData.teachers)) {
+              PSIS_Storage.saveTeachers(cloudData.teachers, bId);
+            }
+            if (Array.isArray(cloudData.schedules)) {
+              PSIS_Storage.saveSchedules(cloudData.schedules, bId);
+            }
+            if (cloudData.schoolInfo && typeof cloudData.schoolInfo === 'object') {
+              PSIS_Storage.saveSchoolInfo(cloudData.schoolInfo, bId);
+            }
+            if (cloudData.checklists && typeof cloudData.checklists === 'object') {
+              PSIS_Storage.saveAllChecklists(cloudData.checklists, bId);
+            }
+          } finally {
+            isApplyingCloudData = false;
           }
 
-          // Refresh UI if app is loaded
-          if (typeof PSIS_App !== 'undefined' && typeof PSIS_App.refreshAllData === 'function') {
-            PSIS_App.refreshAllData();
+          // If this branch is currently displayed on screen, refresh the UI immediately
+          const currentActiveBranch = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null);
+          if (currentActiveBranch === bId) {
+            if (typeof PSIS_App !== 'undefined' && typeof PSIS_App.refreshAllData === 'function') {
+              PSIS_App.refreshAllData();
+            }
           }
         }
         updateStatusUI('connected', 'Cloud បានភ្ជាប់');
       } else {
-        // Cloud has no data for this branch yet -> push local data to Cloud
-        console.log('[Supabase] No cloud data found for ' + branchId + '. Initializing Cloud with local data...');
-        await saveBranchToCloud(branchId, true);
+        // Cloud has no data row for this branch yet -> push local data to Cloud
+        console.log('[Supabase] Initializing Cloud for ' + bId + ' with local data...');
+        await saveBranchToCloud(bId, true);
       }
     } catch (err) {
       console.warn('[Supabase Sync Error]', err);
@@ -138,15 +163,17 @@ const PSIS_SupabaseSync = (() => {
 
   /**
    * Push branch data to Supabase Cloud
+   * @param {string} branchId - The branch ID
+   * @param {boolean} immediate - If true, saves immediately without debouncing
    */
   async function saveBranchToCloud(branchId, immediate = false) {
-    if (!supabaseClient) return;
+    if (!supabaseClient || isApplyingCloudData) return;
 
     if (!immediate) {
       if (autoSaveTimer) clearTimeout(autoSaveTimer);
       autoSaveTimer = setTimeout(() => {
         saveBranchToCloud(branchId, true);
-      }, 600);
+      }, 350);
       return;
     }
 
@@ -156,14 +183,17 @@ const PSIS_SupabaseSync = (() => {
     try {
       updateStatusUI('syncing', 'កំពុងរក្សាទុក...');
       const cfg = getConfig();
+      const nowIso = new Date().toISOString();
+
       const payload = {
         teachers: PSIS_Storage.getTeachers(bId),
         schedules: PSIS_Storage.getSchedules(bId),
         schoolInfo: PSIS_Storage.getSchoolInfo(bId),
-        checklists: PSIS_Storage.getAllChecklists(bId)
+        checklists: PSIS_Storage.getAllChecklists(bId),
+        savedAt: nowIso,
+        savedBy: clientId
       };
 
-      const nowIso = new Date().toISOString();
       const { error } = await supabaseClient
         .from(cfg.tableName)
         .upsert({
@@ -174,13 +204,25 @@ const PSIS_SupabaseSync = (() => {
 
       if (error) throw error;
 
-      lastCloudUpdatedAt = nowIso;
-      localStorage.setItem(`psis_${bId}_local_time`, String(Date.now()));
+      lastSyncedCloudUpdatedAt[bId] = nowIso;
       updateStatusUI('connected', 'Cloud រួចរាល់');
+
+      // Instant WebSocket Broadcast to all other devices (< 50ms)
+      if (realtimeChannel) {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'branch_updated',
+          payload: {
+            branchId: bId,
+            senderId: clientId,
+            updatedAt: nowIso
+          }
+        });
+      }
 
       setTimeout(() => {
         updateStatusUI('connected', 'Cloud បានភ្ជាប់');
-      }, 1500);
+      }, 1200);
 
     } catch (err) {
       console.warn('[Supabase Save Error]', err);
@@ -188,12 +230,34 @@ const PSIS_SupabaseSync = (() => {
     }
   }
 
+  /**
+   * Subscribe to Supabase Realtime channels
+   */
   function startRealtime() {
     if (!supabaseClient) return;
     try {
       const cfg = getConfig();
-      realtimeChannel = supabaseClient
-        .channel('psis_teacher_admin_changes')
+
+      // Realtime Broadcast Channel: Instant peer-to-peer updates without relying on postgres replication
+      realtimeChannel = supabaseClient.channel('psis_branch_realtime_v2', {
+        config: {
+          broadcast: { ack: false, self: false }
+        }
+      });
+
+      realtimeChannel
+        .on('broadcast', { event: 'branch_updated' }, (msg) => {
+          if (!msg || !msg.payload) return;
+          const { branchId, senderId } = msg.payload;
+          // Ignore broadcast from self
+          if (senderId === clientId) return;
+
+          const currentBranch = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
+          if (!branchId || branchId === currentBranch) {
+            console.log('[Supabase Broadcast] Instant update notification for', branchId, 'from', senderId);
+            syncBranchFromCloud(branchId || currentBranch, true);
+          }
+        })
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
@@ -202,30 +266,37 @@ const PSIS_SupabaseSync = (() => {
           const activeBranchId = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
           const expectedKey = getStorageKey(activeBranchId);
           if (payload.new && payload.new.exam_key === expectedKey) {
-            console.log('[Supabase Realtime] Change received from another computer!');
-            syncBranchFromCloud(activeBranchId, false);
+            console.log('[Supabase Postgres Changes] Change event for', activeBranchId);
+            syncBranchFromCloud(activeBranchId, true);
           }
         })
-        .subscribe();
+        .subscribe((status) => {
+          console.log('[Supabase Realtime Channel Status]', status);
+        });
+
     } catch (e) {
       console.warn('Realtime subscribe warning:', e);
     }
   }
 
+  /**
+   * Periodic background polling (fallback when WebSocket drops or mobile tab wakes)
+   */
   function startBackgroundPolling() {
     if (backgroundInterval) clearInterval(backgroundInterval);
-    // Poll every 7 seconds
+    // Poll every 2.5 seconds when tab is active
     backgroundInterval = setInterval(() => {
       if (document.hidden || isSyncing) return;
       const activeBranchId = (typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getCurrentBranchId() : null) || 'psis-ii';
       syncBranchFromCloud(activeBranchId, false);
-    }, 7000);
+    }, 2500);
   }
 
   return {
     init,
     syncBranchFromCloud,
     saveBranchToCloud,
+    isSyncingFromCloud,
     updateStatusUI
   };
 })();
