@@ -91,12 +91,54 @@ const PSIS_Storage = (() => {
     return 4;
   }
 
+  // Helper for sorting classes from Grade 1 upwards (e.g. 1, 2, 3... 12, K1, K2...)
+  function getGradeWeight(gradeStr) {
+    if (!gradeStr) return 999;
+    let s = String(gradeStr).trim().toUpperCase();
+
+    // Convert Khmer numerals to Arabic digits if any
+    const khmerDigits = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
+    khmerDigits.forEach((kd, idx) => {
+      s = s.replaceAll(kd, idx.toString());
+    });
+
+    // Kindergarten check
+    if (s.includes('K1')) return 0.1;
+    if (s.includes('K2')) return 0.2;
+    if (s.includes('K3')) return 0.3;
+    if (s.includes('មត្តេយ្យ') || s.startsWith('K')) return 0.5;
+
+    // Extract all numbers
+    const nums = s.match(/\d+/g);
+    if (!nums || nums.length === 0) return 999;
+
+    const firstNum = parseInt(nums[0], 10);
+
+    // Letter offset (e.g. 1A -> 1.001, 1B -> 1.002)
+    const letterMatch = s.match(/[A-Z]/);
+    let letterOffset = 0;
+    if (letterMatch) {
+      letterOffset = (letterMatch[0].charCodeAt(0) - 64) * 0.001;
+    }
+
+    // Secondary number tie-breaker for multi-grades like 5&6, 7,8,9
+    let secondOffset = 0;
+    if (nums.length > 1) {
+      secondOffset = parseInt(nums[1], 10) * 0.0001;
+    }
+
+    return firstNum + letterOffset + secondOffset;
+  }
+
   function sortTeachersByLevel(teachers) {
     if (!Array.isArray(teachers)) return [];
     return [...teachers].sort((a, b) => {
       const wA = getLevelOrderWeight(a.level);
       const wB = getLevelOrderWeight(b.level);
       if (wA !== wB) return wA - wB;
+      const gA = getGradeWeight(a.defaultClass);
+      const gB = getGradeWeight(b.defaultClass);
+      if (gA !== gB) return gA - gB;
       return (a.name || '').localeCompare(b.name || '', 'km');
     });
   }
@@ -632,13 +674,16 @@ const PSIS_Storage = (() => {
         saveAllChecklists(all, bId);
       }
       all[dateStr].sort((a, b) => {
-        const teacherA = teacherMap.get(a.teacherId);
-        const teacherB = teacherMap.get(b.teacherId);
+        const teacherA = teacherMap.get(a.teacherId) || teachers.find(t => t.name === a.teacherName);
+        const teacherB = teacherMap.get(b.teacherId) || teachers.find(t => t.name === b.teacherName);
         const lvlA = (teacherA && teacherA.level) || a.level;
         const lvlB = (teacherB && teacherB.level) || b.level;
         const wA = getLevelOrderWeight(lvlA);
         const wB = getLevelOrderWeight(lvlB);
         if (wA !== wB) return wA - wB;
+        const gA = getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass));
+        const gB = getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass));
+        if (gA !== gB) return gA - gB;
         const nameA = (teacherA && teacherA.name) || a.teacherName || '';
         const nameB = (teacherB && teacherB.name) || b.teacherName || '';
         return nameA.localeCompare(nameB, 'km');
@@ -774,6 +819,7 @@ const PSIS_Storage = (() => {
     exportAllData,
     importAllData,
     getLevelOrderWeight,
+    getGradeWeight,
     sortTeachersByLevel
   };
 })();

@@ -210,6 +210,34 @@ const PSIS_SAMPLE_DATA = {
       return 4;
     };
 
+    // Helper for sorting classes from Grade 1 upwards
+    const getGradeWeight = (gradeStr) => {
+      if (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.getGradeWeight === 'function') {
+        return PSIS_Storage.getGradeWeight(gradeStr);
+      }
+      if (!gradeStr) return 999;
+      let s = String(gradeStr).trim().toUpperCase();
+      const khmerDigits = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
+      khmerDigits.forEach((kd, idx) => { s = s.replaceAll(kd, idx.toString()); });
+      if (s.includes('K1')) return 0.1;
+      if (s.includes('K2')) return 0.2;
+      if (s.includes('K3')) return 0.3;
+      if (s.includes('មត្តេយ្យ') || s.startsWith('K')) return 0.5;
+      const nums = s.match(/\d+/g);
+      if (!nums || nums.length === 0) return 999;
+      const firstNum = parseInt(nums[0], 10);
+      const letterMatch = s.match(/[A-Z]/);
+      let letterOffset = 0;
+      if (letterMatch) {
+        letterOffset = (letterMatch[0].charCodeAt(0) - 64) * 0.001;
+      }
+      let secondOffset = 0;
+      if (nums.length > 1) {
+        secondOffset = parseInt(nums[1], 10) * 0.0001;
+      }
+      return firstNum + letterOffset + secondOffset;
+    };
+
     // Filter schedules where current dayOfWeek matches scheduled days
     const daySchedules = schedulesList.filter(s => {
       if (Array.isArray(s.days) && s.days.length > 0) {
@@ -218,11 +246,14 @@ const PSIS_SAMPLE_DATA = {
       return Number(s.dayOfWeek) === dayOfWeek;
     });
 
-    // Sort by Level Order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ
+    // Sort by Level Order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ, and then Grade from 1 upwards
     daySchedules.sort((a, b) => {
       const wA = getLevelWeight(a.level);
       const wB = getLevelWeight(b.level);
       if (wA !== wB) return wA - wB;
+      const gA = getGradeWeight(a.classGrade);
+      const gB = getGradeWeight(b.classGrade);
+      if (gA !== gB) return gA - gB;
       return (a.teacherName || '').localeCompare(b.teacherName || '', 'km');
     });
 

@@ -266,7 +266,7 @@ const PSIS_App = (() => {
       return !!teacher;
     });
 
-    // Sort daily records in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ
+    // Sort daily records in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ, and within level by grade from 1 upwards
     state.dailyRecords.sort((a, b) => {
       const teacherA = state.teachers.find(t => t.id === a.teacherId || t.name === a.teacherName);
       const teacherB = state.teachers.find(t => t.id === b.teacherId || t.name === b.teacherName);
@@ -275,6 +275,9 @@ const PSIS_App = (() => {
       const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
       const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
       if (wA !== wB) return wA - wB;
+      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
+      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
+      if (gA !== gB) return gA - gB;
       const nameA = (teacherA && teacherA.name) || a.teacherName || '';
       const nameB = (teacherB && teacherB.name) || b.teacherName || '';
       return nameA.localeCompare(nameB, 'km');
@@ -383,6 +386,9 @@ const PSIS_App = (() => {
       const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
       const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
       if (wA !== wB) return wA - wB;
+      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
+      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
+      if (gA !== gB) return gA - gB;
       const nameA = (teacherA && teacherA.name) || a.teacherName || '';
       const nameB = (teacherB && teacherB.name) || b.teacherName || '';
       return nameA.localeCompare(nameB, 'km');
@@ -720,6 +726,9 @@ const PSIS_App = (() => {
         const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
         const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
         if (wA !== wB) return wA - wB;
+        const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
+        const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
+        if (gA !== gB) return gA - gB;
         const nameA = (teacherA && teacherA.name) || a.teacherName || '';
         const nameB = (teacherB && teacherB.name) || b.teacherName || '';
         return nameA.localeCompare(nameB, 'km');
@@ -1130,6 +1139,9 @@ const PSIS_App = (() => {
       const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
       const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
       if (wA !== wB) return wA - wB;
+      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
+      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
+      if (gA !== gB) return gA - gB;
       const nameA = (teacherA && teacherA.name) || a.teacherName || '';
       const nameB = (teacherB && teacherB.name) || b.teacherName || '';
       return nameA.localeCompare(nameB, 'km');
