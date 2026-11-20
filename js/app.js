@@ -821,15 +821,15 @@ const PSIS_App = (() => {
         <table class="official-print-table">
           <tbody>
             <tr class="official-print-header-row">
-              <th style="width: 36px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
-              <th style="width: 145px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
-              <th style="width: 55px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
+              <th style="width: 38px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
+              <th style="width: 148px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
+              <th style="width: 56px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
               <th style="width: 78px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ម៉ោងស្កេន</span><br><span style="white-space: nowrap;">ចូល</span></th>
-              <th style="width: 96px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ស្រង់វត្តមាន</span><br><span style="white-space: nowrap;">សិស្ស</span></th>
-              <th style="width: 92px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">វាយតម្លៃ</span><br><span style="white-space: nowrap;">ពិន្ទុសិស្ស</span></th>
-              <th style="width: 95px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ការប្រើប្រាស់</span><br><span style="white-space: nowrap;">Telegram</span></th>
+              <th style="width: 98px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ស្រង់វត្តមាន</span><br><span style="white-space: nowrap;">សិស្ស</span></th>
+              <th style="width: 94px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">វាយតម្លៃ</span><br><span style="white-space: nowrap;">ពិន្ទុសិស្ស</span></th>
+              <th style="width: 96px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ការប្រើប្រាស់</span><br><span style="white-space: nowrap;">Telegram</span></th>
               <th style="width: 78px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">សម្រង់</span><br><span style="white-space: nowrap;">អត្ថបទ</span></th>
-              <th style="width: 98px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">សម្រង់</span><br><span style="white-space: nowrap;">ម៉ោងបង្រៀន</span></th>
+              <th style="width: 100px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">សម្រង់</span><br><span style="white-space: nowrap;">ម៉ោងបង្រៀន</span></th>
               <th style="width: 78px; background-color: #228B22 !important; color: #FFFFFF !important;"><span style="white-space: nowrap;">ម៉ោងស្កេន</span><br><span style="white-space: nowrap;">ចេញ</span></th>
               <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
             </tr>
