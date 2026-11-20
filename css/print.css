@@ -127,8 +127,8 @@
 .official-print-table {
   width: 100% !important;
   border-collapse: collapse !important;
-  margin-bottom: 0.5rem !important;
-  font-size: 8.5pt !important;
+  margin-bottom: 0.85rem !important;
+  font-size: 12pt !important;
 }
 
 .official-print-table thead {
@@ -167,21 +167,22 @@
   color: #FFFFFF !important;
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
   font-weight: normal !important;
-  font-size: 7.5pt !important;
-  padding: 4px 2px !important;
+  font-size: 10.5pt !important;
+  padding: 6px 3px !important;
   text-align: center !important;
   vertical-align: middle !important;
-  line-height: 1.3 !important;
+  line-height: 1.35 !important;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
 }
 
 .official-print-table td {
   font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
-  font-size: 8.5pt !important;
-  padding: 2.5px 2px !important;
+  font-size: 12pt !important;
+  line-height: 1.4 !important;
+  padding: 5px 3px !important;
   vertical-align: middle !important;
-  height: 22px !important;
+  height: 28px !important;
 }
 
 .official-print-table td.col-center {
@@ -191,11 +192,11 @@
 .official-print-table td.col-name {
   text-align: left !important;
   font-weight: 700 !important;
-  padding-left: 6px !important;
+  padding-left: 8px !important;
 }
 
 .official-print-table tr.empty-print-row td {
-  height: 22px !important;
+  height: 28px !important;
 }
 
 /* Official Signatures Block & Table (100% Unbreakable across pages) */
@@ -240,7 +241,7 @@
 
 .sig-title-moul {
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
-  font-size: 9.5pt !important;
+  font-size: 11pt !important;
   color: #000000 !important;
   line-height: 1.6 !important;
   font-weight: normal;
@@ -248,18 +249,18 @@
 
 .sig-lunar-date {
   font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
-  font-size: 9.5pt !important;
+  font-size: 11pt !important;
   font-weight: 500 !important;
   color: #000000 !important;
-  margin-bottom: 2px !important;
+  margin-bottom: 3px !important;
 }
 
 .sig-solar-date {
   font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
-  font-size: 9.5pt !important;
+  font-size: 11pt !important;
   font-weight: 500 !important;
   color: #000000 !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 5px !important;
 }
 
 .sig-space {
@@ -306,7 +307,7 @@
 
 .sig-name-moul {
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
-  font-size: 9.5pt !important;
+  font-size: 11.5pt !important;
   color: #C00000 !important; /* Official Khmer Document Red */
   font-weight: normal;
   position: relative !important;
@@ -328,8 +329,8 @@
   body {
     background: #FFFFFF !important;
     color: #000000 !important;
-    font-size: 8.5pt;
-    line-height: 1.3;
+    font-size: 11pt;
+    line-height: 1.35;
     margin: 0 !important;
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;

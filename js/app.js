@@ -821,17 +821,17 @@ const PSIS_App = (() => {
         <table class="official-print-table">
           <thead style="display: table-row-group !important;">
             <tr>
-              <th style="width: 38px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
-              <th style="width: 140px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
-              <th style="width: 58px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
-              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចូល</th>
-              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ស្រង់វត្តមាន<br>សិស្ស</th>
-              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
-              <th style="width: 82px; background-color: #228B22 !important; color: #FFFFFF !important;">ការប្រើប្រាស់<br>Telegram</th>
-              <th style="width: 72px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>អត្ថបទ</th>
-              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>ម៉ោងបង្រៀន</th>
-              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
-              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
+              <th style="width: 40px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
+              <th style="width: 155px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
+              <th style="width: 65px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
+              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចូល</th>
+              <th style="width: 88px; background-color: #228B22 !important; color: #FFFFFF !important;">ស្រង់វត្តមាន<br>សិស្ស</th>
+              <th style="width: 88px; background-color: #228B22 !important; color: #FFFFFF !important;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
+              <th style="width: 95px; background-color: #228B22 !important; color: #FFFFFF !important;">ការប្រើប្រាស់<br>Telegram</th>
+              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>អត្ថបទ</th>
+              <th style="width: 88px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>ម៉ោងបង្រៀន</th>
+              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
+              <th style="width: 90px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
             </tr>
           </thead>
           <tbody>
