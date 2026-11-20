@@ -819,8 +819,8 @@ const PSIS_App = (() => {
         </div>
 
         <table class="official-print-table">
-          <thead style="display: table-row-group !important;">
-            <tr>
+          <tbody>
+            <tr class="official-print-header-row">
               <th style="width: 40px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
               <th style="width: 155px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
               <th style="width: 65px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
@@ -833,8 +833,6 @@ const PSIS_App = (() => {
               <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
               <th style="width: 90px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
             </tr>
-          </thead>
-          <tbody>
             ${rowsHtml}
           </tbody>
         </table>
