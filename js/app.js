@@ -819,7 +819,7 @@ const PSIS_App = (() => {
         </div>
 
         <table class="official-print-table">
-          <thead>
+          <thead style="display: table-row-group !important;">
             <tr>
               <th style="width: 38px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
               <th style="width: 140px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>

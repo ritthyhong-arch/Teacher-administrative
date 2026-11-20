@@ -132,7 +132,7 @@
 }
 
 .official-print-table thead {
-  display: table-header-group !important;
+  display: table-row-group !important;
 }
 
 .official-print-table tr {
@@ -364,6 +364,10 @@
     margin: 0 !important;
     width: 100% !important;
     background: #FFFFFF !important;
+  }
+
+  .official-print-table thead {
+    display: table-row-group !important;
   }
 
   .official-print-table th {
