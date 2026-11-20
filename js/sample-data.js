@@ -258,12 +258,13 @@ const PSIS_SAMPLE_DATA = {
     });
 
     return daySchedules.map((sch, index) => {
-      // Auto sample pattern (លំនាំគំរូ auto): Scan In 07:30, Scan Out 17:00 (05:00 PM), All 4 tasks completed
+      // Auto sample pattern (លំនាំគំរូ auto): Scan In 07:30, Scan Out 17:00 (05:00 PM), All 5 tasks completed
       let scanIn = '07:30';
       let attendance = 'បានស្រង់';
       let scoreEvaluation = 'បានដាក់ពិន្ទុ';
       let telegram = 'បានប្រើ';
       let lessonSummary = 'បានសរសេរ';
+      let teachingHours = 'បានស្រង់';
       let scanOut = '17:00';
       let remarks = 'ធម្មតា';
       let note = '';
@@ -283,6 +284,7 @@ const PSIS_SAMPLE_DATA = {
         scoreEvaluated: scoreEvaluation,
         telegramUsed: telegram,
         lessonSummaryWritten: lessonSummary,
+        teachingHoursExtracted: teachingHours,
         scanOutTime: scanOut,
         remarks: remarks,
         note: note

@@ -130,17 +130,40 @@ const PSIS_Storage = (() => {
     return firstNum + letterOffset + secondOffset;
   }
 
+  function compareRecords(a, b, teachersList) {
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
+    const teachers = Array.isArray(teachersList) ? teachersList : [];
+    const teacherA = teachers.find(t => (a.teacherId && t.id === a.teacherId) || (a.teacherName && t.name === a.teacherName) || (a.name && t.name === a.name));
+    const teacherB = teachers.find(t => (b.teacherId && t.id === b.teacherId) || (b.teacherName && t.name === b.teacherName) || (b.name && t.name === b.name));
+
+    const lvlA = (teacherA && teacherA.level) || a.level;
+    const lvlB = (teacherB && teacherB.level) || b.level;
+    const wA = getLevelOrderWeight(lvlA);
+    const wB = getLevelOrderWeight(lvlB);
+    if (wA !== wB) return wA - wB;
+
+    const clsA = a.classGrade || a.defaultClass || (teacherA && (teacherA.defaultClass || teacherA.classGrade));
+    const clsB = b.classGrade || b.defaultClass || (teacherB && (teacherB.defaultClass || teacherB.classGrade));
+    const gA = getGradeWeight(clsA);
+    const gB = getGradeWeight(clsB);
+    if (gA !== gB) return gA - gB;
+
+    const nameA = (teacherA && teacherA.name) || a.teacherName || a.name || '';
+    const nameB = (teacherB && teacherB.name) || b.teacherName || b.name || '';
+    return nameA.localeCompare(nameB, 'km');
+  }
+
+  function sortRecords(list, teachersList) {
+    if (!Array.isArray(list)) return [];
+    return [...list].sort((a, b) => compareRecords(a, b, teachersList));
+  }
+
   function sortTeachersByLevel(teachers) {
     if (!Array.isArray(teachers)) return [];
-    return [...teachers].sort((a, b) => {
-      const wA = getLevelOrderWeight(a.level);
-      const wB = getLevelOrderWeight(b.level);
-      if (wA !== wB) return wA - wB;
-      const gA = getGradeWeight(a.defaultClass);
-      const gB = getGradeWeight(b.defaultClass);
-      if (gA !== gB) return gA - gB;
-      return (a.name || '').localeCompare(b.name || '', 'km');
-    });
+    return sortRecords(teachers, teachers);
   }
 
   // Teachers
@@ -170,7 +193,8 @@ const PSIS_Storage = (() => {
 
   function saveTeachers(teachers, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
-    localStorage.setItem(getKey('teachers', bId), JSON.stringify(teachers));
+    const sorted = sortTeachersByLevel(teachers);
+    localStorage.setItem(getKey('teachers', bId), JSON.stringify(sorted));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
       if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
         PSIS_SupabaseSync.saveBranchToCloud(bId);
@@ -342,7 +366,9 @@ const PSIS_Storage = (() => {
 
   function saveSchedules(schedules, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
-    localStorage.setItem(getKey('schedules', bId), JSON.stringify(schedules));
+    const teachers = getTeachers(bId);
+    const sorted = sortRecords(schedules, teachers);
+    localStorage.setItem(getKey('schedules', bId), JSON.stringify(sorted));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
       if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
         PSIS_SupabaseSync.saveBranchToCloud(bId);
@@ -405,6 +431,7 @@ const PSIS_Storage = (() => {
               scoreEvaluated: 'បានដាក់ពិន្ទុ',
               telegramUsed: 'បានប្រើ',
               lessonSummaryWritten: 'បានសរសេរ',
+              teachingHoursExtracted: 'បានស្រង់',
               remarks: 'ធម្មតា',
               note: ''
             });
@@ -478,6 +505,7 @@ const PSIS_Storage = (() => {
                 scoreEvaluated: 'បានដាក់ពិន្ទុ',
                 telegramUsed: 'បានប្រើ',
                 lessonSummaryWritten: 'បានសរសេរ',
+                teachingHoursExtracted: 'បានស្រង់',
                 remarks: 'ធម្មតា',
                 note: ''
               });
@@ -549,6 +577,14 @@ const PSIS_Storage = (() => {
 
   function saveAllChecklists(all, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
+    const teachers = getTeachers(bId);
+    if (all && typeof all === 'object') {
+      for (const d in all) {
+        if (Array.isArray(all[d])) {
+          all[d] = sortRecords(all[d], teachers);
+        }
+      }
+    }
     localStorage.setItem(getKey('checklists', bId), JSON.stringify(all));
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
       if (!PSIS_SupabaseSync.isSyncingFromCloud()) {
@@ -672,6 +708,9 @@ const PSIS_Storage = (() => {
           if (!rec.lessonSummaryWritten || rec.lessonSummaryWritten === 'មិនបានសរសេរ') {
             rec.lessonSummaryWritten = 'បានសរសេរ';
           }
+          if (!rec.teachingHoursExtracted || rec.teachingHoursExtracted === 'មិនបានស្រង់') {
+            rec.teachingHoursExtracted = 'បានស្រង់';
+          }
           if (!rec.remarks || rec.remarks === '-') {
             rec.remarks = 'ធម្មតា';
           }
@@ -707,6 +746,10 @@ const PSIS_Storage = (() => {
             rec.lessonSummaryWritten = 'បានសរសេរ';
             changed = true;
           }
+          if (!rec.teachingHoursExtracted) {
+            rec.teachingHoursExtracted = 'បានស្រង់';
+            changed = true;
+          }
           if (!rec.remarks) {
             rec.remarks = 'ធម្មតា';
             changed = true;
@@ -733,6 +776,7 @@ const PSIS_Storage = (() => {
             scoreEvaluated: 'បានដាក់ពិន្ទុ',
             telegramUsed: 'បានប្រើ',
             lessonSummaryWritten: 'បានសរសេរ',
+            teachingHoursExtracted: 'បានស្រង់',
             remarks: 'ធម្មតា',
             note: ''
           });
@@ -742,34 +786,21 @@ const PSIS_Storage = (() => {
       if (changed) {
         saveAllChecklists(all, bId);
       }
-      all[dateStr].sort((a, b) => {
-        const teacherA = teacherMap.get(a.teacherId) || teachers.find(t => t.name === a.teacherName);
-        const teacherB = teacherMap.get(b.teacherId) || teachers.find(t => t.name === b.teacherName);
-        const lvlA = (teacherA && teacherA.level) || a.level;
-        const lvlB = (teacherB && teacherB.level) || b.level;
-        const wA = getLevelOrderWeight(lvlA);
-        const wB = getLevelOrderWeight(lvlB);
-        if (wA !== wB) return wA - wB;
-        const gA = getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass));
-        const gB = getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass));
-        if (gA !== gB) return gA - gB;
-        const nameA = (teacherA && teacherA.name) || a.teacherName || '';
-        const nameB = (teacherB && teacherB.name) || b.teacherName || '';
-        return nameA.localeCompare(nameB, 'km');
-      });
+      all[dateStr] = sortRecords(all[dateStr], teachers);
       return all[dateStr];
     }
 
     const generated = PSIS_SAMPLE_DATA.createDefaultChecklistForDate(dateStr, schedules, teachers);
-    all[dateStr] = generated;
+    all[dateStr] = sortRecords(generated, teachers);
     saveAllChecklists(all, bId);
-    return generated;
+    return all[dateStr];
   }
 
   function saveDailyChecklist(dateStr, records, branchId) {
     const bId = branchId || getCurrentBranchId() || 'psis-ix';
     const all = getAllChecklists(bId);
-    all[dateStr] = records;
+    const teachers = getTeachers(bId);
+    all[dateStr] = sortRecords(records, teachers);
     saveAllChecklists(all, bId);
   }
 
@@ -889,7 +920,10 @@ const PSIS_Storage = (() => {
     importAllData,
     getLevelOrderWeight,
     getGradeWeight,
-    sortTeachersByLevel
+    compareRecords,
+    sortRecords,
+    sortTeachersByLevel,
+    saveAllChecklists
   };
 })();
 

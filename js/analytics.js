@@ -16,8 +16,9 @@ const PSIS_Analytics = (() => {
     const missedScores = rec.scoreEvaluated !== 'បានដាក់ពិន្ទុ';
     const missedTelegram = rec.telegramUsed !== 'បានប្រើ';
     const missedSummary = rec.lessonSummaryWritten !== 'បានសរសេរ';
+    const missedTeachingHours = rec.teachingHoursExtracted !== 'បានស្រង់';
 
-    return missedScanIn || missedScanOut || missedAttendance || missedScores || missedTelegram || missedSummary;
+    return missedScanIn || missedScanOut || missedAttendance || missedScores || missedTelegram || missedSummary || missedTeachingHours;
   }
 
   /**
@@ -51,6 +52,7 @@ const PSIS_Analytics = (() => {
     let scoresCompleted = 0;
     let telegramCompleted = 0;
     let summaryCompleted = 0;
+    let teachingHoursCompleted = 0;
     let scanInCompleted = 0;
     let scanOutCompleted = 0;
 
@@ -76,6 +78,7 @@ const PSIS_Analytics = (() => {
       if (rec.scoreEvaluated === 'បានដាក់ពិន្ទុ') scoresCompleted++;
       if (rec.telegramUsed === 'បានប្រើ') telegramCompleted++;
       if (rec.lessonSummaryWritten === 'បានសរសេរ') summaryCompleted++;
+      if (rec.teachingHoursExtracted === 'បានស្រង់') teachingHoursCompleted++;
 
       const incomplete = isRecordIncomplete(rec, schoolInfo);
       if (incomplete) {

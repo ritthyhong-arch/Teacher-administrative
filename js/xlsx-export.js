@@ -20,8 +20,12 @@ const PSIS_XlsxExport = (() => {
     const officialDate = KhmerCalendar.getFullOfficialKhmerDate(dateStr);
     const filename = `របាយការណ៍រដ្ឋបាលគ្រូ_${dateStr}.xlsx`;
 
+    const sortedRecords = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(records, (typeof PSIS_App !== 'undefined' && PSIS_App.state && PSIS_App.state.teachers) || [])
+      : records;
+
     // Use Native XML export to preserve full styling, colors, and Khmer fonts in Excel
-    exportWithNativeXml(dateStr, records, schoolInfo, `របាយការណ៍រដ្ឋបាលគ្រូ_${dateStr}.xls`);
+    exportWithNativeXml(dateStr, sortedRecords, schoolInfo, `របាយការណ៍រដ្ឋបាលគ្រូ_${dateStr}.xls`);
   }
 
   function exportWithSheetJS(dateStr, records, schoolInfo, filename) {
@@ -44,6 +48,7 @@ const PSIS_XlsxExport = (() => {
         'វាយតម្លៃពិន្ទុសិស្ស',
         'ការប្រើប្រាស់ Telegram',
         'សម្រង់អត្ថបទ',
+        'សម្រង់ម៉ោងបង្រៀន',
         'ម៉ោងស្កេនចេញ',
         'ផ្សេងៗ'
       ]
@@ -67,6 +72,7 @@ const PSIS_XlsxExport = (() => {
         r.remarks === 'ច្បាប់' ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ'),
         r.remarks === 'ច្បាប់' ? '-' : (r.telegramUsed || 'បានប្រើ'),
         r.remarks === 'ច្បាប់' ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ'),
+        r.remarks === 'ច្បាប់' ? '-' : (r.teachingHoursExtracted || 'បានស្រង់'),
         r.remarks === 'ច្បាប់' ? '-' : (r.scanOutTime || '-'),
         remarksText
       ]);
@@ -114,7 +120,8 @@ const PSIS_XlsxExport = (() => {
       { wch: 20 }, // Attendance
       { wch: 20 }, // Score
       { wch: 22 }, // Telegram
-      { wch: 18 }, // Summary
+      { wch: 18 }, // Lesson Summary
+      { wch: 20 }, // Teaching Hours Summary
       { wch: 15 }, // Scan Out
       { wch: 16 }, // Remarks
       { wch: 30 }  // Note
@@ -161,6 +168,7 @@ const PSIS_XlsxExport = (() => {
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">វាយតម្លៃពិន្ទុសិស្ស</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">ការប្រើប្រាស់ Telegram</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">សម្រង់អត្ថបទ</Data></Cell>
+        <Cell ss:StyleID="thStyle"><Data ss:Type="String">សម្រង់ម៉ោងបង្រៀន</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">ម៉ោងស្កេនចេញ</Data></Cell>
         <Cell ss:StyleID="thStyle"><Data ss:Type="String">ផ្សេងៗ</Data></Cell>
       </Row>
@@ -174,6 +182,7 @@ const PSIS_XlsxExport = (() => {
       const score = isLeave ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ');
       const tg = isLeave ? '-' : (r.telegramUsed || 'បានប្រើ');
       const summ = isLeave ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ');
+      const teachHours = isLeave ? '-' : (r.teachingHoursExtracted || 'បានស្រង់');
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
 
       let remarksText = '';
@@ -194,6 +203,7 @@ const PSIS_XlsxExport = (() => {
           <Cell ss:StyleID="${score && score.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(score)}</Data></Cell>
           <Cell ss:StyleID="${tg && tg.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(tg)}</Data></Cell>
           <Cell ss:StyleID="${summ && summ.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(summ)}</Data></Cell>
+          <Cell ss:StyleID="${teachHours && teachHours.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(teachHours)}</Data></Cell>
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanOut)}</Data></Cell>
           <Cell ss:StyleID="${remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់')) ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(remarksText)}</Data></Cell>
         </Row>

@@ -269,24 +269,15 @@ const PSIS_App = (() => {
     });
 
     // Sort daily records in order: 1. មត្តេយ្យ, 2. បឋមសិក្សា, 3. អនុវិទ្យាល័យ-វិទ្យាល័យ, and within level by grade from 1 upwards
-    state.dailyRecords.sort((a, b) => {
-      const teacherA = state.teachers.find(t => t.id === a.teacherId || t.name === a.teacherName);
-      const teacherB = state.teachers.find(t => t.id === b.teacherId || t.name === b.teacherName);
-      const lvlA = (teacherA && teacherA.level) || a.level;
-      const lvlB = (teacherB && teacherB.level) || b.level;
-      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
-      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
-      if (wA !== wB) return wA - wB;
-      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
-      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
-      if (gA !== gB) return gA - gB;
-      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
-      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
-      return nameA.localeCompare(nameB, 'km');
-    });
+    state.dailyRecords = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(state.dailyRecords, state.teachers)
+      : state.dailyRecords;
   }
 
   function saveCurrentRecords() {
+    state.dailyRecords = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(state.dailyRecords, state.teachers)
+      : state.dailyRecords;
     PSIS_Storage.saveDailyChecklist(state.currentDate, state.dailyRecords, state.currentBranchId);
     if (typeof PSIS_SupabaseSync !== 'undefined' && typeof PSIS_SupabaseSync.saveBranchToCloud === 'function') {
       PSIS_SupabaseSync.saveBranchToCloud(state.currentBranchId, true);
@@ -380,21 +371,9 @@ const PSIS_App = (() => {
       return true;
     });
 
-    return list.sort((a, b) => {
-      const teacherA = state.teachers.find(t => t.id === a.teacherId);
-      const teacherB = state.teachers.find(t => t.id === b.teacherId);
-      const lvlA = (teacherA && teacherA.level) || a.level;
-      const lvlB = (teacherB && teacherB.level) || b.level;
-      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
-      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
-      if (wA !== wB) return wA - wB;
-      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
-      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
-      if (gA !== gB) return gA - gB;
-      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
-      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
-      return nameA.localeCompare(nameB, 'km');
-    });
+    return (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(list, state.teachers)
+      : list;
   }
 
   /**
@@ -413,7 +392,7 @@ const PSIS_App = (() => {
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="10" style="padding: 2.5rem; text-align: center; color: #64748B;">
+          <td colspan="11" style="padding: 2.5rem; text-align: center; color: #64748B;">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 0.5rem auto; color: #94A3B8;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
             <p style="font-size: 1rem; font-weight: 600;">មិនមានទិន្នន័យគ្រូបង្រៀនត្រូវនឹងលក្ខខណ្ឌចម្រាញ់នេះទេ</p>
           </td>
@@ -443,6 +422,7 @@ const PSIS_App = (() => {
       const scoreDone = rec.scoreEvaluated === 'បានដាក់ពិន្ទុ';
       const tgDone = rec.telegramUsed === 'បានប្រើ';
       const summDone = rec.lessonSummaryWritten === 'បានសរសេរ';
+      const teachHoursDone = rec.teachingHoursExtracted === 'បានស្រង់';
 
       const leaveDisabledAttr = isLeave ? 'disabled' : '';
       const leaveColClass = isLeave ? 'leave-disabled-col' : '';
@@ -524,7 +504,17 @@ const PSIS_App = (() => {
             </button>
           </td>
 
-          <!-- 9. ម៉ោងស្កេនចេញ -->
+          <!-- 9. សម្រង់ម៉ោងបង្រៀន -->
+          <td class="${leaveColClass}" style="text-align: center; width: 115px;">
+            <button type="button" 
+              class="task-toggle-btn ${teachHoursDone ? 'completed' : 'missing'}"
+              ${leaveDisabledAttr}
+              onclick="PSIS_App.handleToggleTask('${rec.id}', 'teachingHoursExtracted')">
+              ${teachHoursDone ? '✓ បានស្រង់' : '✕ មិនបានស្រង់'}
+            </button>
+          </td>
+
+          <!-- 10. ម៉ោងស្កេនចេញ -->
           <td class="${leaveColClass}" style="text-align: center; width: 110px;">
             <div class="time-input-container">
               <input type="time" class="time-input" value="${rec.scanOutTime || ''}" 
@@ -533,7 +523,7 @@ const PSIS_App = (() => {
             </div>
           </td>
 
-          <!-- 10. ផ្សេងៗ / ស្ថានភាព -->
+          <!-- 11. ផ្សេងៗ / ស្ថានភាព -->
           <td style="text-align: center; min-width: 130px;">
             <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: center;">
               <select class="select-remarks" onchange="PSIS_App.handleRemarksChange('${rec.id}', this.value)">
@@ -587,6 +577,8 @@ const PSIS_App = (() => {
       rec[field] = rec[field] === 'បានប្រើ' ? 'មិនបានប្រើ' : 'បានប្រើ';
     } else if (field === 'lessonSummaryWritten') {
       rec[field] = rec[field] === 'បានសរសេរ' ? 'មិនបានសរសេរ' : 'បានសរសេរ';
+    } else if (field === 'teachingHoursExtracted') {
+      rec[field] = rec[field] === 'បានស្រង់' ? 'មិនបានស្រង់' : 'បានស្រង់';
     }
 
     saveCurrentRecords();
@@ -605,15 +597,17 @@ const PSIS_App = (() => {
       rec.scoreEvaluated = 'មិនបានដាក់ពិន្ទុ';
       rec.telegramUsed = 'មិនបានប្រើ';
       rec.lessonSummaryWritten = 'មិនបានសរសេរ';
+      rec.teachingHoursExtracted = 'មិនបានស្រង់';
       rec.scanInTime = '';
       rec.scanOutTime = '';
       if (!rec.note) rec.note = 'គ្រូសុំច្បាប់សម្រាក';
-      showToast(`គ្រូ ${rec.teacherName} បានជ្រើសរើសច្បាប់ (បិទជួរឈរ ៤ ដល់ ៩)`, 'warning');
+      showToast(`គ្រូ ${rec.teacherName} បានជ្រើសរើសច្បាប់ (បិទជួរឈរ ៤ ដល់ ១០)`, 'warning');
     } else if (newRemarks === 'ធម្មតា' && rec.attendanceRecorded === 'មិនបានស្រង់') {
       rec.attendanceRecorded = 'បានស្រង់';
       rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
       rec.telegramUsed = 'បានប្រើ';
       rec.lessonSummaryWritten = 'បានសរសេរ';
+      rec.teachingHoursExtracted = 'បានស្រង់';
     }
 
     saveCurrentRecords();
@@ -630,6 +624,7 @@ const PSIS_App = (() => {
     rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
     rec.telegramUsed = 'បានប្រើ';
     rec.lessonSummaryWritten = 'បានសរសេរ';
+    rec.teachingHoursExtracted = 'បានស្រង់';
     rec.scanOutTime = '17:00';
     rec.remarks = 'ធម្មតា';
     rec.note = '';
@@ -649,6 +644,7 @@ const PSIS_App = (() => {
       rec.scoreEvaluated = 'បានដាក់ពិន្ទុ';
       rec.telegramUsed = 'បានប្រើ';
       rec.lessonSummaryWritten = 'បានសរសេរ';
+      rec.teachingHoursExtracted = 'បានស្រង់';
       rec.scanOutTime = rec.scanOutTime || '17:00';
       rec.remarks = 'ធម្មតា';
       count++;
@@ -716,23 +712,10 @@ const PSIS_App = (() => {
     const inspector = state.schoolInfo.inspectorName || 'ឈុន វុទ្ធី';
 
     let rowsHtml = '';
-    const activeRecords = state.dailyRecords
-      .filter(r => state.teachers.some(t => t.id === r.teacherId))
-      .sort((a, b) => {
-        const teacherA = state.teachers.find(t => t.id === a.teacherId);
-        const teacherB = state.teachers.find(t => t.id === b.teacherId);
-        const lvlA = (teacherA && teacherA.level) || a.level;
-        const lvlB = (teacherB && teacherB.level) || b.level;
-        const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
-        const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
-        if (wA !== wB) return wA - wB;
-        const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
-        const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
-        if (gA !== gB) return gA - gB;
-        const nameA = (teacherA && teacherA.name) || a.teacherName || '';
-        const nameB = (teacherB && teacherB.name) || b.teacherName || '';
-        return nameA.localeCompare(nameB, 'km');
-      });
+    const filteredRecords = state.dailyRecords.filter(r => state.teachers.some(t => (r.teacherId && t.id === r.teacherId) || (r.teacherName && t.name === r.teacherName)));
+    const activeRecords = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(filteredRecords, state.teachers)
+      : filteredRecords;
     activeRecords.forEach((r, idx) => {
       const isLeave = r.remarks === 'ច្បាប់';
       const scanIn = isLeave ? '-' : (r.scanInTime || '-');
@@ -740,6 +723,7 @@ const PSIS_App = (() => {
       const score = isLeave ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ');
       const tg = isLeave ? '-' : (r.telegramUsed || 'បានប្រើ');
       const summ = isLeave ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ');
+      const teachHours = isLeave ? '-' : (r.teachingHoursExtracted || 'បានស្រង់');
       const scanOut = isLeave ? '-' : (r.scanOutTime || '-');
 
       const teacher = state.teachers.find(t => t.id === r.teacherId);
@@ -757,6 +741,7 @@ const PSIS_App = (() => {
       const isScoreNotDone = score && score.includes('មិន');
       const isTgNotDone = tg && tg.includes('មិន');
       const isSummNotDone = summ && summ.includes('មិន');
+      const isTeachHoursNotDone = teachHours && teachHours.includes('មិន');
       const isRemarksNotDone = remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់'));
 
       rowsHtml += `
@@ -769,6 +754,7 @@ const PSIS_App = (() => {
           <td class="col-center ${isScoreNotDone ? 'cell-not-done' : ''}" ${isScoreNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(score)}</td>
           <td class="col-center ${isTgNotDone ? 'cell-not-done' : ''}" ${isTgNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(tg)}</td>
           <td class="col-center ${isSummNotDone ? 'cell-not-done' : ''}" ${isSummNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(summ)}</td>
+          <td class="col-center ${isTeachHoursNotDone ? 'cell-not-done' : ''}" ${isTeachHoursNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(teachHours)}</td>
           <td class="col-center">${escapeHtml(scanOut)}</td>
           <td class="col-center ${isRemarksNotDone ? 'cell-not-done' : ''}" ${isRemarksNotDone ? 'style="color: #DC2626 !important; font-weight: 600;"' : ''}>${escapeHtml(remarksText)}</td>
         </tr>
@@ -819,16 +805,17 @@ const PSIS_App = (() => {
         <table class="official-print-table">
           <thead>
             <tr>
-              <th style="width: 45px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
-              <th style="width: 155px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
-              <th style="width: 65px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
-              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចូល</th>
-              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">ស្រង់វត្តមាន<br>សិស្ស</th>
-              <th style="width: 85px; background-color: #228B22 !important; color: #FFFFFF !important;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
-              <th style="width: 95px; background-color: #228B22 !important; color: #FFFFFF !important;">ការប្រើប្រាស់<br>Telegram</th>
-              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>អត្ថបទ</th>
-              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
-              <th style="width: 90px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
+              <th style="width: 38px; background-color: #228B22 !important; color: #FFFFFF !important;">ល.រ</th>
+              <th style="width: 140px; background-color: #228B22 !important; color: #FFFFFF !important;">ឈ្មោះគ្រូ</th>
+              <th style="width: 58px; background-color: #228B22 !important; color: #FFFFFF !important;">ថ្នាក់</th>
+              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចូល</th>
+              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ស្រង់វត្តមាន<br>សិស្ស</th>
+              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">វាយតម្លៃ<br>ពិន្ទុសិស្ស</th>
+              <th style="width: 82px; background-color: #228B22 !important; color: #FFFFFF !important;">ការប្រើប្រាស់<br>Telegram</th>
+              <th style="width: 72px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>អត្ថបទ</th>
+              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">សម្រង់<br>ម៉ោងបង្រៀន</th>
+              <th style="width: 75px; background-color: #228B22 !important; color: #FFFFFF !important;">ម៉ោងស្កេន<br>ចេញ</th>
+              <th style="width: 80px; background-color: #228B22 !important; color: #FFFFFF !important;">ផ្សេងៗ</th>
             </tr>
           </thead>
           <tbody>
@@ -1137,21 +1124,9 @@ const PSIS_App = (() => {
     if (!tbody) return;
 
     let html = '';
-    const sortedSchedules = [...state.schedules].sort((a, b) => {
-      const teacherA = state.teachers.find(t => t.id === a.teacherId);
-      const teacherB = state.teachers.find(t => t.id === b.teacherId);
-      const lvlA = (teacherA && teacherA.level) || a.level;
-      const lvlB = (teacherB && teacherB.level) || b.level;
-      const wA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlA) : 99;
-      const wB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getLevelOrderWeight(lvlB) : 99;
-      if (wA !== wB) return wA - wB;
-      const gA = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(a.classGrade || (teacherA && teacherA.defaultClass)) : 999;
-      const gB = typeof PSIS_Storage !== 'undefined' ? PSIS_Storage.getGradeWeight(b.classGrade || (teacherB && teacherB.defaultClass)) : 999;
-      if (gA !== gB) return gA - gB;
-      const nameA = (teacherA && teacherA.name) || a.teacherName || '';
-      const nameB = (teacherB && teacherB.name) || b.teacherName || '';
-      return nameA.localeCompare(nameB, 'km');
-    });
+    const sortedSchedules = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.sortRecords === 'function')
+      ? PSIS_Storage.sortRecords(state.schedules, state.teachers)
+      : [...state.schedules];
 
     sortedSchedules.forEach((s, idx) => {
       const teacher = state.teachers.find(t => t.id === s.teacherId);
