@@ -16,7 +16,13 @@ const PSIS_Analytics = (() => {
     const missedScores = rec.scoreEvaluated !== 'បានដាក់ពិន្ទុ';
     const missedTelegram = rec.telegramUsed !== 'បានប្រើ';
     const missedSummary = rec.lessonSummaryWritten !== 'បានសរសេរ';
-    const missedTeachingHours = rec.teachingHoursExtracted !== 'បានស្រង់';
+
+    // Teaching hours extraction applies ONLY to Secondary/High school teachers (អនុវិទ្យាល័យ-វិទ្យាល័យ)
+    const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+      ? PSIS_Storage.isSecondaryOrHighTeacher(rec)
+      : (rec.level && (rec.level.includes('អនុ') || rec.level.includes('វិទ្យាល័យ')));
+
+    const missedTeachingHours = isSecOrHigh ? (rec.teachingHoursExtracted !== 'បានស្រង់') : false;
 
     return missedScanIn || missedScanOut || missedAttendance || missedScores || missedTelegram || missedSummary || missedTeachingHours;
   }
@@ -78,7 +84,12 @@ const PSIS_Analytics = (() => {
       if (rec.scoreEvaluated === 'បានដាក់ពិន្ទុ') scoresCompleted++;
       if (rec.telegramUsed === 'បានប្រើ') telegramCompleted++;
       if (rec.lessonSummaryWritten === 'បានសរសេរ') summaryCompleted++;
-      if (rec.teachingHoursExtracted === 'បានស្រង់') teachingHoursCompleted++;
+
+      const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+        ? PSIS_Storage.isSecondaryOrHighTeacher(rec)
+        : (rec.level && (rec.level.includes('អនុ') || rec.level.includes('វិទ្យាល័យ')));
+
+      if (isSecOrHigh && rec.teachingHoursExtracted === 'បានស្រង់') teachingHoursCompleted++;
 
       const incomplete = isRecordIncomplete(rec, schoolInfo);
       if (incomplete) {

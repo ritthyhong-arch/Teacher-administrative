@@ -91,6 +91,33 @@ const PSIS_Storage = (() => {
     return 4;
   }
 
+  // Helper to determine if a teacher teaches Secondary or High School (grades 7-12)
+  function isSecondaryOrHighTeacher(teacherOrRecord, teachersList) {
+    if (!teacherOrRecord) return false;
+    let lvl = teacherOrRecord.level;
+    if (!lvl && teachersList && Array.isArray(teachersList)) {
+      const t = teachersList.find(item => 
+        (teacherOrRecord.teacherId && item.id === teacherOrRecord.teacherId) ||
+        (teacherOrRecord.teacherName && item.name === teacherOrRecord.teacherName) ||
+        (teacherOrRecord.id && item.id === teacherOrRecord.id)
+      );
+      if (t) lvl = t.level;
+    }
+    const weight = getLevelOrderWeight(lvl);
+    if (weight === 3) return true;
+    if (weight === 1 || weight === 2) return false;
+
+    // Check class grade fallback
+    const cls = teacherOrRecord.classGrade || teacherOrRecord.defaultClass || '';
+    if (cls) {
+      const nums = String(cls).match(/\d+/g);
+      if (nums && nums.length > 0) {
+        return nums.some(n => parseInt(n, 10) >= 7);
+      }
+    }
+    return false;
+  }
+
   // Helper for sorting classes from Grade 1 upwards (e.g. 1, 2, 3... 12, K1, K2...)
   function getGradeWeight(gradeStr) {
     if (!gradeStr) return 999;
@@ -919,6 +946,7 @@ const PSIS_Storage = (() => {
     exportAllData,
     importAllData,
     getLevelOrderWeight,
+    isSecondaryOrHighTeacher,
     getGradeWeight,
     compareRecords,
     sortRecords,

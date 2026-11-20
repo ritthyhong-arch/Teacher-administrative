@@ -63,6 +63,12 @@ const PSIS_XlsxExport = (() => {
         remarksText = remarksText ? `${remarksText} (${r.note.trim()})` : r.note.trim();
       }
 
+      const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+        ? PSIS_Storage.isSecondaryOrHighTeacher(r)
+        : (r.level && (r.level.includes('អនុ') || r.level.includes('វិទ្យាល័យ')));
+
+      const teachHoursVal = isSecOrHigh ? (r.remarks === 'ច្បាប់' ? '-' : (r.teachingHoursExtracted || 'បានស្រង់')) : '';
+
       rows.push([
         idx + 1,
         r.teacherName,
@@ -72,7 +78,7 @@ const PSIS_XlsxExport = (() => {
         r.remarks === 'ច្បាប់' ? '-' : (r.scoreEvaluated || 'បានដាក់ពិន្ទុ'),
         r.remarks === 'ច្បាប់' ? '-' : (r.telegramUsed || 'បានប្រើ'),
         r.remarks === 'ច្បាប់' ? '-' : (r.lessonSummaryWritten || 'បានសរសេរ'),
-        r.remarks === 'ច្បាប់' ? '-' : (r.teachingHoursExtracted || 'បានស្រង់'),
+        teachHoursVal,
         r.remarks === 'ច្បាប់' ? '-' : (r.scanOutTime || '-'),
         remarksText
       ]);
@@ -193,6 +199,14 @@ const PSIS_XlsxExport = (() => {
         remarksText = remarksText ? `${remarksText} (${r.note.trim()})` : r.note.trim();
       }
 
+      const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+        ? PSIS_Storage.isSecondaryOrHighTeacher(r)
+        : (r.level && (r.level.includes('អនុ') || r.level.includes('វិទ្យាល័យ')));
+
+      const teachHoursCellXml = isSecOrHigh
+        ? `<Cell ss:StyleID="${teachHours && teachHours.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(teachHours)}</Data></Cell>`
+        : `<Cell ss:StyleID="tdGrayBlank"><Data ss:Type="String"></Data></Cell>`;
+
       rowsXml += `
         <Row ss:Height="20">
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="Number">${idx + 1}</Data></Cell>
@@ -203,7 +217,7 @@ const PSIS_XlsxExport = (() => {
           <Cell ss:StyleID="${score && score.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(score)}</Data></Cell>
           <Cell ss:StyleID="${tg && tg.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(tg)}</Data></Cell>
           <Cell ss:StyleID="${summ && summ.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(summ)}</Data></Cell>
-          <Cell ss:StyleID="${teachHours && teachHours.includes('មិន') ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(teachHours)}</Data></Cell>
+          ${teachHoursCellXml}
           <Cell ss:StyleID="${rowStyle}Center"><Data ss:Type="String">${escapeXml(scanOut)}</Data></Cell>
           <Cell ss:StyleID="${remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់')) ? 'tdNotDoneCenter' : rowStyle + 'Center'}"><Data ss:Type="String">${escapeXml(remarksText)}</Data></Cell>
         </Row>
@@ -393,6 +407,16 @@ const PSIS_XlsxExport = (() => {
           </Borders>
           <Font ss:FontName="Kantumruy Pro" ss:Size="10" ss:Bold="1" ss:Color="#555555"/>
           <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>
+        </Style>
+        <Style ss:ID="tdGrayBlank">
+          <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+          <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+          </Borders>
+          <Interior ss:Color="#999999" ss:Pattern="Solid"/>
         </Style>
         <Style ss:ID="tdLeaveStyleLeft">
           <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>

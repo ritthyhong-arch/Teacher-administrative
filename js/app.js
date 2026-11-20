@@ -430,6 +430,9 @@ const PSIS_App = (() => {
       const teacher = state.teachers.find(t => t.id === rec.teacherId);
       const displayName = teacher ? teacher.name : rec.teacherName;
       const displayLevel = teacher ? teacher.level : rec.level;
+      const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+        ? PSIS_Storage.isSecondaryOrHighTeacher(rec, state.teachers)
+        : (displayLevel && (displayLevel.includes('អនុ') || displayLevel.includes('វិទ្យាល័យ')));
 
       html += `
         <tr class="${rowClass}" data-record-id="${rec.id}">
@@ -504,7 +507,8 @@ const PSIS_App = (() => {
             </button>
           </td>
 
-          <!-- 9. សម្រង់ម៉ោងបង្រៀន -->
+          <!-- 9. សម្រង់ម៉ោងបង្រៀន (អនុវិទ្យាល័យ-វិទ្យាល័យ ឬ Blank Gray សម្រាប់មត្តេយ្យ-បឋម) -->
+          ${isSecOrHigh ? `
           <td class="${leaveColClass}" style="text-align: center; width: 115px;">
             <button type="button" 
               class="task-toggle-btn ${teachHoursDone ? 'completed' : 'missing'}"
@@ -513,6 +517,11 @@ const PSIS_App = (() => {
               ${teachHoursDone ? '✓ បានស្រង់' : '✕ មិនបានស្រង់'}
             </button>
           </td>
+          ` : `
+          <td class="cell-blank-gray" style="text-align: center; width: 115px; background-color: #999999 !important; padding: 0;">
+            <div style="height: 28px; width: 100%; background-color: #999999;"></div>
+          </td>
+          `}
 
           <!-- 10. ម៉ោងស្កេនចេញ -->
           <td class="${leaveColClass}" style="text-align: center; width: 110px;">
@@ -728,6 +737,9 @@ const PSIS_App = (() => {
 
       const teacher = state.teachers.find(t => t.id === r.teacherId);
       const teacherName = teacher ? teacher.name : r.teacherName;
+      const isSecOrHigh = (typeof PSIS_Storage !== 'undefined' && typeof PSIS_Storage.isSecondaryOrHighTeacher === 'function')
+        ? PSIS_Storage.isSecondaryOrHighTeacher(r, state.teachers)
+        : ((r.level && (r.level.includes('អនុ') || r.level.includes('វិទ្យាល័យ'))) || (teacher && teacher.level && (teacher.level.includes('អនុ') || teacher.level.includes('វិទ្យាល័យ'))));
 
       let remarksText = '';
       if (r.remarks && r.remarks !== 'ធម្មតា') {
@@ -744,6 +756,10 @@ const PSIS_App = (() => {
       const isTeachHoursNotDone = teachHours && teachHours.includes('មិន');
       const isRemarksNotDone = remarksText && (remarksText.includes('មិនបាន') || remarksText.includes('មិនទាន់'));
 
+      const teachHoursCellHtml = isSecOrHigh
+        ? `<td class="col-center ${isTeachHoursNotDone ? 'cell-not-done' : ''}" ${isTeachHoursNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(teachHours)}</td>`
+        : `<td class="col-center cell-blank-gray" style="background-color: #999999 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"></td>`;
+
       rowsHtml += `
         <tr>
           <td class="col-center">${KhmerCalendar.toKhmerNumber(idx + 1)}</td>
@@ -754,7 +770,7 @@ const PSIS_App = (() => {
           <td class="col-center ${isScoreNotDone ? 'cell-not-done' : ''}" ${isScoreNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(score)}</td>
           <td class="col-center ${isTgNotDone ? 'cell-not-done' : ''}" ${isTgNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(tg)}</td>
           <td class="col-center ${isSummNotDone ? 'cell-not-done' : ''}" ${isSummNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(summ)}</td>
-          <td class="col-center ${isTeachHoursNotDone ? 'cell-not-done' : ''}" ${isTeachHoursNotDone ? 'style="color: #DC2626 !important; font-weight: 700;"' : ''}>${escapeHtml(teachHours)}</td>
+          ${teachHoursCellHtml}
           <td class="col-center">${escapeHtml(scanOut)}</td>
           <td class="col-center ${isRemarksNotDone ? 'cell-not-done' : ''}" ${isRemarksNotDone ? 'style="color: #DC2626 !important; font-weight: 600;"' : ''}>${escapeHtml(remarksText)}</td>
         </tr>
