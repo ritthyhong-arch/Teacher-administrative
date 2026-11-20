@@ -127,8 +127,8 @@
 .official-print-table {
   width: 100% !important;
   border-collapse: collapse !important;
-  margin-bottom: 0.85rem !important;
-  font-size: 12pt !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 10pt !important;
 }
 
 .official-print-table thead {
@@ -166,22 +166,24 @@
   color: #FFFFFF !important;
   font-family: 'Moul', 'Khmer OS Moul', serif !important;
   font-weight: normal !important;
-  font-size: 10.5pt !important;
-  padding: 6px 3px !important;
+  font-size: 8.5pt !important;
+  padding: 5px 2px !important;
   text-align: center !important;
   vertical-align: middle !important;
-  line-height: 1.35 !important;
+  line-height: 1.3 !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
 }
 
 .official-print-table td {
   font-family: 'Siemreap', 'Khmer OS Siemreap', 'Kantumruy Pro', sans-serif !important;
-  font-size: 12pt !important;
-  line-height: 1.4 !important;
-  padding: 5px 3px !important;
+  font-size: 10pt !important;
+  line-height: 1.35 !important;
+  padding: 4px 3px !important;
   vertical-align: middle !important;
-  height: 28px !important;
+  height: 25px !important;
 }
 
 .official-print-table td.col-center {
@@ -191,11 +193,11 @@
 .official-print-table td.col-name {
   text-align: left !important;
   font-weight: 700 !important;
-  padding-left: 8px !important;
+  padding-left: 6px !important;
 }
 
 .official-print-table tr.empty-print-row td {
-  height: 28px !important;
+  height: 25px !important;
 }
 
 /* Official Signatures Block & Table (100% Unbreakable across pages) */
