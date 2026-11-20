@@ -839,26 +839,29 @@ const PSIS_App = (() => {
           </tbody>
         </table>
 
-        <div class="official-signature-block">
-          <div class="signature-col-left">
-            <div class="sig-title-moul">បានឃើញនិងឯកភាព</div>
-            <div class="sig-title-moul">នាយកសាលា</div>
-            <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('principal')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
-              ${state.schoolInfo.principalSignature ? `<img src="${state.schoolInfo.principalSignature}" alt="ហត្ថលេខានាយកសាលា" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
-            </div>
-            <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(principal)}</div>
-          </div>
-
-          <div class="signature-col-right">
-            <div class="sig-lunar-date">${escapeHtml(shortLunarStr)}</div>
-            <div class="sig-solar-date">${escapeHtml(branchPrint)} ថ្ងៃទី${escapeHtml(dayKh)} ខែ${escapeHtml(monthKh)} ឆ្នាំ${escapeHtml(yearKh)}</div>
-            <div class="sig-title-moul" style="margin-top: 4px;">អ្នកត្រួតពិនិត្យ</div>
-            <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('inspector')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
-              ${state.schoolInfo.inspectorSignature ? `<img src="${state.schoolInfo.inspectorSignature}" alt="ហត្ថលេខាអ្នកត្រួតពិនិត្យ" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
-            </div>
-            <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(inspector)}</div>
-          </div>
-        </div>
+        <table class="official-signature-table" style="width: 100% !important; border: none !important; border-collapse: collapse !important; margin-top: 0.6rem !important; page-break-inside: avoid !important; break-inside: avoid !important;">
+          <tr style="border: none !important; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <td class="signature-col-left" style="width: 47% !important; border: none !important; vertical-align: top !important; text-align: center !important; padding: 0 !important;">
+              <div style="height: 38px;"></div>
+              <div class="sig-title-moul">បានឃើញនិងឯកភាព</div>
+              <div class="sig-title-moul">នាយកសាលា</div>
+              <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('principal')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
+                ${state.schoolInfo.principalSignature ? `<img src="${state.schoolInfo.principalSignature}" alt="ហត្ថលេខានាយកសាលា" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
+              </div>
+              <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(principal)}</div>
+            </td>
+            <td style="width: 6% !important; border: none !important; padding: 0 !important;"></td>
+            <td class="signature-col-right" style="width: 47% !important; border: none !important; vertical-align: top !important; text-align: center !important; padding: 0 !important;">
+              <div class="sig-lunar-date">${escapeHtml(shortLunarStr)}</div>
+              <div class="sig-solar-date">${escapeHtml(branchPrint)} ថ្ងៃទី${escapeHtml(dayKh)} ខែ${escapeHtml(monthKh)} ឆ្នាំ${escapeHtml(yearKh)}</div>
+              <div class="sig-title-moul" style="margin-top: 2px;">អ្នកត្រួតពិនិត្យ</div>
+              <div class="sig-space sig-space-interactive" onclick="PSIS_App.openSignatureModal('inspector')" title="ចុចត្រង់នេះដើម្បីបញ្ចូល ឬប្តូរហត្ថលេខាឌីជីថល (Upload Digital Signature)">
+                ${state.schoolInfo.inspectorSignature ? `<img src="${state.schoolInfo.inspectorSignature}" alt="ហត្ថលេខាអ្នកត្រួតពិនិត្យ" class="digital-signature-img" />` : `<span class="sig-upload-hint no-print">✍️ បញ្ចូលហត្ថលេខា Digital</span>`}
+              </div>
+              <div class="sig-name-moul" style="color: #C00000 !important; position: relative; left: 10mm;">${escapeHtml(inspector)}</div>
+            </td>
+          </tr>
+        </table>
       </div>
     `;
 
